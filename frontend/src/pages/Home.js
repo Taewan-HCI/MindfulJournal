@@ -1,18 +1,13 @@
-import {useEffect, useState, React, useRef} from "react";
+import {React} from "react";
 import Container from 'react-bootstrap/Container';
-import {addDoc, collection, serverTimestamp, onSnapshot, query, where, orderBy} from 'firebase/firestore'
-import {auth, db} from "../firebase-config";
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Card from "react-bootstrap/Card";
-import {ScaleLoader, BeatLoader, FadeLoader} from "react-spinners";
-import axios from 'axios';
 import {useNavigate} from "react-router-dom";
-import book from "../img/3d-book.jpg";
-import bookss from "../img/purple.jpg";
-import chat from "../img/chatbubble.jpg";
+import book_blue from "../img/book_blue.jpg";
+import book_purple from "../img/book_purple.jpg";
+import chat from "../img/chat.jpg";
 import lock from "../img/lock.jpg";
 
 
@@ -42,23 +37,21 @@ function Loading_complete(props) {
     return (
         <Container>
             <Row>
-                <Col>
-                    <div className="loading_box_home_top">
-                        <div>
-                            안녕하세요 {props.userName}님 😀<br/>마음챙김 다이어리에 오신걸 환영합니다.
-                        </div>
+                <div className="loading_box_home_top">
+                    <div>
+                        <b>안녕하세요 {props.userName}님</b> 😀<br/>마음챙김 다이어리에 오신걸 환영합니다.
                     </div>
-                </Col>
+                </div>
             </Row>
             <Row>
                 <div className="loading_box_home_bottom">
                     <div>
                         📅 마지막으로 작성한 다이어리는 <b>23년 2월 28일</b> 일기에요.
-                        <br/><br/>
+                        <br/>
                         📖 지금까지 <b>12회</b> 일기를 작성하셨네요!
                     </div>
                 </div>
-                <Row>
+                {/*<Row>
                     <Col>
                         <div className="d-grid gap-2">
                             <Button
@@ -78,12 +71,11 @@ function Loading_complete(props) {
                         </div>
 
                     </Col>
-                </Row>
-
+                </Row>*/}
                 <Row xs={1} md={2} className="g-4">
                     <Col>
                         <Card>
-                            <Card.Img variant="top" src={bookss}/>
+                            <Card.Img variant="top" src={book_purple}/>
                             <Card.Body>
                                 <Card.Title><b>일기쓰기와 정신건강</b></Card.Title>
                                 <Card.Text>
@@ -109,13 +101,13 @@ function Loading_complete(props) {
                             <Card.Body>
                                 <Card.Title><b>개인정보는 어떻게 관리되나요?</b></Card.Title>
                                 <Card.Text>
-                                   나의 데이터는 어떻게 관리되는지 알아봅니다.</Card.Text>
+                                    나의 데이터는 어떻게 관리되는지 알아봅니다.</Card.Text>
                             </Card.Body>
                         </Card>
                     </Col>
                     <Col>
                         <Card>
-                            <Card.Img variant="top" src={book}/>
+                            <Card.Img variant="top" src={book_blue}/>
                             <Card.Body>
                                 <Card.Title><b>어떻게 적는건가요?</b></Card.Title>
                                 <Card.Text>
@@ -124,29 +116,11 @@ function Loading_complete(props) {
                             </Card.Body>
                         </Card>
                     </Col>
-
                 </Row>
-
-
-                {/* <Row>
-                        <div className="loading_box_home_bottom">
-                            <br/>
-                            <div>🙋‍ <b>일기를 작성하는 것이 어떻게 정신건강에 도움이 될까요?</b></div>
-                            <div>
-                                <img className='img_content' src={book}/>
-                                <Button
-                                    variant="primary-dark"
-                                    size="sm"
-                                >🎁 새로운 도움말 보기</Button>
-                            </div>
-
-
-                        </div>
-                    </Row>*/}
             </Row>
+            <div className="footer"></div>
         </Container>
     )
-
 }
 
 export default Home;
