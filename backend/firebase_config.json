@@ -1,0 +1,10 @@
+  ”databaseURL”: “”
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDtEPBONbkvXoHb7o9rjd-eeLNw1g6bNe4",
+  authDomain: "mindfuljournal-1886b.firebaseapp.com",
+  projectId: "mindfuljournal-1886b",
+  storageBucket: "mindfuljournal-1886b.appspot.com",
+  messagingSenderId: "487275971938",
+  appId: "1:487275971938:web:ac137cada26069fe38983b",
+};
