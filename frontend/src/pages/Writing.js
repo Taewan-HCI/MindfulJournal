@@ -67,13 +67,12 @@ function Writing(props) {
             like: 0,
         });
         navigateToReview()
-
     }
 
     //사용자-sessionID의 doc을 계속 관찰하고 있다가 업데이트가 발생하면 prompt를 업데이트 하는 useEffect 함수
     useEffect(() => {
         if (sessionStatus) {
-            if (diaryNumber.current != "") {
+            if (diaryNumber.current !== "") {
                 const unsuscribe = onSnapshot(doc(db, "session", props.userName, "diary", String(diaryNumber.current)), doc => {
                     receivedText.current = doc.data()["outputFromLM"]
                     const response = receivedText.current;
@@ -83,11 +82,11 @@ function Writing(props) {
                     receivedDiary.current = doc.data()["diary"]
                     const response = receivedDiary.current;
                     setDiary(response)
-                    setLoading(false)
                 })
-                return () => unsuscribe();
-                return () => unsuscribe2();
-
+                return () => {
+                    unsuscribe();
+                    unsuscribe2();
+                }
             }
         }
     })
@@ -108,7 +107,6 @@ function Writing(props) {
     }
 
     async function assemblePrompt() {
-        const readyRequest = []
         const docRef3 = doc(db, "session", props.userName, "diary", String(diaryNumber.current));
         const docSnap = await getDoc(docRef3);
         if (docSnap.exists()) {
@@ -145,13 +143,13 @@ function Writing(props) {
             .catch(err => console.log(err));
     }
 
-    function shuffleArray(array) {
+    /*function shuffleArray(array) {
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [array[i], array[j]] = [array[j], array[i]];
         }
         return array
-    }
+    }*/
 
     async function addConversationFromUser(input) {
         let system_temp = {"role": "assistant", "content": prompt}
