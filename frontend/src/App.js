@@ -66,13 +66,13 @@ function App() {
                             <Nav className="me-auto">
                                 <Nav.Link onClick={() => {
                                     navigate('/')
-                                }}><div className="nav_title_black">🏠 홈</div></Nav.Link>
+                                }}><div className="nav_title_black">홈</div></Nav.Link>
                                 <Nav.Link onClick={() => {
                                     navigate('/writing')
-                                }}><div className="nav_title_black">✏️ 일기 작성하기</div></Nav.Link>
+                                }}><div className="nav_title_black">일기 작성하기</div></Nav.Link>
                                 <Nav.Link onClick={() => {
                                     navigate('/list')
-                                }}><div className="nav_title_black">📖 일기 돌아보기</div></Nav.Link>
+                                }}><div className="nav_title_black">일기 돌아보기</div></Nav.Link>
                                 {isAuth ? (<Nav.Link onClick={signUserOut}>로그아웃</Nav.Link>) : (null)}
                             </Nav>
                             <Nav>
