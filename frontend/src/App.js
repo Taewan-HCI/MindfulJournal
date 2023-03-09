@@ -73,7 +73,7 @@ function App() {
                                 <Nav.Link onClick={() => {
                                     navigate('/list')
                                 }}><div className="nav_title_black">일기 돌아보기</div></Nav.Link>
-                                {isAuth ? (<Nav.Link onClick={signUserOut}>로그아웃</Nav.Link>) : (null)}
+                                {isAuth ? (<Nav.Link onClick={signUserOut}><div className="nav_title_black">로그아웃</div></Nav.Link>) : (null)}
                             </Nav>
                             <Nav>
                                 {date}
