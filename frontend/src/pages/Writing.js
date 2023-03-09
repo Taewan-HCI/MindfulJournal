@@ -31,6 +31,7 @@ function Writing(props) {
     let [inputUser, setInputUser] = useState('')
     let [prompt, setPrompt] = useState('')
     let [diary, setDiary] = useState("")
+    let [diaryShow, setDiaryShow] = useState(false)
 
     const navigate = useNavigate()
     const current = new Date();
@@ -133,6 +134,7 @@ function Writing(props) {
     }
 
     function requestSummerization() {
+        setDiaryShow(true)
         return fetch('https://mindfuljournal-fzesr.run.goorm.site/diary', {
             method: 'POST',
             body: JSON.stringify({
@@ -204,7 +206,7 @@ function Writing(props) {
                 </Row>
             </Container>
 
-    )
+        )
     } else {
         return (
             <Container>
@@ -217,192 +219,190 @@ function Writing(props) {
                     </div>
                 </Row>
                 <Row>
-                    {diary === "" ? <div></div> : <DiaryView diary={diary} submitDiary={submitDiary}/>}
+                    {diaryShow === true ?  <DiaryView diary={diary} submitDiary={submitDiary}/> : <div></div>}
                 </Row>
             </Container>
         )
     }
 
 
-    }
+}
 
-    function Loading() {
-        return (
-            <div>
-                <Container>
-                    <Row>
-                        <Col>
-                            <div className="loading_box">
-                                <div>
-                                    <ScaleLoader
-                                        color="#007AFF"
-                                        speedMultiplier={0.9}
-                                    />
-                                </div>
-                                <div>지금까지의 이야기를 정리중입니다</div>
+function Loading() {
+    return (
+        <div>
+            <Container>
+                <Row>
+                    <Col>
+                        <div className="loading_box">
+                            <div>
+                                <ScaleLoader
+                                    color="#007AFF"
+                                    speedMultiplier={0.9}
+                                />
                             </div>
-                        </Col>
-                    </Row>
-                    <Row>
-                        <div className="writing_box">
-                            <Form.Label htmlFor="userInput">✏️ 나의 일기 입력하기</Form.Label>
-                            <Form.Control
-                                type="input"
-                                as="textarea"
-                                rows={3}
-                                id="userInput"
-                                disabled
-                                readOnly
-                            />
-                            <Form.Text id="userInput" muted>
-                                📝 정해진 양식은 없어요. 편안하고 자유롭게 최근에 있었던 일을 작성해주세요.
-                            </Form.Text>
+                            <div>지금까지의 이야기를 정리중입니다</div>
                         </div>
-                        <Container>
-                            <Row>
-                                <Col>
-                                    <div className="d-grid gap-2">
-                                        <Button
-                                            variant="primary"
-                                            disabled={true}
-                                            style={{backgroundColor: "007AFF", fontWeight: "600"}}
-                                        >응답 기록하기</Button>
-                                    </div>
-                                </Col>
-                                <Col>
-                                    <div className="d-grid gap-2">
-                                        <Button
-                                            variant="secondary"
-                                            disabled={true}
-                                            style={{backgroundColor: "264362", fontWeight: "600"}}
-                                        >일기로 정리하기</Button>
-                                    </div>
-                                </Col>
-                            </Row>
-                        </Container>
-                    </Row>
-                </Container>
-            </div>
-        )
-    }
-
-    //User input screen component
-    function Userinput(props) {
-        //for textfield monitoring
-        const temp_input = useRef("");
-
-
-        const handleOnKeyPress = e => {
-            if (e.key === "Enter") {
-                props.addConversationFromUser(temp_input.current)
-            }
-        }
-
-        return (
-            <div>
-                <Container>
-                    <Row>
-                        <Col>
-                            <div className="prompt_box">
-                                <div className="tte">
-                                    {props.prompt}
-                                </div>
-                            </div>
-                        </Col>
-                    </Row>
-                    <Row>
-                        <div className="writing_box">
-                            <Form.Label htmlFor="userInput">✏️ 나의 일기 입력하기</Form.Label>
-                            <Form.Control
-                                type="input"
-                                as="textarea"
-                                rows={3}
-                                id="userInput"
-                                onChange={(e) => {
-                                    temp_input.current = e.target.value
-                                }}
-                                onKeyPress={handleOnKeyPress}
-                            />
-                            <Form.Text id="userInput" muted>
-                                📝 정해진 양식은 없어요. 편안하고 자유롭게 최근에 있었던 일을 작성해주세요.
-                            </Form.Text>
-                        </div>
-                        <Container>
-                            <Row>
-                                <Col>
-                                    <div className="d-grid gap-2">
-                                        <Button
-                                            variant="primary"
-                                            style={{backgroundColor: "007AFF"}}
-                                            onClick={() => {
-                                                (function () {
-                                                    if ((temp_input.current).length < 11) {
-                                                        alert('입력한 내용이 너무 짧아요. 조금 더 길게 적어볼까요?')
-                                                    } else {
-                                                        props.addConversationFromUser(temp_input.current)
-                                                    }
-                                                })()
-                                            }}>응답 기록하기</Button>
-                                    </div>
-                                </Col>
-                                <Col>
-                                    <div className="d-grid gap-2">
-                                        <Button
-                                            variant="dark"
-                                            onClick={() => {
-                                                props.requestSummerization()
-                                            }}
-                                        >일기로 정리하기</Button>
-                                    </div>
-                                </Col>
-                            </Row>
-                        </Container>
-                    </Row>
-                </Container>
-            </div>
-        )
-    }
-
-    function DiaryView(props) {
-        return (
-
-            <div className="inwriting_review_box">
-                <Container>
-                    <Row xs={'auto'} md={1} className="g-4">
-                        <Col>
-                            <Card style={{
-                                width: '100%',
-                            }}>
-                                <Card.Body>
-                                    <Card.Title> <BeatLoader color="#007AFF" size={10}/> 일기 작성중</Card.Title>
-                                    <Card.Subtitle className="mb-2 text-muted">
-                                        <div>핵심키워드 도출 중</div>
-                                    </Card.Subtitle>
-                                    <Card.Text>
-                                        <div>{props.diary}</div>
-                                    </Card.Text>
-                                </Card.Body>
-                            </Card>
-
+                    </Col>
+                </Row>
+                <Row>
+                    <div className="writing_box">
+                        <Form.Label htmlFor="userInput">✏️ 나의 일기 입력하기</Form.Label>
+                        <Form.Control
+                            type="input"
+                            as="textarea"
+                            rows={3}
+                            id="userInput"
+                            disabled
+                            readOnly
+                        />
+                        <Form.Text id="userInput" muted>
+                            📝 정해진 양식은 없어요. 편안하고 자유롭게 최근에 있었던 일을 작성해주세요.
+                        </Form.Text>
+                    </div>
+                    <Container>
+                        <Row>
                             <Col>
-                                <div className="submission"></div>
                                 <div className="d-grid gap-2">
                                     <Button
                                         variant="primary"
+                                        disabled={true}
                                         style={{backgroundColor: "007AFF", fontWeight: "600"}}
-                                        onClick={() => {
-                                            props.submitDiary()
-                                        }}
-                                    >📝 일기 저장하고 종료하기</Button>
+                                    >응답 기록하기</Button>
                                 </div>
                             </Col>
+                            <Col>
+                                <div className="d-grid gap-2">
+                                    <Button
+                                        variant="secondary"
+                                        disabled={true}
+                                        style={{backgroundColor: "264362", fontWeight: "600"}}
+                                    >일기로 정리하기</Button>
+                                </div>
+                            </Col>
+                        </Row>
+                    </Container>
+                </Row>
+            </Container>
+        </div>
+    )
+}
 
-                        </Col>
-                    </Row>
-                </Container>
-            </div>
+//User input screen component
+function Userinput(props) {
+    //for textfield monitoring
+    const temp_input = useRef("");
 
-        )
+
+    const handleOnKeyPress = e => {
+        if (e.key === "Enter") {
+            props.addConversationFromUser(temp_input.current)
+        }
     }
 
-    export default Writing
+    return (
+        <div>
+            <Container>
+                <Row>
+                    <Col>
+                        <div className="prompt_box">
+                            <div className="tte">
+                                {props.prompt}
+                            </div>
+                        </div>
+                    </Col>
+                </Row>
+                <Row>
+                    <div className="writing_box">
+                        <Form.Label htmlFor="userInput">✏️ 나의 일기 입력하기</Form.Label>
+                        <Form.Control
+                            type="input"
+                            as="textarea"
+                            rows={3}
+                            id="userInput"
+                            onChange={(e) => {
+                                temp_input.current = e.target.value
+                            }}
+                            onKeyPress={handleOnKeyPress}
+                        />
+                        <Form.Text id="userInput" muted>
+                            📝 정해진 양식은 없어요. 편안하고 자유롭게 최근에 있었던 일을 작성해주세요.
+                        </Form.Text>
+                    </div>
+                    <Container>
+                        <Row>
+                            <Col>
+                                <div className="d-grid gap-2">
+                                    <Button
+                                        variant="primary"
+                                        style={{backgroundColor: "007AFF"}}
+                                        onClick={() => {
+                                            (function () {
+                                                if ((temp_input.current).length < 11) {
+                                                    alert('입력한 내용이 너무 짧아요. 조금 더 길게 적어볼까요?')
+                                                } else {
+                                                    props.addConversationFromUser(temp_input.current)
+                                                }
+                                            })()
+                                        }}>응답 기록하기</Button>
+                                </div>
+                            </Col>
+                            <Col>
+                                <div className="d-grid gap-2">
+                                    <Button
+                                        variant="dark"
+                                        onClick={() => {
+                                            props.requestSummerization()
+                                        }}
+                                    >일기로 정리하기</Button>
+                                </div>
+                            </Col>
+                        </Row>
+                    </Container>
+                </Row>
+            </Container>
+        </div>
+    )
+}
+
+function DiaryView(props) {
+    return (
+        <div className="inwriting_review_box">
+            <Container>
+                <Row xs={'auto'} md={1} className="g-4">
+                    <Col>
+                        <Card style={{
+                            width: '100%',
+                        }}>
+                            <Card.Body>
+                                <Card.Title> <BeatLoader color="#007AFF" size={10}/> 일기 작성중</Card.Title>
+                                <Card.Subtitle className="mb-2 text-muted">
+                                    <div>핵심키워드 도출 중</div>
+                                </Card.Subtitle>
+                                <Card.Text>
+                                    <div>{props.diary}</div>
+                                </Card.Text>
+                            </Card.Body>
+                        </Card>
+
+                        <Col>
+                            <div className="submission"></div>
+                            <div className="d-grid gap-2">
+                                <Button
+                                    variant="primary"
+                                    style={{backgroundColor: "007AFF", fontWeight: "600"}}
+                                    onClick={() => {
+                                        props.submitDiary()
+                                    }}
+                                >📝 일기 저장하고 종료하기</Button>
+                            </div>
+                        </Col>
+
+                    </Col>
+                </Row>
+            </Container>
+        </div>
+    )
+}
+
+export default Writing
