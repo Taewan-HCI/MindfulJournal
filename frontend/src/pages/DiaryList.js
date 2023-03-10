@@ -11,7 +11,6 @@ import {auth, db} from "../firebase-config";
 
 function DiaryList(props) {
 
-    const receivedData = useRef(true)
     const [diaryList, setDiaryList] = useState([])
     const updateProgress = useRef(true)
     const [emptyList, setEmptyList] = useState(false)
