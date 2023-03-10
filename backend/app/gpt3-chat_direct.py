@@ -25,7 +25,7 @@ cred = credentials.Certificate(
 app_1 = firebase_admin.initialize_app(cred)
 db = firestore.client()
 
-My_OpenAI_key = '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'
+My_OpenAI_key = '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'
 openai.api_key = My_OpenAI_key
 
 

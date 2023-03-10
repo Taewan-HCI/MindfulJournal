@@ -120,8 +120,11 @@ function Writing(props) {
         }
     }
 
+    // https://mindfuljournal-fzesr.run.goorm.site
+    // http://0.0.0.0:8000
+
     function requestPrompt(text, user, num, turn) {
-        return fetch('https://mindfuljournal-fzesr.run.goorm.site', {
+        return fetch('http://0.0.0.0:8000', {
             method: 'POST',
             body: JSON.stringify({
                 'text': text,
@@ -135,7 +138,7 @@ function Writing(props) {
 
     function requestSummerization() {
         setDiaryShow(true)
-        return fetch('https://mindfuljournal-fzesr.run.goorm.site/diary', {
+        return fetch('http://0.0.0.0:8000/diary', {
             method: 'POST',
             body: JSON.stringify({
                 'user': props.userName,
