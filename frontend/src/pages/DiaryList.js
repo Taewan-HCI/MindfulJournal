@@ -5,7 +5,7 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import React from 'react';
 import Card from 'react-bootstrap/Card';
-import {collection, doc, onSnapshot, query, where, getDocs} from "firebase/firestore";
+import {collection, doc, onSnapshot, query, where, orderBy, getDocs} from "firebase/firestore";
 import {auth, db} from "../firebase-config";
 
 
@@ -37,7 +37,8 @@ function DiaryList(props) {
 
     async function receiveDiaryData() {
         let tempArr = []
-        const querySnapshot = await getDocs(collection(db, "session", props.userName, "diary_complete"));
+        const q = query(collection(db, "session", props.userName, "diary_complete"), orderBy("diaryNum", "desc"))
+        const querySnapshot = await getDocs(q);
         querySnapshot.forEach((doc) => {
             // doc.data() is never undefined for query doc snapshots
             // console.log(doc.id, " => ", doc.data());
