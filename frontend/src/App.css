@@ -76,12 +76,13 @@
 
 .diarylist_box {
     background-color: white;
-    height: 125px;
+    height: auto;
     font-size: 30px;
     text-align: left;
     font-weight: bolder;
     color: black;
     padding-top: 40px;
+    padding-bottom: 20px;
 }
 
 .menu_box {

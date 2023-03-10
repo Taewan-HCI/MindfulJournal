@@ -95,7 +95,7 @@ def makeDiary(text):
     completion = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=messages,
-        stop=['User: '],
+        stop=['User: ', 'Assistant: '],
         max_tokens=245,
     )
     answer = completion
