@@ -17,6 +17,8 @@ import Card from "react-bootstrap/Card";
 import {ScaleLoader, BeatLoader} from "react-spinners";
 import "react-datepicker/dist/react-datepicker.css";
 import {useNavigate} from "react-router-dom";
+import Modal from 'react-bootstrap/Modal';
+
 
 function Writing(props) {
 
@@ -32,6 +34,8 @@ function Writing(props) {
     let [prompt, setPrompt] = useState('')
     let [diary, setDiary] = useState("")
     let [diaryShow, setDiaryShow] = useState(false)
+    const [modalShow, setModalShow] = useState(false);
+
 
     const navigate = useNavigate()
     const current = new Date();
@@ -39,7 +43,45 @@ function Writing(props) {
 
     function navigateToReview() {
         navigate("/list")
+
     }
+
+    function handleClick() {
+        setModalShow(false);
+        setTimeout(() => {
+            submitDiary();
+        }, 500);
+
+    }
+
+
+    function MyVerticallyCenteredModal(props) {
+        return (
+            <Modal
+                {...props}
+                size="lg"
+                aria-labelledby="contained-modal-title-vcenter"
+                centered
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title id="contained-modal-title-vcenter">
+                        마음챙김 다이어리를 종료하시겠어요?
+                    </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <h5>아래와 같이 오늘의 다이어리가 저장됩니다 📝</h5>
+                    <p>
+                        {diary}
+                    </p>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button onClick={props.onHide}>더 작성하기</Button>
+                    <Button onClick={handleClick}>저장하고 종료하기</Button>
+                </Modal.Footer>
+            </Modal>
+        );
+    }
+
 
     async function createNewDoc() {
         const coll = collection(db, "session", props.userName, "diary")
@@ -223,9 +265,16 @@ function Writing(props) {
                     </div>
                 </Row>
                 <Row>
-                    {diaryShow === true ? <DiaryView diary={diary} submitDiary={submitDiary}/> : <div></div>}
+                    {diaryShow === true ? <DiaryView diary={diary} submitDiary={submitDiary}
+                                                     setModalShow={setModalShow}/> :
+                        <div></div>}
                 </Row>
+                <MyVerticallyCenteredModal
+                    show={modalShow}
+                    onHide={() => setModalShow(false)}
+                />
             </Container>
+
         )
     }
 
@@ -357,11 +406,11 @@ function Userinput(props) {
                                     {props.turnCount < 3 ?
                                         <Button
                                             variant="dark"
-                                            onClick={()=>{
+                                            onClick={() => {
                                                 alert("3턴 이후 일기로 정리하기 기능이 활성화 됩니다. 조금만 더 진행해 볼까요?")
                                             }}
-                                        >일기로 정리하기 ({3-props.turnCount}턴 이후 가능해요)</Button>
-                                     :
+                                        >일기로 정리하기 ({3 - props.turnCount}턴 이후 가능해요)</Button>
+                                        :
                                         <Button
                                             variant="dark"
                                             onClick={() => {
@@ -369,8 +418,6 @@ function Userinput(props) {
                                             }}
                                         >일기로 정리하기</Button>
                                     }
-
-
                                 </div>
                             </Col>
                         </Row>
@@ -382,6 +429,8 @@ function Userinput(props) {
 }
 
 function DiaryView(props) {
+
+
     return (
         <div className="inwriting_review_box">
             <Container>
@@ -404,11 +453,19 @@ function DiaryView(props) {
                         <Col>
                             <div className="submission"></div>
                             <div className="d-grid gap-2">
-                                <Button
+                                {/*<Button
                                     variant="primary"
                                     style={{backgroundColor: "007AFF", fontWeight: "600"}}
                                     onClick={() => {
                                         props.submitDiary()
+                                    }}
+                                >📝 일기 저장하고 종료하기</Button>*/}
+
+                                <Button
+                                    variant="primary"
+                                    style={{backgroundColor: "007AFF", fontWeight: "600"}}
+                                    onClick={() => {
+                                        props.setModalShow(true)
                                     }}
                                 >📝 일기 저장하고 종료하기</Button>
                             </div>
