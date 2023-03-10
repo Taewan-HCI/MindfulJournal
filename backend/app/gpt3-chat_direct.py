@@ -97,6 +97,9 @@ def makeDiary(text):
         messages=messages,
         stop=['User: ', 'Assistant: '],
         max_tokens=245,
+        temperature=0.7,
+        presence_penalty=0.5,
+        frequency_penalty=0.5
     )
     answer = completion
     print(answer)
@@ -114,7 +117,7 @@ def upload_diary(response_text, user, num):
 def m1_1(text):
     messages = [
         {"role": "system",
-         "content": "I'm a counsellor who listens to user's daily lives, feeling and thoughts.\nThe dialogue below is a conversation between me and a user about reviewing user’s daily event and thought. I provide prompt that can help user to reflect their day. I only speak in a short sentence. \nI ask questions to help the user reflect on their day.\nIf user don't tell me about their day enough, I provide prompt to get them to recall and think about it more deeply.\nI offer empathy and encouragement, not new information or skills.\nI don't talk a lot. I only speak in a short sentence.\nI don't end the conversation."}
+         "content": "I'm a counsellor who listens to user's daily lives, feeling and thoughts. The dialogue below is a conversation between me and a user about reviewing user’s daily event and thought. I provide prompt that can help user to reflect their day. I only speak in a short sentence. I ask questions to help the user reflect on their day. If user don't tell me about their day enough, I provide prompt to get them to recall and think about it more deeply. I offer empathy and encouragement, not new information or skills. IMPORTANT: I don't talk a lot. I only speak in a short sentence. I don't end the conversation."}
     ]
 
     messages_m1 = [
@@ -137,7 +140,9 @@ def m1_1(text):
         messages=messages,
         stop=['User: '],
         max_tokens=245,
-        temperature=0.7
+        temperature=0.7,
+        presence_penalty=0.5,
+        frequency_penalty=0.5
     )
 
     answer = completion
@@ -161,6 +166,9 @@ def topicExtraction(text):
         messages=messages,
         stop=['User: '],
         max_tokens=245,
+        temperature=0.7,
+        presence_penalty=0.5,
+        frequency_penalty=0.5
     )
 
     answer = completion
@@ -178,7 +186,7 @@ def m1_2_init(result, topic):
 
     messages = [
         {"role": "system",
-         "content": "Topic: " + topic + "\nI ask for more details about the user’s thoughts and feelings about the topic. I ask how they reacted to the topic, how they feel about it, and if it was difficult if they've gotten over it. I ask questions to get them to recall and think about the topic deeply.\nI offers empathy and encouragement, not new information or skills.\nI don't talk a lot. I only use a short sentence.\nI don't end the conversation."}
+         "content": "Topic: " + topic + "\n" + "I ask for more details about the user’s thoughts and feelings about the topic. I ask how they reacted to the topic, how they feel about it, and if it was difficult if they've gotten over it. I ask questions to get them to recall and think about the topic deeply. I offers empathy and encouragement. IMPORTANT!: I only use a short sentence. I only ask one question at a time. I do not provide any solution or new idea. I don't end the conversation."}
     ]
 
     messages.extend(result);
@@ -188,19 +196,21 @@ def m1_2_init(result, topic):
         messages=messages,
         stop=['User: '],
         max_tokens=245,
-        temperature=0.7
+        temperature=0.7,
+        presence_penalty=0.5,
+        frequency_penalty=0.5
     )
 
     answer = completion
     return answer["choices"][0]["message"]['content']
 
 
-def m1_2(text):
+def m1_2(text, topic):
     print("m2_1")
 
     messages = [
         {"role": "system",
-         "content": "I ask for more details about the user’s thoughts and feelings about the topic. I ask how they reacted to the topic, how they feel about it, and if it was difficult if they've gotten over it. I ask questions to get them to recall and think about the topic deeply.\nI offers empathy and encouragement, not new information or skills.\nI don't talk a lot. I only use a short sentence.\nI don't end the conversation."}
+         "content": "I ask for more details about the user’s thoughts and feelings about the topic. I ask how they reacted to the topic, how they feel about it, and if it was difficult if they've gotten over it. I ask questions to get them to recall and think about the topic deeply. I offers empathy and encouragement. IMPORTANT!: I only use a short sentence. I only ask one question at a time. I do not provide any solution or new idea. I don't end the conversation."}
     ]
 
     messages_m1 = [
@@ -212,7 +222,7 @@ def m1_2(text):
 
     message_update = []
     time = len(messages)
-    if (time > 4):
+    if (time > 3):
         del messages[1:3]
         print("업뎃함")
     else:
@@ -223,7 +233,9 @@ def m1_2(text):
         messages=messages,
         stop=['User: '],
         max_tokens=245,
-        temperature=0.7
+        temperature=0.7,
+        presence_penalty=0.5,
+        frequency_penalty=0.5
     )
 
     answer = completion
@@ -247,7 +259,7 @@ async def calc(request: Request):
         result2 = downloadConversation_2(user, num)
         response_text = m1_2_init(result2, topic)
     elif (turn > 4):
-        response_text = m1_2(text)
+        response_text = m1_2(text, topic)
     else:
         response_text = m1_1(text)
     upload(response_text, user, num, topic)

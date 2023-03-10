@@ -218,11 +218,12 @@ function Writing(props) {
                         {loading === true ? <Loading/> :
                             <Userinput prompt={prompt} setInputUser={setInputUser} inputUser={inputUser}
                                        addConversationFromUser={addConversationFromUser}
-                                       requestSummerization={requestSummerization} setLoading={setLoading}/>}
+                                       requestSummerization={requestSummerization} setLoading={setLoading}
+                                       turnCount={turnCount.current}/>}
                     </div>
                 </Row>
                 <Row>
-                    {diaryShow === true ?  <DiaryView diary={diary} submitDiary={submitDiary}/> : <div></div>}
+                    {diaryShow === true ? <DiaryView diary={diary} submitDiary={submitDiary}/> : <div></div>}
                 </Row>
             </Container>
         )
@@ -352,12 +353,24 @@ function Userinput(props) {
                             </Col>
                             <Col>
                                 <div className="d-grid gap-2">
-                                    <Button
-                                        variant="dark"
-                                        onClick={() => {
-                                            props.requestSummerization()
-                                        }}
-                                    >일기로 정리하기</Button>
+
+                                    {props.turnCount < 3 ?
+                                        <Button
+                                            variant="dark"
+                                            onClick={()=>{
+                                                alert("3턴 이후 일기로 정리하기 기능이 활성화 됩니다. 조금만 더 진행해 볼까요?")
+                                            }}
+                                        >일기로 정리하기 ({3-props.turnCount}턴 이후 가능해요)</Button>
+                                     :
+                                        <Button
+                                            variant="dark"
+                                            onClick={() => {
+                                                props.requestSummerization()
+                                            }}
+                                        >일기로 정리하기</Button>
+                                    }
+
+
                                 </div>
                             </Col>
                         </Row>
