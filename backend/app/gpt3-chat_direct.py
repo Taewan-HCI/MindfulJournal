@@ -9,7 +9,7 @@ from firebase_admin import firestore
 import openai
 
 app = FastAPI()
-origins = ["*", "http://localhost:3000", "localhost:3000"]
+origins = ["*", "http://localhost:3000", "localhost:3000""mindful-journal-frontend-s8zk.vercel.app", "https://mindful-journal-frontend-s8zk.vercel.app/"]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -166,7 +166,7 @@ def topicExtraction(text):
         messages=messages,
         stop=['User: '],
         max_tokens=245,
-        temperature=0.7,
+        temperature=0.5,
         presence_penalty=0.5,
         frequency_penalty=0.5
     )
