@@ -48,8 +48,8 @@ def m1_1(text):
     print(messages)
     print(len(messages))
     completion = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
         # model="gpt-4",
+        model="gpt-3.5-turbo",
         messages=messages,
         stop=['User: '],
         max_tokens=245,
@@ -74,11 +74,9 @@ def m1_2(text):
 
     if len(text) > 5:
         extracted = text[-4:]
-
     else:
         print("아직 증가 안함")
         extracted = text
-
     for i in range(0, len(extracted)):
         messages.append(extracted[i])
 
@@ -94,8 +92,7 @@ def m1_2(text):
         presence_penalty=0.5,
         frequency_penalty=0.5
     )
-    answer = completion
-    return answer["choices"][0]["message"]['content']
+    return completion["choices"][0]["message"]['content']
 
 
 # 3단계 Exploration
@@ -129,9 +126,7 @@ def m1_3(text, topic):
         presence_penalty=0.5,
         frequency_penalty=0.5
     )
-
-    answer = completion
-    return answer["choices"][0]["message"]['content']
+    return completion["choices"][0]["message"]['content']
 
 
 def topicExtraction(text):
@@ -145,9 +140,8 @@ def topicExtraction(text):
          "content": "상사에 대한 부정적인 감정과 불편함"},
         {"role": "user", "content": text},
     ]
-
     completion = openai.ChatCompletion.create(
-        model="gpt-4",
+        model="gpt-3.5-turbo",
         messages=messages,
         stop=['User: '],
         max_tokens=245,
@@ -155,16 +149,14 @@ def topicExtraction(text):
         presence_penalty=0.5,
         frequency_penalty=0.5
     )
-
-    answer = completion
-    return answer["choices"][0]["message"]['content']
+    return completion["choices"][0]["message"]['content']
 
 
 # 언어모델 출력을 서버에 업로드
-def upload(responseList, user, num, topic):
+def upload(responselist, user, num, topic):
     doc_ref = db.collection(u'session').document(user).collection(u'diary').document(num)
     doc_ref.set({
-        u'fiveOptionFromLLM': responseList,
+        u'fiveOptionFromLLM': responselist,
         u'topic': topic
     }, merge=True)
 
@@ -178,9 +170,8 @@ def downloadConversation(user, num):
     if doc.exists:
         result = doc.to_dict()
         result = result["conversation"]
-        # print(result)
     else:
-        print(u'No such document!')
+        print('No such document!')
 
     for i in range(0, len(result)):
         tmp = result[i]["content"]
@@ -200,7 +191,6 @@ def downloadConversation_2(user, num):
     if doc.exists:
         result = doc.to_dict()
         result = result["conversation"]
-        # print(result)
     else:
         print(u'No such document!')
 
@@ -238,10 +228,7 @@ def makeDiary(text):
         presence_penalty=0.5,
         frequency_penalty=0.5
     )
-    answer = completion
-    print(answer)
-    result = answer["choices"][0]["message"]['content']
-    return result
+    return completion["choices"][0]["message"]['content']
 
 
 def upload_diary(response_text, user, num):
@@ -270,30 +257,7 @@ def m1_3_init(result, topic):
         frequency_penalty=0.5
     )
 
-    answer = completion
-    return answer["choices"][0]["message"]['content']
-
-
-# @app.post("/")
-# async def calc(request: Request):
-#     body = await request.json()
-#     text = body['text']
-#     user = body['user']
-#     num = body['num']
-#     turn = body['turn']
-#
-#     if (turn > 4):
-#         response_text = m1_3(text, "")
-#     elif (turn == 4):
-#         result = downloadConversation(user, num)
-#         topic = topicExtraction(result)
-#         result2 = downloadConversation_2(user, num)
-#         response_text = m1_3(result2, topic)
-#     elif (turn > 2):
-#         response_text = m1_2(text)
-#     else:
-#         response_text = m1_1(text)
-#     upload(response_text, user, num, topic)
+    return completion["choices"][0]["message"]['content']
 
 
 @app.post("/")
@@ -319,18 +283,6 @@ async def calc(request: Request):
     upload(response_text, user, num, topic)
 
 
-# @app.post("/")
-# async def calc(request: Request):
-#     print(sys.stdin.encoding)
-#     body = await request.json()
-#     text = body['text']
-#     user = body['user']
-#     num = body['num']
-#     turn = body['turn']
-#     response_text = m1_1(text)
-#     upload(response_text, user, num)
-
-
 @app.post("/diary")
 async def calc(request: Request):
     body = await request.json()
@@ -340,25 +292,3 @@ async def calc(request: Request):
     result = downloadConversation(user, num)
     result2 = makeDiary(result)
     upload_diary(result2, user, num)
-
-# 웹소켓 커뮤니케이션 테스트
-# @app.websocket("/ws_test")
-# async def websocket_endpoint(websocket: WebSocket):
-#     print('Accepting client connection...')
-#     await websocket.accept()
-#     while True:
-#         try:
-#             # Wait for any message from the client
-#             data=await websocket.receive_text()
-#             print(data)
-#             await websocket.send_text("received")
-#
-#             # Send message to the client
-#
-#             # await websocket.send_text("resp")
-#             # print("Sending")
-#             # print(data)
-#         except Exception as e:
-#             print('error:', e)
-#             break
-#     print('Bye..')
