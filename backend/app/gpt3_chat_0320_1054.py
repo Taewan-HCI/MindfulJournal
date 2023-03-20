@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
+import base64
 from fastapi import Request, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import sys
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
@@ -48,20 +50,17 @@ def m1_1(text):
     print(messages)
     print(len(messages))
     completion = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
+        model="gpt-4",
         # model="gpt-4",
         messages=messages,
         stop=['User: '],
         max_tokens=245,
-        temperature=0.9,
+        temperature=0.7,
         presence_penalty=0.5,
-        frequency_penalty=0.5,
-        n=4
+        frequency_penalty=0.5
     )
-    options = []
-    for i in range(0, len(completion["choices"])):
-        options.append(completion["choices"][i]["message"]['content'])
-    return options
+    answer = completion
+    return answer["choices"][0]["message"]['content']
 
 
 # 2단계 Getting Information 단계
@@ -161,10 +160,10 @@ def topicExtraction(text):
 
 
 # 언어모델 출력을 서버에 업로드
-def upload(responseList, user, num, topic):
+def upload(response_text, user, num, topic):
     doc_ref = db.collection(u'session').document(user).collection(u'diary').document(num)
     doc_ref.set({
-        u'fiveOptionFromLLM': responseList,
+        u'outputFromLM': response_text,
         u'topic': topic
     }, merge=True)
 
@@ -304,14 +303,16 @@ async def calc(request: Request):
     num = body['num']
     turn = body['turn']
     topic = ""
+
+
     # 현재 문제는, topic extraction 이전에 모델이 갑자기 새로운 주제를 꺼내거나, 새로운 제안으로 방향이 바뀌어버린다는 점이 있습니다.
 
-    if turn >= 999999:
+    if turn >= 6:
         result = downloadConversation(user, num)
         topic = topicExtraction(result)
         response_text = m1_3(text, topic)
 
-    elif turn >= 999999:
+    elif turn >= 4:
         response_text = m1_2(text)
 
     else:
@@ -340,6 +341,8 @@ async def calc(request: Request):
     result = downloadConversation(user, num)
     result2 = makeDiary(result)
     upload_diary(result2, user, num)
+
+    # print(response_text)
 
 # 웹소켓 커뮤니케이션 테스트
 # @app.websocket("/ws_test")

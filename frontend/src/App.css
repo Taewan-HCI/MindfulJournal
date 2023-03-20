@@ -158,10 +158,14 @@
     background-color: white;
     height: 200px;
 }
+.smalltxt {
+    font-size: x-large;
+    font-weight: normal;
+}
 
 .writing_box {
     background-color: white;
-    height: 160px;
+    height: auto;
     text-align: left;
     color: black;
 }
