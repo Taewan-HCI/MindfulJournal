@@ -1,0 +1,8 @@
+backend/** linguist-documentation=false
+backend/** linguist-vendored=false
+
+frontend-enduser/** linguist-documentation=false
+frontend-enduser/** linguist-vendored=false
+
+frontend-operator/** linguist-documentation=false
+frontend-operator/** linguist-vendored=false
