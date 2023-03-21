@@ -1,0 +1,37 @@
+{
+  "name": "react-live-clock",
+  "version": "1.1.1",
+  "description": "React Live Clock",
+  "main": [
+    "build/react-live-clock.js",
+    "build/react-live-clock.js.map",
+    "build/react-live-clock.min.js",
+    "build/react-live-clock.min.js.map"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pvoznyuk/react-live-clock.git"
+  },
+  "keywords": [
+    "date",
+    "moment",
+    "react",
+    "time",
+    "timezone"
+  ],
+  "authors": [
+    "Pavlo Vozniuk <pavlo.vozniuk@gmail.com>"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/pvoznyuk/react-live-clock",
+  "dependencies": {
+    "react": "^0.14 || ^15"
+  },
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
