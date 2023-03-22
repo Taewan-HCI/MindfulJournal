@@ -227,7 +227,7 @@ def makeDiary(text):
                  "content": text}]
 
     completion = openai.ChatCompletion.create(
-        model="gpt-4",
+        model="gpt-3.5-turbo",
         messages=messages,
         stop=['User: ', 'Assistant: '],
         max_tokens=245,
