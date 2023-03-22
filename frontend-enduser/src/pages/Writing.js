@@ -103,7 +103,7 @@ function Writing(props) {
         setLoading(true)
     }
 
-    async function submitDiary() {
+ /*   async function submitDiary() {
         const coll = collection(db, "session", props.userName, "diary_complete")
         const existingSession = await getCountFromServer(coll)
         const diaryNum = await (existingSession.data().count + 1)
@@ -113,6 +113,16 @@ function Writing(props) {
             createdAt: Math.floor(Date.now() / 1000),
             like: 0,
         });
+        navigateToReview()
+    }*/
+
+
+    async function submitDiary() {
+        await setDoc(doc(db, "session", props.userName, "diary", String(diaryNumber.current)), {
+            sessionEnd: Math.floor(Date.now() / 1000),
+            isFinished: true,
+            like: 0,
+        }, {merge: true});
         navigateToReview()
     }
 
