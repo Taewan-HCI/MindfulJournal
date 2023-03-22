@@ -96,7 +96,8 @@ function Writing(props) {
             module: "",
             fiveOptionFromLLM: [],
             diary: "",
-            topic: ""
+            topic: "",
+            sessionStart: Math.floor(Date.now() / 1000)
         });
         sessionStatus.current = true
         setLoading(true)
@@ -109,7 +110,7 @@ function Writing(props) {
         await setDoc(doc(db, "session", props.userName, "diary_complete", String(diaryNum)), {
             diaryNum: diaryNum,
             content: diary,
-            createdAt: date,
+            createdAt: Math.floor(Date.now() / 1000),
             like: 0,
         });
         navigateToReview()
