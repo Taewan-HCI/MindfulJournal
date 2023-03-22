@@ -18,6 +18,7 @@ firebase-config.js
 /node_modules
 /.pnp
 .pnp.js
+*.pack
 
 # testing
 /coverage
