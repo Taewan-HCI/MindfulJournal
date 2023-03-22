@@ -34,6 +34,17 @@ function DiaryList(props) {
         }
     })
 
+    function Unix_timestamp(t){
+    var date = new Date(t*1000);
+    var year = date.getFullYear();
+    var month = "0" + (date.getMonth()+1);
+    var day = "0" + date.getDate();
+    var hour = "0" + date.getHours();
+    var minute = "0" + date.getMinutes();
+    var second = "0" + date.getSeconds();
+    return year + "년" + month.substr(-2) + "월" + day.substr(-2) + "일 " + hour.substr(-2) + ":" + minute.substr(-2) + ":" + second.substr(-2);
+}
+
 
     async function receiveDiaryData() {
         let tempArr = []
@@ -44,6 +55,7 @@ function DiaryList(props) {
             // console.log(doc.id, " => ", doc.data());
             tempArr.push(doc.data())
         });
+
         return tempArr
     }
 
@@ -86,7 +98,7 @@ function DiaryList(props) {
                                             width: '100%',
                                         }}>
                                             <Card.Body>
-                                                <Card.Title>{diaryList[idx]["createdAt"]}</Card.Title>
+                                                <Card.Title>{Unix_timestamp(diaryList[idx]["createdAt"])}</Card.Title>
                                                 <Card.Subtitle className="mb-2 text-muted">
                                                     <div className="nav_title_blue">자전거타기, 기쁨, 상쾌함</div>
                                                 </Card.Subtitle>
