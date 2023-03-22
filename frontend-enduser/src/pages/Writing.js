@@ -260,7 +260,7 @@ function Writing(props) {
             <Container>
                 <Row>
                     <div>
-                        <div>사용자:<b>{props.userName}</b> 세션 넘버:<b>{diaryNumber.current}</b></div>
+                        <div>현재 사용자:<b>{props.userName}</b> 세션 넘버:<b>{diaryNumber.current}</b></div>
                         {loading === true ? <Loading/> :
                             <Userinput prompt={prompt} setInputUser={setInputUser} inputUser={inputUser}
                                        addConversationFromUser={addConversationFromUser}
