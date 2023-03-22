@@ -64,7 +64,8 @@ function Writing(props) {
         const existingSession = await getCountFromServer(coll)
         diaryNumber.current = String(session)
         await setDoc(doc(db, "session", userName, "diary", session), {
-            module: ""
+            module: "",
+            operator: props.userName
         }, {merge: true});
         sessionStatus.current = true
         setLoading(true)
