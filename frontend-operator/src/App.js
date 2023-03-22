@@ -69,14 +69,15 @@ function App() {
                                 }}><div className="nav_title_black">홈</div></Nav.Link>
                                 <Nav.Link onClick={() => {
                                     navigate('/writing')
-                                }}><div className="nav_title_black">일기 작성하기</div></Nav.Link>
-                                <Nav.Link onClick={() => {
-                                    navigate('/list')
-                                }}><div className="nav_title_black">일기 돌아보기</div></Nav.Link>
+                                }}><div className="nav_title_black">세션 진행하기</div></Nav.Link>
+
                                 {isAuth ? (<Nav.Link onClick={signUserOut}><div className="nav_title_black">로그아웃</div></Nav.Link>) : (null)}
                             </Nav>
                             <Nav>
-                                {date}
+                                <Stack gap={0}>
+                                    <div className="nav_title_blue"><b>관리자용 화면입니다</b></div>
+                                    <div className="nav_title_black">{date}</div>
+                                </Stack>
                             </Nav>
                         </Container>
                     </Navbar>

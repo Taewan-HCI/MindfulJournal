@@ -29,6 +29,7 @@ function Writing(props) {
     const receivedText = useRef("");
     const receivedDiary = useRef("");
     const turnCount = useRef(0);
+    const topic = useRef("");
 
     let [inputUser, setInputUser] = useState('')
     let [prompt, setPrompt] = useState('')
@@ -93,6 +94,7 @@ function Writing(props) {
             conversation: [],
             isFinish: false,
             module: "",
+            fiveOptionFromLLM: [],
             diary: "",
             topic: ""
         });
@@ -258,6 +260,7 @@ function Writing(props) {
             <Container>
                 <Row>
                     <div>
+                        <div>사용자:<b>{props.userName}</b> 세션 넘버:<b>{diaryNumber.current}</b></div>
                         {loading === true ? <Loading/> :
                             <Userinput prompt={prompt} setInputUser={setInputUser} inputUser={inputUser}
                                        addConversationFromUser={addConversationFromUser}
@@ -346,6 +349,7 @@ function Loading() {
 function Userinput(props) {
     //for textfield monitoring
     const temp_input = useRef("");
+
 
     const handleOnKeyPress = e => {
         if (e.key === "Enter") {
@@ -453,6 +457,14 @@ function DiaryView(props) {
                         <Col>
                             <div className="submission"></div>
                             <div className="d-grid gap-2">
+                                {/*<Button
+                                    variant="primary"
+                                    style={{backgroundColor: "007AFF", fontWeight: "600"}}
+                                    onClick={() => {
+                                        props.submitDiary()
+                                    }}
+                                >📝 일기 저장하고 종료하기</Button>*/}
+
                                 <Button
                                     variant="primary"
                                     style={{backgroundColor: "007AFF", fontWeight: "600"}}
