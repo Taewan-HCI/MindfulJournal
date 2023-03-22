@@ -75,7 +75,10 @@ function App() {
                                 {isAuth ? (<Nav.Link onClick={signUserOut}><div className="nav_title_black">로그아웃</div></Nav.Link>) : (null)}
                             </Nav>
                             <Nav>
-                                {date}
+                                <Stack gap={0}>
+                                    <div className="nav_title_blue"><b>사용자용 화면입니다</b></div>
+                                    <div className="nav_title_black">{date}</div>
+                                </Stack>
                             </Nav>
                         </Container>
                     </Navbar>

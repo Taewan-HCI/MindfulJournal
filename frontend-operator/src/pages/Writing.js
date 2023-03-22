@@ -131,6 +131,7 @@ function Writing(props) {
             <Container>
                 <Row>
                     <div>
+                        <div>세션 참여 환자:<b>{userName}</b> 세션 넘버:<b>{session}</b></div>
                         {loading === true ? <Loading/> :
                             <Userinput userInput={userInput.current} prompt={prompt.current}
                                        sendOptionChoice={sendOptionChoice} directMsg={directMsg} userName={userName}/>}
