@@ -22,6 +22,7 @@ frontend-standalone/node_modules
 /.pnp
 .pnp.js
 *.pack
+*.cache
 
 # testing
 /coverage
