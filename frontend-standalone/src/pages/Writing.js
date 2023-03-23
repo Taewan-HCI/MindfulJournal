@@ -28,8 +28,8 @@ function Writing(props) {
     const diaryNumber = useRef("");
     const receivedText = useRef("");
     const receivedDiary = useRef("");
+
     const turnCount = useRef(0);
-    const topic = useRef("");
     const sessionInputRef = useRef(null)
     const [session, setSession] = useState("")
 
@@ -107,7 +107,8 @@ function Writing(props) {
                 fiveOptionFromLLM: [],
                 diary: "",
                 topic: "",
-                sessionStart: Math.floor(Date.now() / 1000)
+                sessionStart: Math.floor(Date.now() / 1000),
+                summary: ""
             });
         }
         sessionStatus.current = true
@@ -151,6 +152,7 @@ function Writing(props) {
                     const response = receivedDiary.current;
                     setDiary(response)
                 })
+
                 return () => {
                     unsuscribe();
                     unsuscribe2();
@@ -300,6 +302,7 @@ function Writing(props) {
                     {diaryShow === true ? <DiaryView diary={diary} submitDiary={submitDiary}
                                                      setModalShow={setModalShow}/> :
                         <div></div>}
+                    {/*{summerization === "" ? <div></div> : <SummerizationView/>}*/}
                 </Row>
                 <MyVerticallyCenteredModal
                     show={modalShow}
@@ -443,6 +446,34 @@ function DiaryView(props) {
                                 >📝 일기 저장하고 종료하기</Button>
                             </div>
                         </Col>
+
+                    </Col>
+                </Row>
+            </Container>
+        </div>
+    )
+}
+
+function SummerizationView() {
+    return (
+        <div className="inwriting_review_box">
+            <Container>
+                <Row xs={'auto'} md={1} className="g-4">
+                    <Col>
+                        <Card style={{
+                            width: '100%',
+                        }}>
+                            <Card.Body>
+                                <Card.Title>현재까지의 대화 내용</Card.Title>
+                                <Card.Subtitle className="mb-2 text-muted">
+                                    <div>아래의 요약은 정확하지 않을 수 있습니다.</div>
+                                </Card.Subtitle>
+                                <Card.Text>
+                                    <div>여기에 대화 내용이 요약됩니다.</div>
+                                </Card.Text>
+                            </Card.Body>
+                        </Card>
+
 
                     </Col>
                 </Row>

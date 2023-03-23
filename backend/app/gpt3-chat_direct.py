@@ -100,7 +100,7 @@ def m1_1_standalone(text):
     )
     return completion["choices"][0]["message"]['content']
 
-def upload_standalone(response, user, num, topic):
+def upload(response, user, num, topic):
     doc_ref = db.collection(u'session').document(user).collection(u'diary').document(num)
     doc_ref.set({
         u'outputFromLM': response,
@@ -197,11 +197,12 @@ def topicExtraction(text):
 
 
 # 언어모델 출력을 서버에 업로드
-def upload(responselist, user, num, topic):
+def upload_standalone(responselist, user, num, topic, summary):
     doc_ref = db.collection(u'session').document(user).collection(u'diary').document(num)
     doc_ref.set({
         u'fiveOptionFromLLM': responselist,
-        u'topic': topic
+        u'topic': topic,
+        u'summary': summary
     }, merge=True)
 
 
@@ -275,6 +276,25 @@ def makeDiary(text):
     return completion["choices"][0]["message"]['content']
 
 
+def summerization(user, num):
+    text = downloadConversation(user, num)
+    messages = [{"role": "system",
+                 "content": "I summarise the following conversation into one paragraph"},
+                {"role": "user",
+                 "content": text},
+                ]
+    completion = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=messages,
+        stop=['User: ', 'Assistant: '],
+        max_tokens=245,
+        temperature=0.7,
+        presence_penalty=0.5,
+        frequency_penalty=0.5
+    )
+    return completion["choices"][0]["message"]['content']
+
+
 def upload_diary(response_text, user, num):
     doc_ref = db.collection(u'session').document(user).collection(u'diary').document(num)
     doc_ref.set({
@@ -334,10 +354,8 @@ async def calc(request: Request):
     num = body['num']
     turn = body['turn']
     topic = ""
-
-
     response_text = m1_1_standalone(text)
-    upload_standalone(response_text, user, num, topic)
+    upload(response_text, user, num, topic)
 
 @app.post("/diary")
 async def calc(request: Request):
