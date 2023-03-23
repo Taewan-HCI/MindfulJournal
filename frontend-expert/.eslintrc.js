@@ -16,7 +16,14 @@ module.exports = {
     project: './tsconfig.json',
     createDefaultProgram: true,
   },
-  rules: {},
+  rules: {
+    'import/no-extraneous-dependencies': [
+      'error',
+      {
+        devDependencies: ['**/*.test.ts', '**/*.test.tsx'],
+      },
+    ],
+  },
   settings: {
     react: {
       version: 'detect',
