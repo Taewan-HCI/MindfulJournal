@@ -264,7 +264,7 @@ function Writing(props) {
                 <Row>
                     <Col>
                         <div className="d-grid gap-2">
-                            종료되지 않은 세션을 이어 진행하고자 한다면,<br/>진행중인 세션 번호를 입력해주세요.
+                            종료되지 않은 세션을 이어 진행하고자 한다면<br/>진행중인 세션 번호를 입력해주세요
                             <input placeholder="세션 번호를 입력해주세요" ref={sessionInputRef}></input>
                             <Button
                                 variant="primary"

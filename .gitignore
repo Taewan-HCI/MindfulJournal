@@ -16,6 +16,9 @@ firebase-config.js
 
 # dependencies
 /node_modules
+frontend-enduser/node_modules
+frontend-operator/node_modules
+frontend-standalone/node_modules
 /.pnp
 .pnp.js
 *.pack
