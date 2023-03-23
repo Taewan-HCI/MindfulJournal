@@ -273,7 +273,7 @@ function Writing(props) {
                                     setSession(sessionInputRef.current.value)
                                     createNewDoc()
                                 }}
-                            >📝 세션 시작하기
+                            >📝 오늘의 일기 작성하기
                             </Button>
                         </div>
                     </Col>
