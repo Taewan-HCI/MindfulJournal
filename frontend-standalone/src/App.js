@@ -76,7 +76,7 @@ function App() {
                             </Nav>
                             <Nav>
                                 <Stack gap={0}>
-                                    <div className="nav_title_blue"><b>사용자용 화면입니다</b></div>
+                                    <div className="nav_title_blue"><b>GPT-User Direct Mode</b></div>
                                     <div className="nav_title_black">{date}</div>
                                 </Stack>
                             </Nav>
