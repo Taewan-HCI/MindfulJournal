@@ -17,6 +17,7 @@ module.exports = {
     createDefaultProgram: true,
   },
   rules: {
+    'object-curly-newline': 'off',
     'import/no-extraneous-dependencies': [
       'error',
       {
