@@ -6,6 +6,8 @@
 __pycache__/
 *.pyc
 *.py[cod]
+*.pack
+*.cache
 
 .env
 <MindfulDiary>_service_account_keys.json
@@ -15,14 +17,13 @@ firebase-config.js
 
 
 # dependencies
-/node_modules
-frontend-enduser/node_modules
-frontend-operator/node_modules
-frontend-standalone/node_modules
+node_modules/
+frontend-enduser/node_modules/
+frontend-operator/node_modules/
+frontend-standalone/node_modules/
 /.pnp
 .pnp.js
-*.pack
-*.cache
+
 
 # testing
 /coverage
