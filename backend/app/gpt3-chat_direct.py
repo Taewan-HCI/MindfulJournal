@@ -70,6 +70,43 @@ def m1_1(text):
         options.append(completion["choices"][i]["message"]['content'])
     return options
 
+def m1_1_standalone(text):
+    print("m1_1")
+    print(text)
+    messages = [
+        {"role": "system",
+         "content": "As a counselor, I conduct a rapport-building conversation with the user. As an empathetic listener, I put the user at ease, being sensitive to their pain and expressing compassion. I invite the other person to talk about their day, moods, and feelings, bringing up my story when necessary. I don't show off my knowledge or assert authority. I speak concisely in one or two sentences. I don't end a conversation with a closing statement or greeting; instead, I keep moving to new topics. I do not provide new ideas or concepts."}
+    ]
+    # 마지막으로 들어온 3개의 대화만 추출
+    if len(text) > 5:
+        extracted = text[-4:]
+    else:
+        print("아직 증가 안함")
+        extracted = text
+    for i in range(0, len(extracted)):
+        messages.append(extracted[i])
+
+    print(messages)
+    print(len(messages))
+    completion = openai.ChatCompletion.create(
+        # model="gpt-4",
+        model="gpt-3.5-turbo",
+        messages=messages,
+        stop=['User: '],
+        max_tokens=245,
+        temperature=0.9,
+        presence_penalty=0.5,
+        frequency_penalty=0.5
+    )
+    return completion["choices"][0]["message"]['content']
+
+def upload_standalone(response, user, num, topic):
+    doc_ref = db.collection(u'session').document(user).collection(u'diary').document(num)
+    doc_ref.set({
+        u'outputFromLM': response,
+        u'topic': topic
+    }, merge=True)
+
 
 # 2단계 Getting Information 단계
 def m1_2(text):
@@ -275,7 +312,6 @@ async def calc(request: Request):
     num = body['num']
     turn = body['turn']
     topic = ""
-    # 현재 문제는, topic extraction 이전에 모델이 갑자기 새로운 주제를 꺼내거나, 새로운 제안으로 방향이 바뀌어버린다는 점이 있습니다.
 
     if turn >= 999999:
         result = downloadConversation(user, num)
@@ -289,6 +325,19 @@ async def calc(request: Request):
         response_text = m1_1(text)
     upload(response_text, user, num, topic)
 
+
+@app.post("/standalone")
+async def calc(request: Request):
+    body = await request.json()
+    text = body['text']
+    user = body['user']
+    num = body['num']
+    turn = body['turn']
+    topic = ""
+
+
+    response_text = m1_1_standalone(text)
+    upload_standalone(response_text, user, num, topic)
 
 @app.post("/diary")
 async def calc(request: Request):

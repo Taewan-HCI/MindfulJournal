@@ -7,6 +7,7 @@ __pycache__/
 *.py[cod]
 *.pack
 *.cache
+*.eslintcache
 
 .env
 <MindfulDiary>_service_account_keys.json

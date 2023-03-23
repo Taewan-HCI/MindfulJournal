@@ -30,6 +30,9 @@ function Writing(props) {
     const receivedDiary = useRef("");
     const turnCount = useRef(0);
     const topic = useRef("");
+    const sessionInputRef = useRef(null)
+    const [session, setSession] = useState("")
+
 
     let [inputUser, setInputUser] = useState('')
     let [prompt, setPrompt] = useState('')
@@ -85,40 +88,48 @@ function Writing(props) {
 
 
     async function createNewDoc() {
-        const coll = collection(db, "session", props.userName, "diary")
-        const existingSession = await getCountFromServer(coll)
-        const sessionNum = await (existingSession.data().count + 1)
-        diaryNumber.current = String(sessionNum)
-        await setDoc(doc(db, "session", props.userName, "diary", String(sessionNum)), {
-            outputFromLM: "만나서 반가워요. 오늘 하루는 어떤가요?",
-            conversation: [],
-            isFinish: false,
-            module: "",
-            fiveOptionFromLLM: [],
-            diary: "",
-            topic: "",
-            sessionStart: Math.floor(Date.now() / 1000)
-        });
+        // 기존에 작성하던 세션 문서가 있는지 확인
+        // 만약 문서가 있다면 아래의 setDoc 진행하지 않음. sessionStatus만 true로 변경
+        const docRef = doc(db, "session", props.userName, "diary", session);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            console.log("진행중인 세션이 있습니다");
+        } else {
+            const coll = collection(db, "session", props.userName, "diary")
+            const existingSession = await getCountFromServer(coll)
+            const sessionNum = await (existingSession.data().count + 1)
+            diaryNumber.current = String(sessionNum)
+            await setDoc(doc(db, "session", props.userName, "diary", session), {
+                outputFromLM: "만나서 반가워요. 오늘 하루는 어떤가요?",
+                conversation: [],
+                isFinish: false,
+                module: "",
+                fiveOptionFromLLM: [],
+                diary: "",
+                topic: "",
+                sessionStart: Math.floor(Date.now() / 1000)
+            });
+        }
         sessionStatus.current = true
         setLoading(true)
     }
 
- /*   async function submitDiary() {
-        const coll = collection(db, "session", props.userName, "diary_complete")
-        const existingSession = await getCountFromServer(coll)
-        const diaryNum = await (existingSession.data().count + 1)
-        await setDoc(doc(db, "session", props.userName, "diary_complete", String(diaryNum)), {
-            diaryNum: diaryNum,
-            content: diary,
-            createdAt: Math.floor(Date.now() / 1000),
-            like: 0,
-        });
-        navigateToReview()
-    }*/
+    /*   async function submitDiary() {
+           const coll = collection(db, "session", props.userName, "diary_complete")
+           const existingSession = await getCountFromServer(coll)
+           const diaryNum = await (existingSession.data().count + 1)
+           await setDoc(doc(db, "session", props.userName, "diary_complete", String(diaryNum)), {
+               diaryNum: diaryNum,
+               content: diary,
+               createdAt: Math.floor(Date.now() / 1000),
+               like: 0,
+           });
+           navigateToReview()
+       }*/
 
 
     async function submitDiary() {
-        await setDoc(doc(db, "session", props.userName, "diary", String(diaryNumber.current)), {
+        await setDoc(doc(db, "session", props.userName, "diary_complete", session), {
             sessionEnd: Math.floor(Date.now() / 1000),
             isFinished: true,
             like: 0,
@@ -129,13 +140,13 @@ function Writing(props) {
     //사용자-sessionID의 doc을 계속 관찰하고 있다가 업데이트가 발생하면 prompt를 업데이트 하는 useEffect 함수
     useEffect(() => {
         if (sessionStatus) {
-            if (diaryNumber.current !== "") {
-                const unsuscribe = onSnapshot(doc(db, "session", props.userName, "diary", String(diaryNumber.current)), doc => {
+            if (session !== "") {
+                const unsuscribe = onSnapshot(doc(db, "session", props.userName, "diary", session), doc => {
                     receivedText.current = doc.data()["outputFromLM"]
                     const response = receivedText.current;
                     getLastSentence(response)
                 })
-                const unsuscribe2 = onSnapshot(doc(db, "session", props.userName, "diary", String(diaryNumber.current)), doc => {
+                const unsuscribe2 = onSnapshot(doc(db, "session", props.userName, "diary", session), doc => {
                     receivedDiary.current = doc.data()["diary"]
                     const response = receivedDiary.current;
                     setDiary(response)
@@ -164,13 +175,13 @@ function Writing(props) {
     }
 
     async function assemblePrompt() {
-        const docRef3 = doc(db, "session", props.userName, "diary", String(diaryNumber.current));
+        const docRef3 = doc(db, "session", props.userName, "diary", session);
         const docSnap = await getDoc(docRef3);
         if (docSnap.exists()) {
             const readyRequest = docSnap.data().conversation;
             console.log(readyRequest)
             turnCount.current = turnCount.current + 1
-            requestPrompt(readyRequest, props.userName, diaryNumber.current, turnCount.current)
+            requestPrompt(readyRequest, props.userName, session, turnCount.current)
         } else {
             console.log("No such document!");
         }
@@ -180,7 +191,7 @@ function Writing(props) {
     // http://0.0.0.0:8000
 
     function requestPrompt(text, user, num, turn) {
-        return fetch('http://0.0.0.0:8000', {
+        return fetch('http://0.0.0.0:8000/standalone', {
             method: 'POST',
             body: JSON.stringify({
                 'text': text,
@@ -216,7 +227,7 @@ function Writing(props) {
         let system_temp = {"role": "assistant", "content": prompt}
         let user_temp = {"role": "user", "content": input};
 
-        const docRef2 = doc(db, "session", props.userName, "diary", String(diaryNumber.current));
+        const docRef2 = doc(db, "session", props.userName, "diary", session);
         const docSnap2 = await getDoc(docRef2);
         if (docSnap2.exists()) {
             const message = docSnap2.data().conversation;
@@ -246,17 +257,23 @@ function Writing(props) {
                     <div className="loading_box">
                         <div>
                             {date}<br/><b>마음챙김 다이어리를 시작합니다</b> 😀
+
                         </div>
                     </div>
                 </Row>
                 <Row>
                     <Col>
                         <div className="d-grid gap-2">
+                            종료되지 않은 세션을 이어 진행하고자 한다면<br/>진행중인 세션 번호를 입력해주세요
+                            <input placeholder="세션 번호를 입력해주세요" ref={sessionInputRef}></input>
                             <Button
                                 variant="primary"
                                 style={{backgroundColor: "007AFF", fontWeight: "600"}}
-                                onClick={createNewDoc}
-                            >📝 다이어리 작성하기
+                                onClick={() => {
+                                    setSession(sessionInputRef.current.value)
+                                    createNewDoc()
+                                }}
+                            >📝 오늘의 일기 작성하기
                             </Button>
                         </div>
                     </Col>
@@ -271,7 +288,7 @@ function Writing(props) {
             <Container>
                 <Row>
                     <div>
-                        <div>현재 사용자:<b>{props.userName}</b> 세션 넘버:<b>{diaryNumber.current}</b></div>
+                        <div>현재 사용자:<b>{props.userName}</b> 세션 넘버:<b>{session}</b></div>
                         {loading === true ? <Loading/> :
                             <Userinput prompt={prompt} setInputUser={setInputUser} inputUser={inputUser}
                                        addConversationFromUser={addConversationFromUser}
@@ -296,65 +313,6 @@ function Writing(props) {
 
 }
 
-function Loading() {
-    return (
-        <div>
-            <Container>
-                <Row>
-                    <Col>
-                        <div className="loading_box">
-                            <div>
-                                <ScaleLoader
-                                    color="#007AFF"
-                                    speedMultiplier={0.9}
-                                />
-                            </div>
-                            <div>지금까지의 이야기를 정리중입니다</div>
-                        </div>
-                    </Col>
-                </Row>
-                <Row>
-                    <div className="writing_box">
-                        <Form.Label htmlFor="userInput">✏️ 나의 일기 입력하기</Form.Label>
-                        <Form.Control
-                            type="input"
-                            as="textarea"
-                            rows={3}
-                            id="userInput"
-                            disabled
-                            readOnly
-                        />
-                        <Form.Text id="userInput" muted>
-                            📝 정해진 양식은 없어요. 편안하고 자유롭게 최근에 있었던 일을 작성해주세요.
-                        </Form.Text>
-                    </div>
-                    <Container>
-                        <Row>
-                            <Col>
-                                <div className="d-grid gap-2">
-                                    <Button
-                                        variant="primary"
-                                        disabled={true}
-                                        style={{backgroundColor: "007AFF", fontWeight: "600"}}
-                                    >응답 기록하기</Button>
-                                </div>
-                            </Col>
-                            <Col>
-                                <div className="d-grid gap-2">
-                                    <Button
-                                        variant="secondary"
-                                        disabled={true}
-                                        style={{backgroundColor: "264362", fontWeight: "600"}}
-                                    >일기로 정리하기</Button>
-                                </div>
-                            </Col>
-                        </Row>
-                    </Container>
-                </Row>
-            </Container>
-        </div>
-    )
-}
 
 //User input screen component
 function Userinput(props) {
@@ -487,6 +445,66 @@ function DiaryView(props) {
                         </Col>
 
                     </Col>
+                </Row>
+            </Container>
+        </div>
+    )
+}
+
+function Loading() {
+    return (
+        <div>
+            <Container>
+                <Row>
+                    <Col>
+                        <div className="loading_box">
+                            <div>
+                                <ScaleLoader
+                                    color="#007AFF"
+                                    speedMultiplier={0.9}
+                                />
+                            </div>
+                            <div>지금까지의 이야기를 정리중입니다</div>
+                        </div>
+                    </Col>
+                </Row>
+                <Row>
+                    <div className="writing_box">
+                        <Form.Label htmlFor="userInput">✏️ 나의 일기 입력하기</Form.Label>
+                        <Form.Control
+                            type="input"
+                            as="textarea"
+                            rows={3}
+                            id="userInput"
+                            disabled
+                            readOnly
+                        />
+                        <Form.Text id="userInput" muted>
+                            📝 정해진 양식은 없어요. 편안하고 자유롭게 최근에 있었던 일을 작성해주세요.
+                        </Form.Text>
+                    </div>
+                    <Container>
+                        <Row>
+                            <Col>
+                                <div className="d-grid gap-2">
+                                    <Button
+                                        variant="primary"
+                                        disabled={true}
+                                        style={{backgroundColor: "007AFF", fontWeight: "600"}}
+                                    >응답 기록하기</Button>
+                                </div>
+                            </Col>
+                            <Col>
+                                <div className="d-grid gap-2">
+                                    <Button
+                                        variant="secondary"
+                                        disabled={true}
+                                        style={{backgroundColor: "264362", fontWeight: "600"}}
+                                    >일기로 정리하기</Button>
+                                </div>
+                            </Col>
+                        </Row>
+                    </Container>
                 </Row>
             </Container>
         </div>
