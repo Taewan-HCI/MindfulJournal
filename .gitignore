@@ -1,7 +1,6 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # Byte-compiled / optimized / DLL files
-# test
 
 __pycache__/
 *.pyc
@@ -15,8 +14,6 @@ firebase_config.json
 mindfuljournal-44166-firebase-adminsdk-frpg8-10b50844cf.json
 firebase-config.js
 
-
-# dependencies
 node_modules/
 frontend-enduser/node_modules/
 frontend-operator/node_modules/
@@ -24,11 +21,8 @@ frontend-standalone/node_modules/
 /.pnp
 .pnp.js
 
-
-# testing
 /coverage
 
-# production
 /build
 
 # misc
