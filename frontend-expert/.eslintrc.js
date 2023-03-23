@@ -5,11 +5,11 @@ module.exports = {
     'airbnb',
     'airbnb-typescript',
     'airbnb/hooks',
-    '@typescript-eslint/parser',
   ],
   parser: '@typescript-eslint/parser',
   parserOptions: {
     sourceType: 'module',
+    tsconfigRootDir: __dirname,
     ecmaFeatures: {
       jsx: true,
     },
