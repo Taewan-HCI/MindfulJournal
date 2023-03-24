@@ -21,7 +21,7 @@ function Dashboard() {
             </ContentWithTitle>
             <ContentWithTitle title="작성 일기 보기">
               {mockDiary.map((diary) => (
-                <Diary {...diary} />
+                <Diary key={diary.diaryNum} {...diary} />
               ))}
             </ContentWithTitle>
           </Col>
