@@ -1,6 +1,9 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { Col, Container, Row } from 'react-bootstrap';
 import ContentWithTitle from '../components/ContentWithTitle';
+import Diary from '../components/Diary';
+import mockDiary from '../mocks/diaryData';
 
 function Dashboard() {
   return (
@@ -17,7 +20,9 @@ function Dashboard() {
               <div>테스트</div>
             </ContentWithTitle>
             <ContentWithTitle title="작성 일기 보기">
-              <div>테스트</div>
+              {mockDiary.map((diary) => (
+                <Diary {...diary} />
+              ))}
             </ContentWithTitle>
           </Col>
 
