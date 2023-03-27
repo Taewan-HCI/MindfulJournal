@@ -324,6 +324,17 @@ def m1_3_init(result, topic):
     return completion["choices"][0]["message"]['content']
 
 
+def intentClass_standalone(text, turn):
+    messages = [
+        {"role": "system",
+         "content": "Following conversation is"}
+    ]
+
+    return "result"
+
+
+
+
 @app.post("/")
 async def calc(request: Request):
     body = await request.json()
@@ -354,7 +365,9 @@ async def calc(request: Request):
     num = body['num']
     turn = body['turn']
     topic = ""
-    response_text = m1_1_standalone(text)
+
+    response_text = intentClass_standalone(text, turn)
+
     upload(response_text, user, num, topic)
 
 @app.post("/diary")
