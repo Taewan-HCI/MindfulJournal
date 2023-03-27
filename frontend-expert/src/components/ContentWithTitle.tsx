@@ -8,10 +8,10 @@ function ContentWithTitle({
   title: string;
 }) {
   return (
-    <>
+    <div className="mb-4">
       <p className="fs-5 fw-bold text-primary">{title}</p>
       {children}
-    </>
+    </div>
   );
 }
 
