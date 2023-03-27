@@ -1,11 +1,26 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React from 'react';
-import { Card, Col, Container, Row } from 'react-bootstrap';
+import React, { useState } from 'react';
+import {
+  ButtonGroup,
+  Card,
+  Col,
+  Container,
+  Row,
+  ToggleButton,
+} from 'react-bootstrap';
 import ContentWithTitle from '../components/ContentWithTitle';
 import Diary from '../components/Diary';
 import mockDiary from '../mocks/diaryData';
 
 function Dashboard() {
+  const [radioValue, setRadioValue] = useState('1');
+
+  const radios = [
+    { name: '3일 전', value: '1', id: 1 },
+    { name: '7일 전', value: '2', id: 2 },
+    { name: '14일 전', value: '3', id: 3 },
+  ];
+
   return (
     <div>
       <Container>
@@ -38,6 +53,37 @@ function Dashboard() {
           </Col>
 
           <Col xs={8}>
+            <Row>
+              <Col xs={3}>
+                <p className="fs-5 fw-bold text-primary">최근 기간 선택</p>
+              </Col>
+              <Col xs={9}>
+                <ButtonGroup size="sm">
+                  {radios.map((radio, idx) => (
+                    <ToggleButton
+                      key={radio.id}
+                      id={`radio-${idx}`}
+                      type="radio"
+                      variant="outline-primary"
+                      name="radio"
+                      value={radio.value}
+                      checked={radioValue === radio.value}
+                      onChange={(e) => setRadioValue(e.currentTarget.value)}
+                    >
+                      {radio.name}
+                    </ToggleButton>
+                  ))}
+                </ButtonGroup>
+              </Col>
+            </Row>
+            <Row>
+              <Col xs={3}>
+                <p className="fs-5 fw-bold text-primary">분석할 날짜 지정</p>
+              </Col>
+              <Col xs={9}>
+                <p className="fs-5 fw-bold text-primary">분석할 날짜 지정</p>
+              </Col>
+            </Row>
             <ContentWithTitle title="참여 수준">
               <div>테스트</div>
             </ContentWithTitle>
