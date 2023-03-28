@@ -17,6 +17,10 @@ module.exports = {
     createDefaultProgram: true,
   },
   rules: {
+    'react/function-component-definition': [
+      2,
+      { namedcomponents: 'arrow-function' },
+    ],
     'object-curly-newline': 'off',
     'import/no-extraneous-dependencies': [
       'error',
