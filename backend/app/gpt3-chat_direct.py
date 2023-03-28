@@ -98,18 +98,18 @@ def m1_1(text):
 #     )
 #     return completion["choices"][0]["message"]['content']
 
-def m1_1_standalone(text):
+def m1_1_standalone(text, turn):
     print("m1_1")
     print(str(text))
     messages_0 = [
         {"role": "system",
-         "content": "You will read the conversation transcript and choose which conversation module is appropriate to continue. You will select the most appropriate module from the five modules: Rapport building, Getting information, Exploration, Wrapping up, and Sensitive topic. Each module is described in detail below. The [Rapport building] module is usually located in the first step in the conversation, where the user and the agent get comfortable and establish rapport. In this conversation, users will engage in casual conversation. [Getting Information] is where users and agents conduct conversations to get users to talk about key events or anecdotes in their lives. Once you've determined that the user and agent have developed enough rapport and daily conversations from the [Rapport Building] module, we recommend entering the Getting Information phase. [Exploration] is a conversation after the [Getting Information] phase. Once a topic about a critical event or anecdote in the user's life has been uncovered, we recommend entering the [Exploration] phase, which is a deeper, more detailed conversation about the topic is discussed. [Wrapping up] is usually the final part of the conversation, where the user wraps up the discussion with the agent. We recommend entering this step when the user and agent have had enough casual conversations, have covered enough daily events or anecdotes, and need to end the conversation. The [Sensitive topic] is a module that can be triggered anytime. If severe and dangerous expressions or words that indicate suicide or death appear in the conversation, this module should be activated."},
+         "content": "Current turn:" + str(turn) + "\n You will read the conversation transcript and choose which conversation phase is appropriate to continue. You will select the most appropriate phase from the five phase: Rapport building, Getting information, Exploration, Wrapping up, and Sensitive topic. Each phase is described in detail below. The [Rapport building] phase is usually located in the first step in the conversation, where the user and the agent get comfortable and establish rapport. In this conversation, users will engage in casual conversation. [Getting Information] is where users and agents conduct conversations to get users to talk about key events or anecdotes in their lives. Once you've determined that the user and agent have developed enough rapport and daily conversations from the [Rapport Building] module, we recommend entering the Getting Information phase. [Exploration] is a conversation after the [Getting Information] phase. Once a topic about a critical event or anecdote in the user's life has been uncovered, we recommend entering the [Exploration] phase, which is a phase where user and agent discuss a deeper, more detailed conversation about the topic. [Wrapping up] is usually the final phase of the conversation, where the user wraps up the conversation with the agent. We recommend entering this step when the user and agent have had enough conversations, have covered enough daily events or anecdotes, and need to end the conversation. The [Sensitive topic] is a module that can be triggered anytime. If severe and dangerous expressions or words that indicate suicide or death appear in the conversation, this module should be activated. We recommend having conversation 3~5 turn in each phase but you don’t have to follow this. We expect around 12~17turn for the whole conversation."},
         {"role": "user",
          "content": str(text)}
     ]
 
     completion1 = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
+        model="gpt-4",
         # model="gpt-4",
         messages=messages_0,
         stop=['User: '],
@@ -424,16 +424,6 @@ def m1_3_init(result, topic):
     return completion["choices"][0]["message"]['content']
 
 
-def intentClass_standalone(text, turn):
-    messages = [
-        {"role": "system",
-         "content": "Following conversation is"}
-    ]
-    print(text)
-    print(turn)
-
-    return "result"
-
 
 @app.post("/")
 async def calc(request: Request):
@@ -466,8 +456,7 @@ async def calc(request: Request):
     turn = body['turn']
     topic = ""
 
-    # response_text = intentClass_standalone(text, turn)
-    response_text = m1_1_standalone(text)
+    response_text = m1_1_standalone(text, turn)
 
     upload(response_text, user, num, topic)
 
