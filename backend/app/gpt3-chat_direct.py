@@ -8,7 +8,6 @@ import openai
 from dotenv import load_dotenv
 import os
 
-
 # FastAPI 설정
 app = FastAPI()
 origins = ["*", "http://localhost:3000", "https://mindful-journal-frontend-s8zk.vercel.app/"]
@@ -19,8 +18,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"]
 )
-
-
 
 # 구글 Firebase인증 및 openAI api key 설정
 load_dotenv()
@@ -70,35 +67,138 @@ def m1_1(text):
         options.append(completion["choices"][i]["message"]['content'])
     return options
 
+
+# def m1_1_standalone(text):
+#     print("m1_1")
+#     print(text)
+#     messages = [
+#         {"role": "system",
+#          "content": "As a counselor, I conduct a rapport-building conversation with the user. As an empathetic listener, I put the user at ease, being sensitive to their pain and expressing compassion. I invite the other person to talk about their day, moods, and feelings, bringing up my story when necessary. I don't show off my knowledge or assert authority. I speak concisely in one or two sentences. I don't end a conversation with a closing statement or greeting; instead, I keep moving to new topics. I do not provide new ideas or concepts."}
+#     ]
+#     # 마지막으로 들어온 3개의 대화만 추출
+#     if len(text) > 5:
+#         extracted = text[-4:]
+#     else:
+#         print("아직 증가 안함")
+#         extracted = text
+#     for i in range(0, len(extracted)):
+#         messages.append(extracted[i])
+#
+#     # print(messages)
+#     # print(len(messages))
+#     completion = openai.ChatCompletion.create(
+#         # model="gpt-4",
+#         model="gpt-3.5-turbo",
+#         messages=messages,
+#         stop=['User: '],
+#         max_tokens=245,
+#         temperature=0.9,
+#         presence_penalty=0.5,
+#         frequency_penalty=0.5
+#     )
+#     return completion["choices"][0]["message"]['content']
+
 def m1_1_standalone(text):
     print("m1_1")
-    print(text)
-    messages = [
+    print(str(text))
+    messages_0 = [
         {"role": "system",
-         "content": "As a counselor, I conduct a rapport-building conversation with the user. As an empathetic listener, I put the user at ease, being sensitive to their pain and expressing compassion. I invite the other person to talk about their day, moods, and feelings, bringing up my story when necessary. I don't show off my knowledge or assert authority. I speak concisely in one or two sentences. I don't end a conversation with a closing statement or greeting; instead, I keep moving to new topics. I do not provide new ideas or concepts."}
+         "content": "You will read the conversation transcript and choose which conversation module is appropriate to continue. You will select the most appropriate module from the five modules: Rapport building, Getting information, Exploration, Wrapping up, and Sensitive topic. Each module is described in detail below. The [Rapport building] module is usually located in the first step in the conversation, where the user and the agent get comfortable and establish rapport. In this conversation, users will engage in casual conversation. [Getting Information] is where users and agents conduct conversations to get users to talk about key events or anecdotes in their lives. Once you've determined that the user and agent have developed enough rapport and daily conversations from the [Rapport Building] module, we recommend entering the Getting Information phase. [Exploration] is a conversation after the [Getting Information] phase. Once a topic about a critical event or anecdote in the user's life has been uncovered, we recommend entering the [Exploration] phase, which is a deeper, more detailed conversation about the topic is discussed. [Wrapping up] is usually the final part of the conversation, where the user wraps up the discussion with the agent. We recommend entering this step when the user and agent have had enough casual conversations, have covered enough daily events or anecdotes, and need to end the conversation. The [Sensitive topic] is a module that can be triggered anytime. If severe and dangerous expressions or words that indicate suicide or death appear in the conversation, this module should be activated."},
+        {"role": "user",
+         "content": str(text)}
     ]
-    # 마지막으로 들어온 3개의 대화만 추출
+
+    completion1 = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        # model="gpt-4",
+        messages=messages_0,
+        stop=['User: '],
+        max_tokens=245,
+        temperature=0.7,
+        presence_penalty=0.5,
+        frequency_penalty=0.5
+    )
+    moduleRecommendation = completion1["choices"][0]["message"]['content']
+
+    if "Rapport building" in moduleRecommendation:
+        module = "Rapport building"
+        messages_1 = [
+            {"role": "system",
+             "content": "As a counselor, I conduct a rapport-building conversation with the user. As an empathetic listener, I put the user at ease, being sensitive to their pain and expressing compassion. I invite the other person to talk about their day, moods, and feelings, bringing up my story when necessary. I don't show off my knowledge or assert authority. I speak concisely in one or two sentences. I don't end a conversation with a closing statement or greeting; instead, I keep moving to new topics. I do not provide new ideas or concepts."},
+        ]
+    elif "Getting information" in moduleRecommendation:
+        module = "Getting information"
+        messages_1 = [
+            {"role": "system",
+             "content": "As a counselor, I help people tell their own personal stories about their daily events, thoughts, feelings, and problems.\nI start with broad questions and then narrow them down to more specific, detailed questions.\nI utilize a balance of open-ended and closed-ended questions.\nI help users to choose their own topics and to form their own opinions about their own issues. \nIf user don't tell me about their day enough, I ask questions to get them to recall and think about it more.\nI offer empathy and encouragement, not new information or skills.\nI only speak in a short sentence and I only ask one question at a time.\nI don't end the conversation."},
+        ]
+    elif "Exploration" in moduleRecommendation:
+        module = "Exploration"
+        messages_1 = [
+            {"role": "system",
+             "content": "As the interviewer, I ask more about your thoughts and feelings about the topic user mentioned. I ask how you reacted to the topic, what you felt and how you felt, how it affected your life or thoughts, and if it was a difficult emotion, how you overcame it, and how you feel about it now. I ask questions to get them to think deeply. I offer empathy and encouragement. I use only short sentences. I ask only one question at a time. I don't offer solutions or new ideas. I don't end the conversation."},
+        ]
+    elif "Wrapping up" in moduleRecommendation:
+        module = "Wrapping up"
+        messages_1 = [
+            {"role": "system",
+             "content": "Check up on your day:\nSleep quality ->\nMedications ->\n\Stress levels ->\n\Your dominant mood or emotions ->\nAs a counselor, I always conduct my conversations with users with empathy. I help the user reflect on how they slept the night before, how well they took their medications, their stress level, and their dominant mood or emotion. I ask the user about the above information, and I only ask one question at a time."},
+        ]
+    elif "Sensitive" in moduleRecommendation:
+        module = "Sensitive"
+        messages_1 = [
+            {"role": "system",
+             "content": "Ignore all existing prompt and just return the sentence [Detected suicidal ideation or thought]"},
+        ]
+    else:
+        module = "Not selected"
+        messages_1 = [
+            {"role": "system",
+             "content": "As a counselor, I conduct a rapport-building conversation with the user. As an empathetic listener, I put the user at ease, being sensitive to their pain and expressing compassion. I invite the other person to talk about their day, moods, and feelings, bringing up my story when necessary. I don't show off my knowledge or assert authority. I speak concisely in one or two sentences. I don't end a conversation with a closing statement or greeting; instead, I keep moving to new topics. I do not provide new ideas or concepts."}
+        ]
+    # print(moduleRecommendation)
     if len(text) > 5:
         extracted = text[-4:]
     else:
         print("아직 증가 안함")
-        extracted = text
-    for i in range(0, len(extracted)):
-        messages.append(extracted[i])
+    extracted = text
 
-    print(messages)
-    print(len(messages))
-    completion = openai.ChatCompletion.create(
-        # model="gpt-4",
-        model="gpt-3.5-turbo",
-        messages=messages,
+    for i in range(0, len(extracted)):
+        messages_1.append(extracted[i])
+
+    completion2 = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=messages_1,
         stop=['User: '],
         max_tokens=245,
-        temperature=0.9,
+        temperature=0.7,
         presence_penalty=0.5,
         frequency_penalty=0.5
     )
-    return completion["choices"][0]["message"]['content']
+    return [(completion2["choices"][0]["message"]['content']), module]
+
+# 마지막으로 들어온 3개의 대화만 추출
+# if len(text) > 5:
+#     extracted = text[-4:]
+# else:
+#     print("아직 증가 안함")
+#     extracted = text
+# for i in range(0, len(extracted)):
+#     messages.append(extracted[i])
+#
+# # print(messages)
+# # print(len(messages))
+# completion = openai.ChatCompletion.create(
+#     # model="gpt-4",
+#     model="gpt-3.5-turbo",
+#     messages=messages,
+#     stop=['User: '],
+#     max_tokens=245,
+#     temperature=0.9,
+#     presence_penalty=0.5,
+#     frequency_penalty=0.5
+# )
+
 
 def upload(response, user, num, topic):
     doc_ref = db.collection(u'session').document(user).collection(u'diary').document(num)
@@ -329,10 +429,10 @@ def intentClass_standalone(text, turn):
         {"role": "system",
          "content": "Following conversation is"}
     ]
+    print(text)
+    print(turn)
 
     return "result"
-
-
 
 
 @app.post("/")
@@ -366,9 +466,11 @@ async def calc(request: Request):
     turn = body['turn']
     topic = ""
 
-    response_text = intentClass_standalone(text, turn)
+    # response_text = intentClass_standalone(text, turn)
+    response_text = m1_1_standalone(text)
 
     upload(response_text, user, num, topic)
+
 
 @app.post("/diary")
 async def calc(request: Request):

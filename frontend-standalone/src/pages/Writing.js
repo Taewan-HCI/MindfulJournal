@@ -36,6 +36,7 @@ function Writing(props) {
 
     let [inputUser, setInputUser] = useState('')
     let [prompt, setPrompt] = useState('')
+    let [module, setModule] = useState('')
     let [diary, setDiary] = useState("")
     let [diaryShow, setDiaryShow] = useState(false)
     const [modalShow, setModalShow] = useState(false);
@@ -100,7 +101,7 @@ function Writing(props) {
             const sessionNum = await (existingSession.data().count + 1)
             diaryNumber.current = String(sessionNum)
             await setDoc(doc(db, "session", props.userName, "diary", session), {
-                outputFromLM: "만나서 반가워요. 오늘 하루는 어떤가요?",
+                outputFromLM: ["만나서 반가워요. 오늘 하루는 어떤가요?", "Initiation"],
                 conversation: [],
                 isFinish: false,
                 module: "",
@@ -163,7 +164,8 @@ function Writing(props) {
 
     async function getLastSentence(response) {
         let a = setTimeout(() => {
-            setPrompt(response)
+            setModule(response[1])
+            setPrompt(response[0])
             console.log(prompt)
             if ((prompt).trim() === "") {
                 setLoading(true)
@@ -290,7 +292,7 @@ function Writing(props) {
             <Container>
                 <Row>
                     <div>
-                        <div>현재 사용자:<b>{props.userName}</b> 세션 넘버:<b>{session}</b></div>
+                        <div>현재 사용자:<b>{props.userName}</b> 세션 넘버:<b>{session}</b> 현재 모듈:<b>{module}</b></div>
                         {loading === true ? <Loading/> :
                             <Userinput prompt={prompt} setInputUser={setInputUser} inputUser={inputUser}
                                        addConversationFromUser={addConversationFromUser}
