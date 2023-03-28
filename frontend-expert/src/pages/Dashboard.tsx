@@ -9,6 +9,7 @@ import {
   ToggleButton,
 } from 'react-bootstrap';
 import ContentWithTitle from '../components/ContentWithTitle';
+import DateRangePicker from '../components/datePicker/DateRangePicker';
 import Diary from '../components/Diary';
 import mockDiary from '../mocks/diaryData';
 
@@ -81,7 +82,7 @@ function Dashboard() {
                 <p className="fs-5 fw-bold text-primary">분석할 날짜 지정</p>
               </Col>
               <Col xs={9}>
-                <p className="fs-5 fw-bold text-primary">분석할 날짜 지정</p>
+                <DateRangePicker />
               </Col>
             </Row>
             <ContentWithTitle title="참여 수준">
