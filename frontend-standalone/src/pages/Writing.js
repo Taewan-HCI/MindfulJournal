@@ -109,7 +109,8 @@ function Writing(props) {
                 diary: "",
                 topic: "",
                 sessionStart: Math.floor(Date.now() / 1000),
-                summary: ""
+                summary: "",
+                history: []
             });
         }
         sessionStatus.current = true
@@ -185,7 +186,7 @@ function Writing(props) {
             const readyRequest = docSnap.data().conversation;
             console.log(readyRequest)
             turnCount.current = turnCount.current + 1
-            requestPrompt(readyRequest, props.userName, session, turnCount.current)
+            requestPrompt(readyRequest, props.userName, session, turnCount.current, module)
         } else {
             console.log("No such document!");
         }
@@ -194,14 +195,15 @@ function Writing(props) {
     // https://mindfuljournal-fzesr.run.goorm.site
     // http://0.0.0.0:8000
 
-    function requestPrompt(text, user, num, turn) {
+    function requestPrompt(text, user, num, turn, module) {
         return fetch('http://0.0.0.0:8000/standalone', {
             method: 'POST',
             body: JSON.stringify({
                 'text': text,
                 'user': user,
                 'num': num,
-                'turn': turn
+                'turn': turn,
+                'module': module
             })
         })
             .catch(err => console.log(err));
@@ -292,7 +294,7 @@ function Writing(props) {
             <Container>
                 <Row>
                     <div>
-                        <div>현재 사용자:<b>{props.userName}</b> 세션 넘버:<b>{session}</b> 현재 모듈:<b>{module}</b></div>
+                        <div>현재 사용자:<b>{props.userName}</b> 세션 넘버:<b>{session}</b> 현재 모듈:<b>{module}</b> 현재 진행 turn:<b>{turnCount.current}</b></div>
                         {loading === true ? <Loading/> :
                             <Userinput prompt={prompt} setInputUser={setInputUser} inputUser={inputUser}
                                        addConversationFromUser={addConversationFromUser}

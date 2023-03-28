@@ -98,12 +98,12 @@ def m1_1(text):
 #     )
 #     return completion["choices"][0]["message"]['content']
 
-def m1_1_standalone(text, turn):
+def m1_1_standalone(text, turn, module):
     print("m1_1")
     print(str(text))
     messages_0 = [
         {"role": "system",
-         "content": "Current turn:" + str(turn) + "\n You will read the conversation transcript and choose which conversation phase is appropriate to continue. You will select the most appropriate phase from the five phase: Rapport building, Getting information, Exploration, Wrapping up, and Sensitive topic. Each phase is described in detail below. The [Rapport building] phase is usually located in the first step in the conversation, where the user and the agent get comfortable and establish rapport. In this conversation, users will engage in casual conversation. [Getting Information] is where users and agents conduct conversations to get users to talk about key events or anecdotes in their lives. Once you've determined that the user and agent have developed enough rapport and daily conversations from the [Rapport Building] module, we recommend entering the Getting Information phase. [Exploration] is a conversation after the [Getting Information] phase. Once a topic about a critical event or anecdote in the user's life has been uncovered, we recommend entering the [Exploration] phase, which is a phase where user and agent discuss a deeper, more detailed conversation about the topic. [Wrapping up] is usually the final phase of the conversation, where the user wraps up the conversation with the agent. We recommend entering this step when the user and agent have had enough conversations, have covered enough daily events or anecdotes, and need to end the conversation. The [Sensitive topic] is a module that can be triggered anytime. If severe and dangerous expressions or words that indicate suicide or death appear in the conversation, this module should be activated. We recommend having conversation 3~5 turn in each phase but you don’t have to follow this. We expect around 12~17turn for the whole conversation."},
+         "content": "Current turn:" + str(turn) + "Current module: " + str(module) + "\nYou will read a conversation transcript and determine which conversation phase is appropriate to continue. Choose the most suitable phase from the following five options: Rapport building, Getting information, Exploration, Wrapping up, and Sensitive topic. A brief description of each phase is provided below.\n\n[Rapport building]: Typically the first phase of the conversation, where the user and the agent establish rapport and engage in casual conversation.\n[Getting information]: This phase involves the user and agent discussing key events or anecdotes in the user's life. Transition to this phase once enough rapport has been built through casual conversation.\n[Exploration]: A deeper, more detailed conversation about a critical event or anecdote in the user's life. Enter this phase after the Getting Information phase.\n[Wrapping up]: The final phase of the conversation, in which the user and agent conclude their discussion. Enter this phase once enough conversation has occurred and the user and agent need to end the conversation. Note that once you enter the Wrapping up phase, you must remain in it.\n[Sensitive topic]: This module can be triggered at any time. Activate it if the conversation includes severe or dangerous expressions, or indications of suicide or death.\n\nWe recommend having 3-5 turns per phase but this is not a strict requirement. The overall conversation should consist of approximately 12-17 turns."},
         {"role": "user",
          "content": str(text)}
     ]
@@ -116,7 +116,20 @@ def m1_1_standalone(text, turn):
         max_tokens=245,
         temperature=0.7,
         presence_penalty=0.5,
-        frequency_penalty=0.5
+        frequency_penalty=0.5,
+        # logit_bias={
+        #     49: 10.0,
+        #     1324: 10.0,
+        #     419: 10.0,
+        #     2615: 10.0,
+        #     20570: 10.0,
+        #     1321: 10.0,
+        #     18438: 10.0,
+        #     6944: 10.0,
+        #     50: 10.0,
+        #     18464: 10.0,
+        #     7243: 10.0
+        # }
     )
     moduleRecommendation = completion1["choices"][0]["message"]['content']
 
@@ -206,6 +219,10 @@ def upload(response, user, num, topic):
         u'outputFromLM': response,
         u'topic': topic
     }, merge=True)
+    doc_ref.update({
+        u'history': firestore.ArrayUnion([u'test'])
+    })
+
 
 
 # 2단계 Getting Information 단계
@@ -455,8 +472,9 @@ async def calc(request: Request):
     num = body['num']
     turn = body['turn']
     topic = ""
+    module = body['module']
 
-    response_text = m1_1_standalone(text, turn)
+    response_text = m1_1_standalone(text, turn, module)
 
     upload(response_text, user, num, topic)
 
