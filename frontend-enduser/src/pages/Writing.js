@@ -209,7 +209,7 @@ function Writing(props) {
             method: 'POST',
             body: JSON.stringify({
                 'user': props.userName,
-                'num': sessionw
+                'num': session
             })
         })
             .catch(err => console.log(err));

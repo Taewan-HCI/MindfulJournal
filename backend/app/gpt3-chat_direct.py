@@ -53,7 +53,7 @@ def m1_1(text):
     print(len(messages))
     completion = openai.ChatCompletion.create(
         # model="gpt-4",
-        model="gpt-3.5-turbo",
+        model="gpt-4",
         messages=messages,
         stop=['User: '],
         max_tokens=245,
@@ -103,7 +103,7 @@ def m1_1_standalone(text, turn, module):
     print(str(text))
     messages_0 = [
         {"role": "system",
-         "content": "Current turn:" + str(turn) + "Current module: " + str(module) + "\nYou will read a conversation transcript and determine which conversation phase is appropriate to continue. Choose the most suitable phase from the following five options: Rapport building, Getting information, Exploration, Wrapping up, and Sensitive topic. The conversation usually proceeds in the order of Rapport building, Getting information, Exploration, and Wrapping up phases. The entire conversation should consist of approximately 12-24 turns. A brief description of each phase is provided below.\n[Rapport building]: Typically the first phase of the conversation, where the user and the agent establish rapport and engage in casual conversation.\n[Getting information]: This phase is for asking the user about key events or anecdotes in the user's life. Transition to this phase once enough rapport and comfort has been built through casual conversation with the user. \n[Exploration]: A deeper, more detailed conversation about a main event or anecdote in the user's life. You can entere this phase when a major event or thought is mentioned that can be discussed further. .\n[Wrapping up]: The final phase of the conversation, in which the user and agent conclude their discussion. Enter this phase once enough conversation has occurred and the user and agent need to end the conversation. Note that once you enter the Wrapping up phase, you must remain in it.\n[Sensitive topic]: This module can be triggered at any time. Activate it if the conversation includes severe or dangerous expressions, or indications of suicide or death. Note that once you enter the Sesnsitive topic phase, you must remain in it."},
+         "content": "Current turn:" + str(turn) + "Current module: " + str(module) + "\nYou will read a conversation transcript and determine which conversation phase is appropriate to continue. Choose the most suitable phase from the following five options: Rapport building, Getting information, Exploration, Wrapping up, and Sensitive topic. The conversation usually proceeds in the order of Rapport building, Getting information, Exploration, and Wrapping up phases. The entire conversation should consist of approximately 12-24 turns. A brief description of each phase is provided below.\n[Rapport building]: Typically the first phase of the conversation, where the user and the agent establish rapport and engage in casual conversation.\n[Getting information]: This phase is for asking the user about key events or anecdotes in the user's life. Transition to this phase once enough rapport and comfort has been built through casual conversation with the user for about 2~3 turns. \n[Exploration]: A deeper, more detailed conversation about a main event or anecdote in the user's life. You can entere this phase when a major event or thought is mentioned that can be discussed further.\n[Wrapping up]: The final phase of the conversation, in which the user and agent conclude their discussion. Enter this phase once enough conversation has occurred and the user and agent need to end the conversation. Note that once you enter the Wrapping up phase, you must remain in it.\n[Sensitive topic]: This module can be triggered at any time. Activate it if the conversation includes indications of suicide or death. Note that once you enter the Sesnsitive topic phase, you must remain in it."},
         {"role": "user",
          "content": str(text)}
     ]
@@ -137,7 +137,7 @@ def m1_1_standalone(text, turn, module):
         module = "Rapport building"
         messages_1 = [
             {"role": "system",
-             "content": "As a counselor, I conduct a rapport-building conversation with the user. As an empathetic listener, I put the user at ease, being sensitive to their pain and expressing compassion. I invite the other person to talk about their day, moods, and feelings, bringing up my story when necessary. I don't show off my knowledge or assert authority. I speak concisely in one or two sentences. I don't end a conversation with a closing statement or greeting; instead, I keep moving to new topics. I do not provide new ideas or concepts."},
+             "content": "As a counselor, I conduct a rapport-building conversation with the user. As an empathetic listener, I put the user at ease, being sensitive to their pain and expressing compassion. I invite the user to talk about their day, bringing up my story when necessary. I don't show off my knowledge or assert authority. I speak concisely in one or two sentences. I don't end a conversation with a closing statement or greeting; instead, I keep moving to new topics. I do not provide new ideas or concepts."},
         ]
     elif "Getting information" in moduleRecommendation:
         module = "Getting information"
@@ -211,6 +211,13 @@ def m1_1_standalone(text, turn, module):
 #     presence_penalty=0.5,
 #     frequency_penalty=0.5
 # )
+
+def upload_1(response_text, user, num, topic):
+    doc_ref = db.collection(u'session').document(user).collection(u'diary').document(num)
+    doc_ref.set({
+        u'fiveOptionFromLLM': response_text,
+        u'topic': topic
+    }, merge=True)
 
 
 def upload(response, user, num, topic):
@@ -461,7 +468,7 @@ async def calc(request: Request):
 
     else:
         response_text = m1_1(text)
-    upload(response_text, user, num, topic)
+    upload_1(response_text, user, num, topic)
 
 
 @app.post("/standalone")

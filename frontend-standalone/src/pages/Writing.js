@@ -9,7 +9,7 @@ import {
     setDoc,
     collection,
     onSnapshot,
-    getCountFromServer,
+    getCountFromServer, updateDoc, arrayUnion
 } from 'firebase/firestore'
 import {db} from "../firebase-config";
 import Container from 'react-bootstrap/Container';
@@ -201,7 +201,7 @@ function Writing(props) {
     // http://0.0.0.0:8000
 
     function requestPrompt(text, user, num, turn, module) {
-        return fetch('https://mindfuljournal-fzesr.run.goorm.site/standalone', {
+        return fetch('http://0.0.0.0:8000/standalone', {
             method: 'POST',
             body: JSON.stringify({
                 'text': text,
@@ -216,7 +216,7 @@ function Writing(props) {
 
     function requestSummerization() {
         setDiaryShow(true)
-        return fetch('https://mindfuljournal-fzesr.run.goorm.site/diary', {
+        return fetch('http://0.0.0.0:8000/diary', {
             method: 'POST',
             body: JSON.stringify({
                 'user': props.userName,
@@ -243,15 +243,15 @@ function Writing(props) {
         const docSnap2 = await getDoc(docRef2);
         if (docSnap2.exists()) {
             const message = docSnap2.data().conversation;
+            const history = docSnap2.data().history;
             message[message.length] = system_temp;
             message[message.length] = user_temp;
-            const history = docSnap2.data().history;
-            history[history.length] = history_temp;
+            history[history.length] = history_temp
             let a = setTimeout(async () => {
                 await setDoc(docRef2, {
                     conversation: message,
-                    history: history_temp,
-                    outputFromLM: ""
+                    outputFromLM: "",
+                    history: history
                 }, {merge: true});
                 assemblePrompt();
                 setLoading(true);
