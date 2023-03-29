@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-wrap-multilines */
 /* eslint-disable operator-linebreak */
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { useState } from 'react';
@@ -7,10 +8,16 @@ import {
   Card,
   Col,
   Container,
+  Nav,
   Row,
   ToggleButton,
 } from 'react-bootstrap';
-import { ArrowClockwise } from 'react-bootstrap-icons';
+import {
+  ArrowClockwise,
+  Calendar3,
+  Stopwatch,
+  TextLeft,
+} from 'react-bootstrap-icons';
 import ContentWithTitle from '../components/ContentWithTitle';
 import DateRangePicker from '../components/datePicker/DateRangePicker';
 import Diary from '../components/Diary';
@@ -99,13 +106,40 @@ function Dashboard() {
               </Col>
             </Row>
             <ContentWithTitle title="참여 수준">
-              <div>테스트</div>
+              <Card>
+                <Card.Header>
+                  <Nav variant="tabs" defaultActiveKey="frequency" fill>
+                    <Nav.Item>
+                      <Nav.Link eventKey="frequency">
+                        <Calendar3 className="me-2" />
+                        <span>참여 빈도 </span>
+                      </Nav.Link>
+                    </Nav.Item>
+                    <Nav.Item>
+                      <Nav.Link eventKey="avgtime">
+                        <Stopwatch className="me-2" />
+                        <span>진행 시간 </span>
+                      </Nav.Link>
+                    </Nav.Item>
+                    <Nav.Item>
+                      <Nav.Link eventKey="avglength">
+                        <TextLeft className="me-2" />
+                        <span>작성 분량 </span>
+                      </Nav.Link>
+                    </Nav.Item>
+                  </Nav>
+                </Card.Header>
+                <Card.Body>
+                  <Card.Title>카드 제목</Card.Title>
+                  <Card.Text>1번</Card.Text>
+                </Card.Body>
+              </Card>
             </ContentWithTitle>
             <ContentWithTitle title="핵심 감정">
-              <div>테스트</div>
+              <Card body>핵심 감정의 나열</Card>
             </ContentWithTitle>
             <ContentWithTitle title="주요 사건">
-              <div>테스트</div>
+              <Card body>주요 사건의 나열</Card>
             </ContentWithTitle>
             <ContentWithTitle title="긍정/부정 비율">
               <div>테스트</div>
