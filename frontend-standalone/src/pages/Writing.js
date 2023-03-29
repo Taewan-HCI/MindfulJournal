@@ -243,15 +243,15 @@ function Writing(props) {
         const docSnap2 = await getDoc(docRef2);
         if (docSnap2.exists()) {
             const message = docSnap2.data().conversation;
+            const history = docSnap2.data().history;
             message[message.length] = system_temp;
             message[message.length] = user_temp;
-            const history = docSnap2.data().history;
-            history[history.length] = history_temp;
+            history[history.length] = history_temp
             let a = setTimeout(async () => {
                 await setDoc(docRef2, {
                     conversation: message,
-                    history: history_temp,
-                    outputFromLM: ""
+                    outputFromLM: "",
+                    history: history
                 }, {merge: true});
                 assemblePrompt();
                 setLoading(true);
