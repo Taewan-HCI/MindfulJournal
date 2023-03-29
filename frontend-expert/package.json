@@ -12,6 +12,7 @@
     "@types/react-datepicker": "^4.10.0",
     "@types/react-dom": "^18.0.11",
     "@types/react-router-dom": "^5.3.3",
+    "@types/recharts": "^1.8.24",
     "bootstrap": "^5.2.3",
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-jsx-a11y": "^6.7.1",
@@ -23,6 +24,7 @@
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.9.0",
     "react-scripts": "5.0.1",
+    "recharts": "^2.5.0",
     "typescript": "^4.9.5",
     "web-vitals": "^2.1.4"
   },

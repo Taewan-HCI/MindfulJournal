@@ -16,7 +16,7 @@ import ContentWithTitle from '../../components/ContentWithTitle';
 import DateRangePicker from './components/datePicker/DateRangePicker';
 import Diary from './components/Diary';
 import mockDiary from '../../mocks/diaryData';
-import TabWithGraph from './components/TabWithGraph';
+import Tabs from './components/Tabs';
 
 function Dashboard() {
   const [radioValue, setRadioValue] = useState<string | null>(null);
@@ -101,7 +101,7 @@ function Dashboard() {
               </Col>
             </Row>
             <ContentWithTitle title="참여 수준">
-              <TabWithGraph />
+              <Tabs />
             </ContentWithTitle>
             <ContentWithTitle title="핵심 감정">
               <Card body>핵심 감정의 나열</Card>
