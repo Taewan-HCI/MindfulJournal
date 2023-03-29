@@ -1,6 +1,8 @@
+/* eslint-disable operator-linebreak */
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { useState } from 'react';
 import {
+  Button,
   ButtonGroup,
   Card,
   Col,
@@ -8,13 +10,14 @@ import {
   Row,
   ToggleButton,
 } from 'react-bootstrap';
+import { ArrowClockwise } from 'react-bootstrap-icons';
 import ContentWithTitle from '../components/ContentWithTitle';
 import DateRangePicker from '../components/datePicker/DateRangePicker';
 import Diary from '../components/Diary';
 import mockDiary from '../mocks/diaryData';
 
 function Dashboard() {
-  const [radioValue, setRadioValue] = useState('1');
+  const [radioValue, setRadioValue] = useState<string | null>(null);
 
   const radios = [
     { name: '3일 전', value: '1', id: 1 },
@@ -69,7 +72,13 @@ function Dashboard() {
                       name="radio"
                       value={radio.value}
                       checked={radioValue === radio.value}
-                      onChange={(e) => setRadioValue(e.currentTarget.value)}
+                      onChange={(e) => {
+                        const select =
+                          e.currentTarget.value === radioValue
+                            ? null
+                            : e.currentTarget.value;
+                        setRadioValue(select);
+                      }}
                     >
                       {radio.name}
                     </ToggleButton>
@@ -81,8 +90,12 @@ function Dashboard() {
               <Col xs={3}>
                 <p className="fs-5 fw-bold text-primary">분석할 날짜 지정</p>
               </Col>
-              <Col xs={9}>
+              <Col xs={9} className="d-flex justify-content-between">
                 <DateRangePicker />
+                <Button variant="primary" className="my-auto">
+                  <ArrowClockwise className="ml-4" />
+                  <span className="px-2 fw-bold"> 분석 </span>
+                </Button>
               </Col>
             </Row>
             <ContentWithTitle title="참여 수준">
