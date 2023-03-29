@@ -201,7 +201,7 @@ function Writing(props) {
     // http://0.0.0.0:8000
 
     function requestPrompt(text, user, num, turn, module) {
-        return fetch('https://mindfuljournal-fzesr.run.goorm.site', {
+        return fetch('https://mindfuljournal-fzesr.run.goorm.site/standalone', {
             method: 'POST',
             body: JSON.stringify({
                 'text': text,
