@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Card, Nav } from 'react-bootstrap';
 import { Calendar3, Stopwatch, TextLeft } from 'react-bootstrap-icons';
-import PercentAreaChart from './charts/Tabs';
+import TimeSeriesChart from './charts/TimeSeriesChart';
 
 function TabContent({ tab }: { tab: string | null }) {
   if (tab === null) {
@@ -19,7 +19,7 @@ function TabContent({ tab }: { tab: string | null }) {
       <>
         <Card.Title>총 참여 횟수</Card.Title>
         <Card.Text>총 16회 참여했습니다.</Card.Text>
-        <PercentAreaChart />
+        <TimeSeriesChart />
       </>
     );
   }
@@ -29,6 +29,7 @@ function TabContent({ tab }: { tab: string | null }) {
       <>
         <Card.Title>평균 참여 시간</Card.Title>
         <Card.Text>평균 8분 소모했습니다.</Card.Text>
+        <TimeSeriesChart />
       </>
     );
   }
@@ -37,6 +38,7 @@ function TabContent({ tab }: { tab: string | null }) {
     <>
       <Card.Title>평균 작성 일기 길이</Card.Title>
       <Card.Text>평균 823자 작성했습니다.</Card.Text>
+      <TimeSeriesChart />
     </>
   );
 }

@@ -17,6 +17,7 @@ import DateRangePicker from './components/datePicker/DateRangePicker';
 import Diary from './components/Diary';
 import mockDiary from '../../mocks/diaryData';
 import Tabs from './components/Tabs';
+import PercentAreaChart from './components/charts/PercentAreaChart';
 
 function Dashboard() {
   const [radioValue, setRadioValue] = useState<string | null>(null);
@@ -110,7 +111,7 @@ function Dashboard() {
               <Card body>주요 사건의 나열</Card>
             </ContentWithTitle>
             <ContentWithTitle title="긍정/부정 비율">
-              <div>테스트</div>
+              <PercentAreaChart />
             </ContentWithTitle>
           </Col>
         </Row>
