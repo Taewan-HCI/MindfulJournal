@@ -8,20 +8,15 @@ import {
   Card,
   Col,
   Container,
-  Nav,
   Row,
   ToggleButton,
 } from 'react-bootstrap';
-import {
-  ArrowClockwise,
-  Calendar3,
-  Stopwatch,
-  TextLeft,
-} from 'react-bootstrap-icons';
-import ContentWithTitle from '../components/ContentWithTitle';
-import DateRangePicker from '../components/datePicker/DateRangePicker';
-import Diary from '../components/Diary';
-import mockDiary from '../mocks/diaryData';
+import { ArrowClockwise } from 'react-bootstrap-icons';
+import ContentWithTitle from '../../components/ContentWithTitle';
+import DateRangePicker from './components/datePicker/DateRangePicker';
+import Diary from './components/Diary';
+import mockDiary from '../../mocks/diaryData';
+import TabWithGraph from './components/TabWithGraph';
 
 function Dashboard() {
   const [radioValue, setRadioValue] = useState<string | null>(null);
@@ -106,34 +101,7 @@ function Dashboard() {
               </Col>
             </Row>
             <ContentWithTitle title="참여 수준">
-              <Card>
-                <Card.Header>
-                  <Nav variant="tabs" defaultActiveKey="frequency" fill>
-                    <Nav.Item>
-                      <Nav.Link eventKey="frequency">
-                        <Calendar3 className="me-2" />
-                        <span>참여 빈도 </span>
-                      </Nav.Link>
-                    </Nav.Item>
-                    <Nav.Item>
-                      <Nav.Link eventKey="avgtime">
-                        <Stopwatch className="me-2" />
-                        <span>진행 시간 </span>
-                      </Nav.Link>
-                    </Nav.Item>
-                    <Nav.Item>
-                      <Nav.Link eventKey="avglength">
-                        <TextLeft className="me-2" />
-                        <span>작성 분량 </span>
-                      </Nav.Link>
-                    </Nav.Item>
-                  </Nav>
-                </Card.Header>
-                <Card.Body>
-                  <Card.Title>카드 제목</Card.Title>
-                  <Card.Text>1번</Card.Text>
-                </Card.Body>
-              </Card>
+              <TabWithGraph />
             </ContentWithTitle>
             <ContentWithTitle title="핵심 감정">
               <Card body>핵심 감정의 나열</Card>
