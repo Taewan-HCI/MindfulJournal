@@ -201,7 +201,7 @@ function Writing(props) {
     // http://0.0.0.0:8000
 
     function requestPrompt(text, user, num, turn, module) {
-        return fetch('http://0.0.0.0:8000/standalone', {
+        return fetch('https://mindfuljournal-fzesr.run.goorm.site', {
             method: 'POST',
             body: JSON.stringify({
                 'text': text,
@@ -216,7 +216,7 @@ function Writing(props) {
 
     function requestSummerization() {
         setDiaryShow(true)
-        return fetch('http://0.0.0.0:8000/diary', {
+        return fetch('https://mindfuljournal-fzesr.run.goorm.site/diary', {
             method: 'POST',
             body: JSON.stringify({
                 'user': props.userName,
