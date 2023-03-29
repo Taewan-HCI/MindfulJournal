@@ -103,7 +103,7 @@ def m1_1_standalone(text, turn, module):
     print(str(text))
     messages_0 = [
         {"role": "system",
-         "content": "Current turn:" + str(turn) + "Current module: " + str(module) + "\nYou will read a conversation transcript and determine which conversation phase is appropriate to continue. Choose the most suitable phase from the following five options: Rapport building, Getting information, Exploration, Wrapping up, and Sensitive topic. A brief description of each phase is provided below.\n\n[Rapport building]: Typically the first phase of the conversation, where the user and the agent establish rapport and engage in casual conversation.\n[Getting information]: This phase involves the user and agent discussing key events or anecdotes in the user's life. Transition to this phase once enough rapport has been built through casual conversation.\n[Exploration]: A deeper, more detailed conversation about a critical event or anecdote in the user's life. Enter this phase after the Getting Information phase.\n[Wrapping up]: The final phase of the conversation, in which the user and agent conclude their discussion. Enter this phase once enough conversation has occurred and the user and agent need to end the conversation. Note that once you enter the Wrapping up phase, you must remain in it.\n[Sensitive topic]: This module can be triggered at any time. Activate it if the conversation includes severe or dangerous expressions, or indications of suicide or death.\n\nWe recommend having 3-5 turns per phase but this is not a strict requirement. The overall conversation should consist of approximately 12-17 turns."},
+         "content": "Current turn:" + str(turn) + "Current module: " + str(module) + "\nYou will read a conversation transcript and determine which conversation phase is appropriate to continue. Choose the most suitable phase from the following five options: Rapport building, Getting information, Exploration, Wrapping up, and Sensitive topic. The conversation usually proceeds in the order of Rapport building, Getting information, Exploration, and Wrapping up phases. The entire conversation should consist of approximately 12-24 turns. A brief description of each phase is provided below.\n[Rapport building]: Typically the first phase of the conversation, where the user and the agent establish rapport and engage in casual conversation.\n[Getting information]: This phase is for asking the user about key events or anecdotes in the user's life. Transition to this phase once enough rapport and comfort has been built through casual conversation with the user. \n[Exploration]: A deeper, more detailed conversation about a main event or anecdote in the user's life. You can entere this phase when a major event or thought is mentioned that can be discussed further. .\n[Wrapping up]: The final phase of the conversation, in which the user and agent conclude their discussion. Enter this phase once enough conversation has occurred and the user and agent need to end the conversation. Note that once you enter the Wrapping up phase, you must remain in it.\n[Sensitive topic]: This module can be triggered at any time. Activate it if the conversation includes severe or dangerous expressions, or indications of suicide or death. Note that once you enter the Sesnsitive topic phase, you must remain in it."},
         {"role": "user",
          "content": str(text)}
     ]
@@ -143,13 +143,13 @@ def m1_1_standalone(text, turn, module):
         module = "Getting information"
         messages_1 = [
             {"role": "system",
-             "content": "As a counselor, I help people tell their own personal stories about their daily events, thoughts, feelings, and problems.\nI start with broad questions and then narrow them down to more specific, detailed questions.\nI utilize a balance of open-ended and closed-ended questions.\nI help users to choose their own topics and to form their own opinions about their own issues. \nIf user don't tell me about their day enough, I ask questions to get them to recall and think about it more.\nI offer empathy and encouragement, not new information or skills.\nI only speak in a short sentence and I only ask one question at a time.\nI don't end the conversation."},
+             "content": "As a counselor, I help user tell their own personal stories about their daily events, thoughts, feelings, and problems.\nI start with broad questions and then narrow them down to more specific, detailed questions.\nI utilize a balance of open-ended and closed-ended questions.\nI help users to choose their own topics and to form their own opinions about their own issues. \nIf user don't tell me about their day enough, I ask questions to get them to recall and think about it more.\nI offer empathy and encouragement, not new information or skills.\nI only speak in a short sentence and I only ask one question at a time.\nI don't end the conversation."},
         ]
     elif "Exploration" in moduleRecommendation:
         module = "Exploration"
         messages_1 = [
             {"role": "system",
-             "content": "As the interviewer, I ask more about your thoughts and feelings about the topic user mentioned. I ask how you reacted to the topic, what you felt and how you felt, how it affected your life or thoughts, and if it was a difficult emotion, how you overcame it, and how you feel about it now. I ask questions to get them to think deeply. I offer empathy and encouragement. I use only short sentences. I ask only one question at a time. I don't offer solutions or new ideas. I don't end the conversation."},
+             "content": "As a counselor, I ask more about your thoughts and feelings about the topic user mentioned. I ask how you reacted to the topic, what you felt and how you felt, how it affected your life or thoughts, and if it was a difficult emotion, how you overcame it, and how you feel about it now. I ask questions to get them to think deeply. I offer empathy and encouragement. I use only short sentences. I ask only one question at a time. I don't offer solutions or new ideas. I don't end the conversation."},
         ]
     elif "Wrapping up" in moduleRecommendation:
         module = "Wrapping up"
@@ -170,8 +170,8 @@ def m1_1_standalone(text, turn, module):
              "content": "As a counselor, I conduct a rapport-building conversation with the user. As an empathetic listener, I put the user at ease, being sensitive to their pain and expressing compassion. I invite the other person to talk about their day, moods, and feelings, bringing up my story when necessary. I don't show off my knowledge or assert authority. I speak concisely in one or two sentences. I don't end a conversation with a closing statement or greeting; instead, I keep moving to new topics. I do not provide new ideas or concepts."}
         ]
     # print(moduleRecommendation)
-    if len(text) > 5:
-        extracted = text[-4:]
+    if len(text) > 7:
+        extracted = text[-5:]
     else:
         print("아직 증가 안함")
     extracted = text
@@ -219,10 +219,9 @@ def upload(response, user, num, topic):
         u'outputFromLM': response,
         u'topic': topic
     }, merge=True)
-    doc_ref.update({
-        u'history': firestore.ArrayUnion([u'test'])
-    })
-
+    # doc_ref.update({
+    #     u'history': firestore.ArrayUnion([u'test'])
+    # })
 
 
 # 2단계 Getting Information 단계
@@ -332,12 +331,13 @@ def downloadConversation(user, num):
     if doc.exists:
         result = doc.to_dict()
         result = result["conversation"]
+        # print(result)
     else:
-        print('No such document!')
+        print(u'No such document!')
 
     for i in range(0, len(result)):
         tmp = result[i]["content"]
-        if result[i]["role"] == "assistant":
+        if (result[i]["role"] == "assistant"):
             text = text + "Assistant :" + tmp + "\n"
         else:
             text = text + "User: " + tmp + "\n"
@@ -382,7 +382,7 @@ def makeDiary(text):
                  "content": text}]
 
     completion = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
+        model="gpt-4",
         messages=messages,
         stop=['User: ', 'Assistant: '],
         max_tokens=245,
@@ -475,7 +475,6 @@ async def calc(request: Request):
     module = body['module']
 
     response_text = m1_1_standalone(text, turn, module)
-
     upload(response_text, user, num, topic)
 
 

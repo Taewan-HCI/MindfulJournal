@@ -18,6 +18,7 @@ import {ScaleLoader, BeatLoader} from "react-spinners";
 import "react-datepicker/dist/react-datepicker.css";
 import {useNavigate} from "react-router-dom";
 import Modal from 'react-bootstrap/Modal';
+import templateFactory from "bootstrap/js/src/util/template-factory";
 
 
 function Writing(props) {
@@ -215,7 +216,7 @@ function Writing(props) {
             method: 'POST',
             body: JSON.stringify({
                 'user': props.userName,
-                'num': diaryNumber.current
+                'num': session
             })
         })
             .catch(err => console.log(err));
@@ -229,9 +230,10 @@ function Writing(props) {
         return array
     }*/
 
-    async function addConversationFromUser(input) {
+    async function addConversationFromUser(input, comment) {
         let system_temp = {"role": "assistant", "content": prompt}
         let user_temp = {"role": "user", "content": input};
+        let history_temp = {"prompt": prompt, "userInput": input, "module": module, "comment": comment ,"turn": turnCount.current}
 
         const docRef2 = doc(db, "session", props.userName, "diary", session);
         const docSnap2 = await getDoc(docRef2);
@@ -239,9 +241,12 @@ function Writing(props) {
             const message = docSnap2.data().conversation;
             message[message.length] = system_temp;
             message[message.length] = user_temp;
+            const history = docSnap2.data().history;
+            history[history.length] = history_temp;
             let a = setTimeout(async () => {
                 await setDoc(docRef2, {
                     conversation: message,
+                    history: history_temp,
                     outputFromLM: ""
                 }, {merge: true});
                 assemblePrompt();
@@ -294,7 +299,8 @@ function Writing(props) {
             <Container>
                 <Row>
                     <div>
-                        <div>현재 사용자:<b>{props.userName}</b> 세션 넘버:<b>{session}</b> 현재 모듈:<b>{module}</b> 현재 진행 turn:<b>{turnCount.current}</b></div>
+                        <div>현재 사용자:<b>{props.userName}</b> 세션 넘버:<b>{session}</b> 현재 모듈:<b>{module}</b> 현재 진행
+                            turn:<b>{turnCount.current}</b></div>
                         {loading === true ? <Loading/> :
                             <Userinput prompt={prompt} setInputUser={setInputUser} inputUser={inputUser}
                                        addConversationFromUser={addConversationFromUser}
@@ -325,13 +331,14 @@ function Writing(props) {
 function Userinput(props) {
     //for textfield monitoring
     const temp_input = useRef("");
+    const temp_comment_input = useRef("");
 
 
-    const handleOnKeyPress = e => {
+    /*const handleOnKeyPress = e => {
         if (e.key === "Enter") {
-            props.addConversationFromUser(temp_input.current)
+            props.addConversationFromUser(temp_input.current, temp_comment_input.current)
         }
-    }
+    }*/
 
     return (
         <div>
@@ -356,11 +363,29 @@ function Userinput(props) {
                             onChange={(e) => {
                                 temp_input.current = e.target.value
                             }}
-                            onKeyPress={handleOnKeyPress}
+                            // onKeyPress={handleOnKeyPress}
                         />
                         <Form.Text id="userInput" muted>
                             📝 정해진 양식은 없어요. 편안하고 자유롭게 최근에 있었던 일을 작성해주세요.
                         </Form.Text>
+
+                        <div className="writing_box">
+
+                            <Form.Label htmlFor="commentInput">✍️ 언어모델 출력에 대한 코멘트를 입력해주세요</Form.Label>
+                            <Form.Control
+                                type="input"
+                                as="textarea"
+                                rows={3}
+                                id="commentInput"
+                                onChange={(e) => {
+                                    temp_comment_input.current = e.target.value
+                                }}
+                                // onKeyPress={handleOnKeyPress}
+                            />
+
+                        </div>
+
+
                     </div>
                     <Container>
                         <Row>
@@ -374,7 +399,7 @@ function Userinput(props) {
                                                 if ((temp_input.current).length < 11) {
                                                     alert('입력한 내용이 너무 짧아요. 조금 더 길게 적어볼까요?')
                                                 } else {
-                                                    props.addConversationFromUser(temp_input.current)
+                                                    props.addConversationFromUser(temp_input.current, temp_comment_input.current)
                                                 }
                                             })()
                                         }}>응답 기록하기</Button>
@@ -400,6 +425,7 @@ function Userinput(props) {
                                     }
                                 </div>
                             </Col>
+
                         </Row>
                     </Container>
                 </Row>

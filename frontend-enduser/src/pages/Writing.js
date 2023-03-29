@@ -209,7 +209,7 @@ function Writing(props) {
             method: 'POST',
             body: JSON.stringify({
                 'user': props.userName,
-                'num': diaryNumber.current
+                'num': sessionw
             })
         })
             .catch(err => console.log(err));
@@ -482,6 +482,7 @@ function Loading() {
                         <Form.Text id="userInput" muted>
                             📝 정해진 양식은 없어요. 편안하고 자유롭게 최근에 있었던 일을 작성해주세요.
                         </Form.Text>
+
                     </div>
                     <Container>
                         <Row>

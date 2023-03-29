@@ -168,6 +168,8 @@
     height: auto;
     text-align: left;
     color: black;
+    margin-bottom: 10px;
+    margin-top: 15px;
 }
 
 .inwriting_review_box {
