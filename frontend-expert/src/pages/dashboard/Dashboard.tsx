@@ -18,6 +18,7 @@ import Diary from './components/Diary';
 import mockDiary from '../../mocks/diaryData';
 import Tabs from './components/Tabs';
 import PercentAreaChart from './components/charts/PercentAreaChart';
+import TimeLine from './components/timeLine/TimeLine';
 
 function Dashboard() {
   const [radioValue, setRadioValue] = useState<string | null>(null);
@@ -108,7 +109,9 @@ function Dashboard() {
               <Card body>핵심 감정의 나열</Card>
             </ContentWithTitle>
             <ContentWithTitle title="주요 사건">
-              <Card body>주요 사건의 나열</Card>
+              <Card body>
+                <TimeLine />
+              </Card>
             </ContentWithTitle>
             <ContentWithTitle title="긍정/부정 비율">
               <PercentAreaChart />

@@ -21,10 +21,14 @@ function TimeSeriesChart() {
 
   const data = chartData.map((c) => {
     const t = new Date(c.time);
-    const stampedTime = { ...c, date: t.toLocaleString('en-US') };
+    const stampedTime = {
+      ...c,
+      date: t.toISOString(),
+    };
     return stampedTime;
   });
 
+  const formatXAxis = (t: string) => t.substring(0, 10);
   return (
     <ResponsiveContainer width="95%" aspect={4}>
       <LineChart
@@ -39,7 +43,7 @@ function TimeSeriesChart() {
         }}
       >
         <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="date" />
+        <XAxis dataKey="date" tickFormatter={formatXAxis} />
         <YAxis />
         <Tooltip />
         <Line

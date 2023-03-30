@@ -7,7 +7,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import './Datepicker.css';
 
 const CustomInput = forwardRef((props: any, ref) => (
-  <Form.Control {...props} ref={ref} className="me-4" />
+  <Form.Control {...props} ref={ref} className="me-4 border-primary" />
 ));
 
 function DateRangePicker() {
