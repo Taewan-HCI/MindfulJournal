@@ -25,7 +25,7 @@ frontend-standalone/node_modules/
 
 /build
 
-
+firebase-config.js
 
 # misc
 .DS_Store
