@@ -107,7 +107,8 @@ function Writing(props) {
                 fiveOptionFromLLM: [],
                 diary: "",
                 topic: "",
-                sessionStart: Math.floor(Date.now() / 1000)
+                sessionStart: Math.floor(Date.now() / 1000),
+                HarmfulMsg:[]
             });
         }
         sessionStatus.current = true
