@@ -95,10 +95,10 @@ function Writing(props) {
         if (docSnap.exists()) {
             console.log("진행중인 세션이 있습니다");
         } else {
-            const coll = collection(db, "session", props.userName, "diary")
-            const existingSession = await getCountFromServer(coll)
-            const sessionNum = await (existingSession.data().count + 1)
-            diaryNumber.current = String(sessionNum)
+            // const coll = collection(db, "session", props.userName, "diary")
+            // const existingSession = await getCountFromServer(coll)
+            // const sessionNum = await (existingSession.data().count + 1)
+            // diaryNumber.current = String(session)
             await setDoc(doc(db, "session", props.userName, "diary", session), {
                 outputFromLM: "만나서 반가워요. 오늘 하루는 어떤가요?",
                 conversation: [],
@@ -265,7 +265,9 @@ function Writing(props) {
                     <Col>
                         <div className="d-grid gap-2">
                             종료되지 않은 세션을 이어 진행하고자 한다면<br/>진행중인 세션 번호를 입력해주세요
-                            <input placeholder="세션 번호를 입력해주세요" ref={sessionInputRef}></input>
+                            <input placeholder="세션 번호를 입력해주세요" ref={sessionInputRef} onChange={()=>{
+                                setSession(sessionInputRef.current.value)
+                            }}></input>
                             <Button
                                 variant="primary"
                                 style={{backgroundColor: "007AFF", fontWeight: "600"}}

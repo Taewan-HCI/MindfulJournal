@@ -107,8 +107,12 @@ function Writing(props) {
                 <Row>
                     <Col>
                         <div className="d-grid gap-2">
-                            <input placeholder="사용자 이름을 입력해주세요" ref={userNameRef}></input>
-                            <input placeholder="세션 번호를 입력해주세요" ref={sessionInputRef}></input>
+                            <input placeholder="사용자 이름을 입력해주세요" ref={userNameRef} onChange={()=>{
+                                setUserName(userNameRef.current.value)
+                            }}></input>
+                            <input placeholder="세션 번호를 입력해주세요" ref={sessionInputRef} onChange={()=>{
+                                setSession(sessionInputRef.current.value)
+                            }}></input>
                             <Button
                                 variant="primary"
                                 style={{backgroundColor: "007AFF", fontWeight: "600"}}

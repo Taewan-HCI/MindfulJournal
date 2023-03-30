@@ -48,6 +48,15 @@ function Home(props) {
         }
     })
 
+
+    function Unix_timestamp(t) {
+        var date = new Date(t * 1000);
+        var year = date.getFullYear();
+        var month = "0" + (date.getMonth() + 1);
+        var day = "0" + date.getDate();
+        return year + "년" + month.substr(-2) + "월" + day.substr(-2) + "일 ";
+    }
+
     async function receiveDiaryData() {
         let tempArr = []
         const querySnapshot = await getDocs(collection(db, "session", props.userName, "diary_complete"));
@@ -69,7 +78,7 @@ function Home(props) {
             {lastDate === "" ? <NoDiary userName={props.userName}/> :
                 <Loading_complete userName={props.userName} diaryList={diaryList} lastDate={lastDate}
                                   navigateToWriting={navigateToWriting}
-                                  navigateToReview={navigateToReview}/>}
+                                  navigateToReview={navigateToReview} Unix_timestamp={Unix_timestamp}/>}
 
         </div>
     )
@@ -176,7 +185,7 @@ function Loading_complete(props) {
             <Row>
                 <div className="loading_box_home_bottom">
                     <div>
-                        📅 마지막으로 작성한 다이어리는 <b>{props.lastDate}</b> 일기에요.
+                        📅 마지막으로 작성한 다이어리는 <b>{props.Unix_timestamp(props.lastDate)}</b> 일기에요.
                         <br/>
                         📖 지금까지 <b>{props.diaryList.length}</b>개의 일기를 작성하셨네요!
                     </div>

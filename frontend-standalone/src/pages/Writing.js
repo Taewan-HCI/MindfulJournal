@@ -375,7 +375,7 @@ function Userinput(props) {
                             📝 정해진 양식은 없어요. 편안하고 자유롭게 최근에 있었던 일을 작성해주세요.
                         </Form.Text>
 
-                        <div className="writing_box">
+                        {/*<div className="writing_box">
 
                             <Form.Label htmlFor="commentInput">✍️ 언어모델 출력에 대한 코멘트를 입력해주세요</Form.Label>
                             <Form.Control
@@ -389,7 +389,7 @@ function Userinput(props) {
                                 // onKeyPress={handleOnKeyPress}
                             />
 
-                        </div>
+                        </div>*/}
 
 
                     </div>
