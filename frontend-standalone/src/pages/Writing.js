@@ -234,6 +234,8 @@ function Writing(props) {
         return array
     }*/
 
+    //git hub test
+
     async function addConversationFromUser(input, comment) {
         let system_temp = {"role": "assistant", "content": prompt}
         let user_temp = {"role": "user", "content": input};
