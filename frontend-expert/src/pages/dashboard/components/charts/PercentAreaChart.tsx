@@ -28,7 +28,7 @@ const renderTooltipContent = (o: any) => {
   );
 
   return (
-    <div className="bg-black">
+    <div className="bg-white bg-opacity-75 p-2">
       <p className="total">{`${label} (Total: ${total})`}</p>
       <ul className="list">
         {payload.map((entry: any) => (
@@ -45,26 +45,26 @@ function PercentAreaChart() {
   const data = [
     {
       month: '2015.01',
-      부정: 4000,
       중도: 2400,
       긍정: 2400,
+      부정: 4000,
     },
     {
       month: '2015.02',
-      부정: 3000,
       중도: 1398,
       긍정: 2210,
+      부정: 3000,
     },
     {
       month: '2015.03',
-      부정: 2000,
       중도: 500,
       긍정: 2400,
+      부정: 2000,
     },
   ];
 
   return (
-    <ResponsiveContainer width="70%" aspect={2}>
+    <ResponsiveContainer width="80%" aspect={3}>
       <AreaChart
         width={500}
         height={400}
@@ -81,7 +81,7 @@ function PercentAreaChart() {
         <XAxis dataKey="month" />
         <YAxis tickFormatter={toPercent} />
         <Tooltip content={renderTooltipContent} />
-        <Legend />
+        <Legend layout="vertical" verticalAlign="top" align="right" />
         <Area
           type="monotone"
           dataKey="부정"
