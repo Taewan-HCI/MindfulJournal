@@ -225,12 +225,6 @@ function Userinput(props) {
         return (
 
             <div>
-                {/*리뷰 스크린이 들어가야함*/}
-                <button onClick={() => {
-                    props.reviewSubmit()
-                }}>
-                    테스트용 버튼
-                </button>
                 <Container>
                     <Row>
                         <Col>
