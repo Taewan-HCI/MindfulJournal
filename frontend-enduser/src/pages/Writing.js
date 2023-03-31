@@ -20,26 +20,23 @@ import {useNavigate} from "react-router-dom";
 import Modal from 'react-bootstrap/Modal';
 
 
-
 function Writing(props) {
 
-    let [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(false)
+    const [inputUser, setInputUser] = useState('')
+    const [prompt, setPrompt] = useState('')
+    const [diary, setDiary] = useState("")
+    const [diaryShow, setDiaryShow] = useState(false)
+    const [modalShow, setModalShow] = useState(false);
+    const [session, setSession] = useState("")
+    const [sessionStatus, setSessionStatus] = useState(false)
 
-    const sessionStatus = useRef(false)
-    const diaryNumber = useRef("");
+
+    // const sessionStatus = useRef(false)
     const receivedText = useRef("");
     const receivedDiary = useRef("");
     const turnCount = useRef(0);
-    const topic = useRef("");
     const sessionInputRef = useRef(null)
-    const [session, setSession] = useState("")
-
-
-    let [inputUser, setInputUser] = useState('')
-    let [prompt, setPrompt] = useState('')
-    let [diary, setDiary] = useState("")
-    let [diaryShow, setDiaryShow] = useState(false)
-    const [modalShow, setModalShow] = useState(false);
 
 
     const navigate = useNavigate()
@@ -48,7 +45,6 @@ function Writing(props) {
 
     function navigateToReview() {
         navigate("/list")
-
     }
 
     function handleClick() {
@@ -58,7 +54,6 @@ function Writing(props) {
         }, 500);
 
     }
-
 
     function MyVerticallyCenteredModal(props) {
         return (
@@ -93,8 +88,17 @@ function Writing(props) {
         // 만약 문서가 있다면 아래의 setDoc 진행하지 않음. sessionStatus만 true로 변경
         const docRef = doc(db, "session", props.userName, "diary", session);
         const docSnap = await getDoc(docRef);
+        const message = docSnap.data().outputFromLM;
+        const list = docSnap.data().fiveOptionFromLLM;
         if (docSnap.exists()) {
             console.log("진행중인 세션이 있습니다");
+            if (message === "" && list.length === 0) {
+                assemblePrompt()
+            } else {
+                console.log("기존에 언어모델 문장 존재");
+                setSessionStatus(true)
+                setLoading(true)
+            }
         } else {
             // const coll = collection(db, "session", props.userName, "diary")
             // const existingSession = await getCountFromServer(coll)
@@ -109,10 +113,10 @@ function Writing(props) {
                 diary: "",
                 topic: "",
                 sessionStart: Math.floor(Date.now() / 1000),
-                HarmfulMsg:[]
+                HarmfulMsg: []
             });
         }
-        sessionStatus.current = true
+        setSessionStatus(true)
         setLoading(true)
     }
 
@@ -177,6 +181,7 @@ function Writing(props) {
     }
 
     async function assemblePrompt() {
+
         const docRef3 = doc(db, "session", props.userName, "diary", session);
         const docSnap = await getDoc(docRef3);
         if (docSnap.exists()) {
@@ -252,14 +257,13 @@ function Writing(props) {
     }
 
 
-    if (sessionStatus.current === false) {
+    if (sessionStatus === false) {
         return (
             <Container>
                 <Row>
                     <div className="loading_box">
                         <div>
                             {date}<br/><b>마음챙김 다이어리를 시작합니다</b> 😀
-
                         </div>
                     </div>
                 </Row>
@@ -267,7 +271,7 @@ function Writing(props) {
                     <Col>
                         <div className="d-grid gap-2">
                             종료되지 않은 세션을 이어 진행하고자 한다면<br/>진행중인 세션 번호를 입력해주세요
-                            <input placeholder="세션 번호를 입력해주세요" ref={sessionInputRef} onChange={()=>{
+                            <input placeholder="세션 번호를 입력해주세요" ref={sessionInputRef} onChange={() => {
                                 setSession(sessionInputRef.current.value)
                             }}></input>
                             <Button
