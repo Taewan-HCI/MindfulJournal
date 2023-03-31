@@ -1,7 +1,3 @@
-
-
-
-
 import {useEffect, useState, useRef, React} from "react";
 import {
     doc,
@@ -18,6 +14,7 @@ import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Card from "react-bootstrap/Card";
+import Badge from 'react-bootstrap/Badge';
 import {ScaleLoader, BeatLoader} from "react-spinners";
 import "react-datepicker/dist/react-datepicker.css";
 import {useNavigate} from "react-router-dom";
@@ -30,21 +27,19 @@ function Writing(props) {
     let [loading, setLoading] = useState(false)
 
     const [sessionStatus, setSessionStatus] = useState(false)
-    const diaryNumber = useRef("");
     const receivedText = useRef("");
     const receivedDiary = useRef("");
 
     const turnCount = useRef(0);
     const sessionInputRef = useRef(null)
     const [session, setSession] = useState("")
-
-
     let [inputUser, setInputUser] = useState('')
     let [prompt, setPrompt] = useState('')
     let [module, setModule] = useState('')
     let [diary, setDiary] = useState("")
     let [diaryShow, setDiaryShow] = useState(false)
     const [modalShow, setModalShow] = useState(false);
+    const [summarization, setSummarization] = useState("");
 
 
     const navigate = useNavigate()
@@ -149,6 +144,7 @@ function Writing(props) {
             sessionEnd: Math.floor(Date.now() / 1000),
             isFinished: true,
             like: 0,
+            diary: diary
         }, {merge: true});
         navigateToReview()
     }
@@ -209,7 +205,7 @@ function Writing(props) {
     // http://0.0.0.0:8000
 
     function requestPrompt(text, user, num, turn, module) {
-        return fetch('https://mindfuljournal-fzesr.run.goorm.site/standalone', {
+        return fetch('http://0.0.0.0:8000/standalone', {
             method: 'POST',
             body: JSON.stringify({
                 'text': text,
@@ -222,9 +218,9 @@ function Writing(props) {
             .catch(err => console.log(err));
     }
 
-    function requestSummerization() {
+    async function requestSummerization() {
         setDiaryShow(true)
-        return fetch('https://mindfuljournal-fzesr.run.goorm.site/diary', {
+        return fetch('http://0.0.0.0:8000/diary', {
             method: 'POST',
             body: JSON.stringify({
                 'user': props.userName,
@@ -245,7 +241,13 @@ function Writing(props) {
     async function addConversationFromUser(input, comment) {
         let system_temp = {"role": "assistant", "content": prompt}
         let user_temp = {"role": "user", "content": input};
-        let history_temp = {"prompt": prompt, "userInput": input, "module": module, "comment": comment ,"turn": turnCount.current}
+        let history_temp = {
+            "prompt": prompt,
+            "userInput": input,
+            "module": module,
+            "comment": comment,
+            "turn": turnCount.current
+        }
 
         const docRef2 = doc(db, "session", props.userName, "diary", session);
         const docSnap2 = await getDoc(docRef2);
@@ -288,7 +290,7 @@ function Writing(props) {
                     <Col>
                         <div className="d-grid gap-2">
                             종료되지 않은 세션을 이어 진행하고자 한다면<br/>진행중인 세션 번호를 입력해주세요
-                            <input placeholder="세션 번호를 입력해주세요" ref={sessionInputRef} onChange={()=>{
+                            <input placeholder="세션 번호를 입력해주세요" ref={sessionInputRef} onChange={() => {
                                 setSession(sessionInputRef.current.value)
                             }}></input>
                             <Button
@@ -303,8 +305,12 @@ function Writing(props) {
                         </div>
                     </Col>
                     <Col>
+
                     </Col>
+
                 </Row>
+
+
             </Container>
 
         )
@@ -312,21 +318,30 @@ function Writing(props) {
         return (
             <Container>
                 <Row>
+
                     <div>
-                        <div>현재 사용자:<b>{props.userName}</b> 세션 넘버:<b>{session}</b> 현재 모듈:<b>{module}</b> 현재 진행
-                            turn:<b>{turnCount.current}</b></div>
+
+                        <Badge bg="primary">
+                            사용자: {props.userName}
+                        </Badge>{' '}
+                        <Badge bg="primary">
+                            세션: {session}
+                        </Badge>{' '}
+                        <Badge bg="light" text="dark">
+                            모듈: {module}
+                        </Badge>{' '}
                         {loading === true ? <Loading/> :
                             <Userinput prompt={prompt} setInputUser={setInputUser} inputUser={inputUser}
                                        addConversationFromUser={addConversationFromUser}
                                        requestSummerization={requestSummerization} setLoading={setLoading}
-                                       turnCount={turnCount.current}/>}
+                                       turnCount={turnCount.current} setDiary={setDiary}/>}
                     </div>
                 </Row>
                 <Row>
                     {diaryShow === true ? <DiaryView diary={diary} submitDiary={submitDiary}
                                                      setModalShow={setModalShow}/> :
                         <div></div>}
-                    {/*{summerization === "" ? <div></div> : <SummerizationView/>}*/}
+                    {/*<SummarizationView summarization={summarization}/>*/}
                 </Row>
                 <MyVerticallyCenteredModal
                     show={modalShow}
@@ -389,7 +404,7 @@ function Userinput(props) {
                             <Form.Control
                                 type="input"
                                 as="textarea"
-                                rows={3}
+                                rows={2}
                                 id="commentInput"
                                 onChange={(e) => {
                                     temp_comment_input.current = e.target.value
@@ -433,6 +448,7 @@ function Userinput(props) {
                                         <Button
                                             variant="dark"
                                             onClick={() => {
+                                                // props.setDiary("")
                                                 props.requestSummerization()
                                             }}
                                         >일기로 정리하기</Button>
@@ -450,30 +466,30 @@ function Userinput(props) {
 
 function DiaryView(props) {
 
-
-    return (
-        <div className="inwriting_review_box">
-            <Container>
-                <Row xs={'auto'} md={1} className="g-4">
-                    <Col>
-                        <Card style={{
-                            width: '100%',
-                        }}>
-                            <Card.Body>
-                                <Card.Title> <BeatLoader color="#007AFF" size={10}/> 일기 작성중</Card.Title>
-                                <Card.Subtitle className="mb-2 text-muted">
-                                    <div>핵심키워드 도출 중</div>
-                                </Card.Subtitle>
-                                <Card.Text>
-                                    <div>{props.diary}</div>
-                                </Card.Text>
-                            </Card.Body>
-                        </Card>
-
+    if (props.diary === "") {
+        return (
+            <div className="inwriting_review_box">
+                <Container>
+                    <Row xs={'auto'} md={1} className="g-4">
                         <Col>
-                            <div className="submission"></div>
-                            <div className="d-grid gap-2">
-                                {/*<Button
+                            <Card style={{
+                                width: '100%',
+                            }}>
+                                <Card.Body>
+                                    <Card.Title> <BeatLoader color="#007AFF" size={10}/> 일기 작성중</Card.Title>
+                                    <Card.Subtitle className="mb-2 text-muted">
+                                        <div>핵심키워드 도출 중</div>
+                                    </Card.Subtitle>
+                                    <Card.Text>
+                                        <div>{props.diary}</div>
+                                    </Card.Text>
+                                </Card.Body>
+                            </Card>
+
+                            <Col>
+                                <div className="submission"></div>
+                                <div className="d-grid gap-2">
+                                    {/*<Button
                                     variant="primary"
                                     style={{backgroundColor: "007AFF", fontWeight: "600"}}
                                     onClick={() => {
@@ -481,24 +497,73 @@ function DiaryView(props) {
                                     }}
                                 >📝 일기 저장하고 종료하기</Button>*/}
 
-                                <Button
+                                    <Button
+                                        variant="primary"
+                                        style={{backgroundColor: "007AFF", fontWeight: "600"}}
+                                        onClick={() => {
+                                            props.setModalShow(true)
+                                        }}
+                                    >📝 일기 저장하고 종료하기</Button>
+                                </div>
+                            </Col>
+
+                        </Col>
+                    </Row>
+                </Container>
+            </div>
+        )
+    } else {
+        return (
+            <div className="inwriting_review_box">
+                <Container>
+                    <Row xs={'auto'} md={1} className="g-4">
+                        <Col>
+                            <Card style={{
+                                width: '100%',
+                            }}>
+                                <Card.Body>
+                                    <Card.Title>오늘의 마음챙김 다이어리</Card.Title>
+                                    <Card.Subtitle className="mb-2 text-muted">
+                                    </Card.Subtitle>
+                                    <Card.Text>
+                                        <div>{props.diary}</div>
+                                    </Card.Text>
+                                </Card.Body>
+                            </Card>
+
+                            <Col>
+                                <div className="submission"></div>
+                                <div className="d-grid gap-2">
+                                    {/*<Button
                                     variant="primary"
                                     style={{backgroundColor: "007AFF", fontWeight: "600"}}
                                     onClick={() => {
-                                        props.setModalShow(true)
+                                        props.submitDiary()
                                     }}
-                                >📝 일기 저장하고 종료하기</Button>
-                            </div>
-                        </Col>
+                                >📝 일기 저장하고 종료하기</Button>*/}
 
-                    </Col>
-                </Row>
-            </Container>
-        </div>
-    )
+                                    <Button
+                                        variant="primary"
+                                        style={{backgroundColor: "007AFF", fontWeight: "600"}}
+                                        onClick={() => {
+                                            props.setModalShow(true)
+                                        }}
+                                    >📝 일기 저장하고 종료하기</Button>
+                                </div>
+                            </Col>
+
+                        </Col>
+                    </Row>
+                </Container>
+            </div>
+        )
+
+    }
+
+
 }
 
-function SummerizationView() {
+function SummarizationView(props) {
     return (
         <div className="inwriting_review_box">
             <Container>
@@ -513,7 +578,7 @@ function SummerizationView() {
                                     <div>아래의 요약은 정확하지 않을 수 있습니다.</div>
                                 </Card.Subtitle>
                                 <Card.Text>
-                                    <div>여기에 대화 내용이 요약됩니다.</div>
+                                    <div>{props.summarization}</div>
                                 </Card.Text>
                             </Card.Body>
                         </Card>

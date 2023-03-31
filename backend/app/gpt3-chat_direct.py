@@ -103,7 +103,8 @@ def m1_1_standalone(text, turn, module):
     print(str(text))
     messages_0 = [
         {"role": "system",
-         "content": "Current turn:" + str(turn) + "Current module: " + str(module) + "\nYou will read a conversation transcript and determine which conversation phase is appropriate to continue. Choose the most suitable phase from the following five options: Rapport building, Getting information, Exploration, Wrapping up, and Sensitive topic. The conversation usually proceeds in the order of Rapport building, Getting information, Exploration, and Wrapping up phases. The entire conversation should consist of approximately 12-24 turns. A brief description of each phase is provided below.\n[Rapport building]: Typically the first phase of the conversation, where the user and the agent establish rapport and engage in casual conversation.\n[Getting information]: This phase is for asking the user about key events or anecdotes in the user's life. Transition to this phase once enough rapport and comfort has been built through casual conversation with the user for about 2~3 turns. \n[Exploration]: A deeper, more detailed conversation about a main event or anecdote in the user's life. You can entere this phase when a major event or thought is mentioned that can be discussed further.\n[Wrapping up]: The final phase of the conversation, in which the user and agent conclude their discussion. Enter this phase once enough conversation has occurred and the user and agent need to end the conversation. Note that once you enter the Wrapping up phase, you must remain in it.\n[Sensitive topic]: This module can be triggered at any time. Activate it if the conversation includes indications of suicide or death. Note that once you enter the Sesnsitive topic phase, you must remain in it."},
+         "content": "Current turn:" + str(turn) + "Current module: " + str(
+             module) + "\nYou will read a conversation transcript and determine which conversation phase is appropriate to continue. Choose the most suitable phase from the following five options: Rapport building, Getting information, Exploration, Wrapping up, and Sensitive topic. The conversation usually proceeds in the order of Rapport building, Getting information, Exploration, and Wrapping up phases. The entire conversation should consist of approximately 12-24 turns. A brief description of each phase is provided below.\n[Rapport building]: Typically the first phase of the conversation, where the user and the agent establish rapport and engage in casual conversation.\n[Getting information]: This phase is for asking the user about key events or anecdotes in the user's life. Transition to this phase once enough rapport and comfort has been built through casual conversation with the user for about 2~3 turns. \n[Exploration]: A deeper, more detailed conversation about a main event or anecdote in the user's life. You can entere this phase when a major event or thought is mentioned that can be discussed further.\n[Wrapping up]: The final phase of the conversation, in which the user and agent conclude their discussion. Enter this phase once enough conversation has occurred and the user and agent need to end the conversation. Note that once you enter the Wrapping up phase, you must remain in it.\n[Sensitive topic]: This module can be triggered at any time. Activate it if the conversation includes indications of suicide or death. Note that once you enter the Sesnsitive topic phase, you must remain in it."},
         {"role": "user",
          "content": str(text)}
     ]
@@ -189,6 +190,7 @@ def m1_1_standalone(text, turn, module):
         frequency_penalty=0.5
     )
     return [(completion2["choices"][0]["message"]['content']), module]
+
 
 # 마지막으로 들어온 3개의 대화만 추출
 # if len(text) > 5:
@@ -426,6 +428,13 @@ def upload_diary(response_text, user, num):
     }, merge=True)
 
 
+def delete_diary(user, num):
+    doc_ref = db.collection(u'session').document(user).collection(u'diary').document(num)
+    doc_ref.set({
+        u'diary': ""
+    }, merge=True)
+
+
 def m1_3_init(result, topic):
     print("m1_3_init")
     print(topic)
@@ -446,7 +455,6 @@ def m1_3_init(result, topic):
     )
 
     return completion["choices"][0]["message"]['content']
-
 
 
 @app.post("/")
@@ -491,6 +499,7 @@ async def calc(request: Request):
     user = body['user']
     num = body['num']
 
+    delete_diary(user, num)
     result = downloadConversation(user, num)
     result2 = makeDiary(result)
     upload_diary(result2, user, num)

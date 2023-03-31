@@ -283,8 +283,11 @@ function Writing(props) {
                                 }}
                             >📝 오늘의 일기 작성하기
                             </Button>
+
                         </div>
                     </Col>
+
+
                     <Col>
                     </Col>
                 </Row>
