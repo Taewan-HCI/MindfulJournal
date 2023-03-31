@@ -27,6 +27,13 @@ function Header() {
             >
               <div className="nav_title_black">홈</div>
             </Nav.Link>
+            <Nav.Link
+              onClick={() => {
+                navigate('/patients');
+              }}
+            >
+              <div className="nav_title_black">환자 목록</div>
+            </Nav.Link>
             {/* {isAuth ? (
               <Nav.Link onClick={signUserOut}>
                 <div className="nav_title_black">로그아웃</div>

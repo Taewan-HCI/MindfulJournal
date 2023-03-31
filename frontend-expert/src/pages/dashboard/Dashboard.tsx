@@ -12,6 +12,7 @@ import {
   ToggleButton,
 } from 'react-bootstrap';
 import { ArrowClockwise, ArrowRepeat } from 'react-bootstrap-icons';
+import { Link } from 'react-router-dom';
 import ContentWithTitle from '../../components/ContentWithTitle';
 import DateRangePicker from './components/datePicker/DateRangePicker';
 import Diary from './components/Diary';
@@ -40,10 +41,12 @@ function Dashboard() {
                 <br />
                 <b>마음챙김 다이어리</b>
               </div>
-              <Button variant="info" className="align-self-end ">
-                <ArrowRepeat className="ml-4" />
-                <span className="px-2 fw-bold"> 환자 변경 </span>
-              </Button>
+              <Link to="/">
+                <Button variant="info" className="align-self-end ">
+                  <ArrowRepeat className="ml-4" />
+                  <span className="px-2 fw-bold"> 환자 변경 </span>
+                </Button>
+              </Link>
             </div>
           </Col>
           <Col xs={8} className="ps-4">
