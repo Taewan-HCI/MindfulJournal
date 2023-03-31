@@ -98,10 +98,10 @@ function Writing(props) {
         // 만약 문서가 있다면 아래의 setDoc 진행하지 않음. sessionStatus만 true로 변경
         const docRef = doc(db, "session", props.userName, "diary", session);
         const docSnap = await getDoc(docRef);
-        const message = docSnap.data().outputFromLM;
         if (docSnap.exists()) {
+            const message = docSnap.data().outputFromLM;
             console.log("진행중인 세션이 있습니다");
-            if (message === "") {
+            if (message.length === 0) {
                 assemblePrompt()
             } else {
                 console.log("기존에 언어모델 문장 존재");
