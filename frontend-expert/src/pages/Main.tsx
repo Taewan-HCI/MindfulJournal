@@ -58,8 +58,8 @@ function Main() {
                         ({p.gender}/{p.age})
                       </span>
                     </Card.Title>
-                    <div className="d-flex align-items-center justify-content-between py-2">
-                      <div className="text-secondary">최근 진료일</div>
+                    <div className="d-flex align-items-center py-2">
+                      <div className="text-secondary">최근 진료일: </div>
                       <div className="fs-6 me-2"> {p.lastVisit}</div>
                     </div>
                   </Card.Body>
