@@ -29,7 +29,7 @@ function Writing(props) {
 
     let [loading, setLoading] = useState(false)
 
-    const sessionStatus = useRef(false)
+    const [sessionStatus, setSessionStatus] = useState(false)
     const diaryNumber = useRef("");
     const receivedText = useRef("");
     const receivedDiary = useRef("");
@@ -98,13 +98,21 @@ function Writing(props) {
         // 만약 문서가 있다면 아래의 setDoc 진행하지 않음. sessionStatus만 true로 변경
         const docRef = doc(db, "session", props.userName, "diary", session);
         const docSnap = await getDoc(docRef);
+        const message = docSnap.data().outputFromLM;
         if (docSnap.exists()) {
             console.log("진행중인 세션이 있습니다");
+            if (message === "") {
+                assemblePrompt()
+            } else {
+                console.log("기존에 언어모델 문장 존재");
+                setSessionStatus(true)
+                setLoading(true)
+            }
         } else {
-            const coll = collection(db, "session", props.userName, "diary")
+            /*const coll = collection(db, "session", props.userName, "diary")
             const existingSession = await getCountFromServer(coll)
             const sessionNum = await (existingSession.data().count + 1)
-            diaryNumber.current = String(sessionNum)
+            diaryNumber.current = String(sessionNum)*/
             await setDoc(doc(db, "session", props.userName, "diary", session), {
                 outputFromLM: ["만나서 반가워요. 오늘 하루는 어떤가요?", "Initiation"],
                 conversation: [],
@@ -118,7 +126,7 @@ function Writing(props) {
                 history: []
             });
         }
-        sessionStatus.current = true
+        setSessionStatus(true)
         setLoading(true)
     }
 
@@ -234,8 +242,6 @@ function Writing(props) {
         return array
     }*/
 
-    //git hub test
-
     async function addConversationFromUser(input, comment) {
         let system_temp = {"role": "assistant", "content": prompt}
         let user_temp = {"role": "user", "content": input};
@@ -267,7 +273,7 @@ function Writing(props) {
     }
 
 
-    if (sessionStatus.current === false) {
+    if (sessionStatus === false) {
         return (
             <Container>
                 <Row>
@@ -282,7 +288,9 @@ function Writing(props) {
                     <Col>
                         <div className="d-grid gap-2">
                             종료되지 않은 세션을 이어 진행하고자 한다면<br/>진행중인 세션 번호를 입력해주세요
-                            <input placeholder="세션 번호를 입력해주세요" ref={sessionInputRef}></input>
+                            <input placeholder="세션 번호를 입력해주세요" ref={sessionInputRef} onChange={()=>{
+                                setSession(sessionInputRef.current.value)
+                            }}></input>
                             <Button
                                 variant="primary"
                                 style={{backgroundColor: "007AFF", fontWeight: "600"}}
@@ -375,7 +383,7 @@ function Userinput(props) {
                             📝 정해진 양식은 없어요. 편안하고 자유롭게 최근에 있었던 일을 작성해주세요.
                         </Form.Text>
 
-                        {/*<div className="writing_box">
+                        <div className="writing_box">
 
                             <Form.Label htmlFor="commentInput">✍️ 언어모델 출력에 대한 코멘트를 입력해주세요</Form.Label>
                             <Form.Control
@@ -389,7 +397,7 @@ function Userinput(props) {
                                 // onKeyPress={handleOnKeyPress}
                             />
 
-                        </div>*/}
+                        </div>
 
 
                     </div>

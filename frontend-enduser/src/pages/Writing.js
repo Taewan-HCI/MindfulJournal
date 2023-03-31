@@ -88,9 +88,9 @@ function Writing(props) {
         // 만약 문서가 있다면 아래의 setDoc 진행하지 않음. sessionStatus만 true로 변경
         const docRef = doc(db, "session", props.userName, "diary", session);
         const docSnap = await getDoc(docRef);
-        const message = docSnap.data().outputFromLM;
-        const list = docSnap.data().fiveOptionFromLLM;
         if (docSnap.exists()) {
+            const message = docSnap.data().outputFromLM;
+            const list = docSnap.data().fiveOptionFromLLM;
             console.log("진행중인 세션이 있습니다");
             if (message === "" && list.length === 0) {
                 assemblePrompt()
