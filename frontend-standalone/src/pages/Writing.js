@@ -84,7 +84,6 @@ function Writing(props) {
                     <Button onClick={handleClick}>저장하고 종료하기</Button>
                 </Modal.Footer>
             </Modal>
-
         );
     }
 
