@@ -20,6 +20,7 @@ import mockDiary from '../../mocks/diaryData';
 import Tabs from './components/Tabs';
 import PercentAreaChart from './components/charts/PercentAreaChart';
 import TimeLine from './components/timeLine/TimeLine';
+import EntireDiaryLogs from '../../components/EntireDiaryLogs';
 
 function Dashboard() {
   const [radioValue, setRadioValue] = useState<string | null>(null);
@@ -41,7 +42,7 @@ function Dashboard() {
                 <br />
                 <b>마음챙김 다이어리</b>
               </div>
-              <Link to="/">
+              <Link to="/patients">
                 <Button variant="info" className="align-self-end ">
                   <ArrowRepeat className="ml-4" />
                   <span className="px-2 fw-bold"> 환자 변경 </span>
@@ -116,6 +117,7 @@ function Dashboard() {
           </Col>
 
           <Col xs={8}>
+            <EntireDiaryLogs />
             <ContentWithTitle title="참여 수준">
               <Tabs />
             </ContentWithTitle>
