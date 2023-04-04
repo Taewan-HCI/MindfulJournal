@@ -41,10 +41,56 @@ function Writing(props) {
     const [modalShow, setModalShow] = useState(false);
     const [summarization, setSummarization] = useState("");
 
+    const [isListening, setIsListening] = useState(false);
+    const [textInput, setTextInput] = useState('');
+
 
     const navigate = useNavigate()
     const current = new Date();
     const date = `${current.getFullYear()}년 ${current.getMonth() + 1}월 ${current.getDate()}일`;
+
+    useEffect(() => {
+        if (!('webkitSpeechRecognition' in window)) {
+            alert('Web Speech API is not supported in this browser. Please use Google Chrome.');
+            return;
+        }
+
+        const recognition = new window.webkitSpeechRecognition();
+        recognition.interimResults = true;
+        recognition.lang = 'ko';
+        recognition.continuous = true;
+
+        recognition.onresult = (event) => {
+            const transcript = Array.from(event.results)
+                .map((result) => result[0])
+                .map((result) => result.transcript)
+                .join('');
+            setTextInput(textInput + " " + transcript);
+        };
+
+        recognition.onerror = (event) => {
+            console.error('Speech recognition error:', event);
+            setIsListening(false);
+        };
+
+        recognition.onend = () => {
+            setIsListening(false);
+        };
+
+        if (isListening) {
+            recognition.start({ continuous: true });
+        } else {
+            recognition.stop({ continuous: true });
+        }
+
+        return () => {
+            recognition.abort();
+        };
+    }, [isListening]);
+    const toggleListening = () => {
+        setIsListening((prevState) => !prevState);
+    };
+
 
     function navigateToReview() {
         navigate("/list")
@@ -89,9 +135,8 @@ function Writing(props) {
 
 
     async function createNewDoc() {
-        // 기존에 작성하던 세션 문서가 있는지 확인
-        // 만약 문서가 있다면 아래의 setDoc 진행하지 않음. sessionStatus만 true로 변경
-        const docRef = doc(db, "session", props.userName, "diary", session);
+
+        const docRef = doc(db, "session", props.userMail, "diary", session);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
             const message = docSnap.data().outputFromLM;
@@ -104,11 +149,8 @@ function Writing(props) {
                 setLoading(true)
             }
         } else {
-            /*const coll = collection(db, "session", props.userName, "diary")
-            const existingSession = await getCountFromServer(coll)
-            const sessionNum = await (existingSession.data().count + 1)
-            diaryNumber.current = String(sessionNum)*/
-            await setDoc(doc(db, "session", props.userName, "diary", session), {
+
+            await setDoc(doc(db, "session", props.userMail, "diary", session), {
                 outputFromLM: ["만나서 반가워요. 오늘 하루는 어떤가요?", "Initiation"],
                 conversation: [],
                 isFinished: false,
@@ -127,22 +169,9 @@ function Writing(props) {
         setLoading(true)
     }
 
-    /*   async function submitDiary() {
-           const coll = collection(db, "session", props.userName, "diary_complete")
-           const existingSession = await getCountFromServer(coll)
-           const diaryNum = await (existingSession.data().count + 1)
-           await setDoc(doc(db, "session", props.userName, "diary_complete", String(diaryNum)), {
-               diaryNum: diaryNum,
-               content: diary,
-               createdAt: Math.floor(Date.now() / 1000),
-               like: 0,
-           });
-           navigateToReview()
-       }*/
-
 
     async function submitDiary() {
-        await setDoc(doc(db, "session", props.userName, "diary", session), {
+        await setDoc(doc(db, "session", props.userMail, "diary", session), {
             sessionEnd: Math.floor(Date.now() / 1000),
             isFinished: true,
             like: 0,
@@ -152,31 +181,10 @@ function Writing(props) {
         navigateToReview()
     }
 
-    //사용자-sessionID의 doc을 계속 관찰하고 있다가 업데이트가 발생하면 prompt를 업데이트 하는 useEffect 함수
-    // useEffect(() => {
-    //     if (sessionStatus) {
-    //         if (session !== "") {
-    //             const unsuscribe = onSnapshot(doc(db, "session", props.userName, "diary", session), doc => {
-    //                 receivedText.current = doc.data()["outputFromLM"]
-    //                 const response = receivedText.current;
-    //                 getLastSentence(response)
-    //             })
-    //             const unsuscribe2 = onSnapshot(doc(db, "session", props.userName, "diary", session), doc => {
-    //                 receivedDiary.current = doc.data()["diary"]
-    //                 const response = receivedDiary.current;
-    //                 setDiary(response)
-    //             })
-    //             return () => {
-    //                 unsuscribe();
-    //                 unsuscribe2();
-    //             }
-    //         }
-    //     }
-    // })
 
     useEffect(() => {
         if (sessionStatus && session !== '') {
-            const diaryDocRef = doc(db, 'session', props.userName, 'diary', session);
+            const diaryDocRef = doc(db, 'session', props.userMail, 'diary', session);
 
             const unsubscribe = onSnapshot(diaryDocRef, (doc) => {
                 const data = doc.data();
@@ -214,14 +222,13 @@ function Writing(props) {
     }
 
     async function assemblePrompt() {
-        const docRef3 = doc(db, "session", props.userName, "diary", session);
+        const docRef3 = doc(db, "session", props.userMail, "diary", session);
         const docSnap = await getDoc(docRef3);
         if (docSnap.exists()) {
             const readyRequest = docSnap.data().conversation;
             turnCount.current = docSnap.data().turn
             console.log(turnCount.current)
-            // console.log(readyRequest)
-            requestPrompt(readyRequest, props.userName, session, turnCount.current, module)
+            requestPrompt(readyRequest, props.userMail, session, turnCount.current, module)
             if (turnCount.current > 3) {
                 requestSummerization()
             }
@@ -252,22 +259,16 @@ function Writing(props) {
         return fetch('http://0.0.0.0:8000/diary', {
             method: 'POST',
             body: JSON.stringify({
-                'user': props.userName,
+                'user': props.userMail,
                 'num': session
             })
         })
             .catch(err => console.log(err));
     }
 
-    /*function shuffleArray(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
-        }
-        return array
-    }*/
 
     async function addConversationFromUser(input, comment) {
+
         let system_temp = {"role": "assistant", "content": prompt}
         let user_temp = {"role": "user", "content": input};
         let history_temp = {
@@ -277,7 +278,7 @@ function Writing(props) {
             "comment": comment,
             "turn": turnCount.current
         }
-        const docRef2 = doc(db, "session", props.userName, "diary", session);
+        const docRef2 = doc(db, "session", props.userMail, "diary", session);
         const docSnap2 = await getDoc(docRef2);
         if (docSnap2.exists()) {
             const message = docSnap2.data().conversation;
@@ -296,6 +297,7 @@ function Writing(props) {
                 })
                 assemblePrompt();
                 setLoading(true);
+                setTextInput("");
             }, 500)
             return () => {
                 clearTimeout(a)
@@ -319,17 +321,15 @@ function Writing(props) {
                 <Row>
                     <Col>
                         <div className="d-grid gap-2">
-                            {/*종료되지 않은 세션을 이어 진행하고자 한다면<br/>진행중인 세션 번호를 입력해주세요*/}
-                           {/* <input placeholder="세션 번호를 입력해주세요" ref={sessionInputRef} onChange={() => {
-                                setSession(sessionInputRef.current.value)
-                            }}></input>*/}
+
                             <Form.Text className="text-muted">
                                 종료되지 않은 세션을 이어 진행하고자 한다면<br/>진행중인 세션 번호를 입력해주세요
                             </Form.Text>
                             <Form.Group className="mb-3" controlId="formSessionNumber">
-                                <Form.Control type="text" placeholder="세션 번호를 입력해주세요" ref={sessionInputRef} onChange={() => {
-                                setSession(sessionInputRef.current.value)
-                            }}/>
+                                <Form.Control type="text" placeholder="세션 번호를 입력해주세요" ref={sessionInputRef}
+                                              onChange={() => {
+                                                  setSession(sessionInputRef.current.value)
+                                              }}/>
                                 <Form.Text className="text-muted">
                                 </Form.Text>
                             </Form.Group>
@@ -374,14 +374,13 @@ function Writing(props) {
                             <Userinput prompt={prompt} setInputUser={setInputUser} inputUser={inputUser}
                                        addConversationFromUser={addConversationFromUser}
                                        requestSummerization={requestSummerization} setLoading={setLoading}
-                                       turnCount={turnCount.current} setDiary={setDiary}/>}
+                                       turnCount={turnCount.current} setDiary={setDiary} textInput={textInput} setTextInput={setTextInput} toggleListening={toggleListening} isListening={isListening}/>}
                     </div>
                 </Row>
                 <Row>
                     {turnCount.current > 3 && loading === false ? <DiaryView diary={diary} submitDiary={submitDiary}
                                                                              setModalShow={setModalShow}/> :
                         <div></div>}
-                    {/*<SummarizationView summarization={summarization}/>*/}
                 </Row>
                 <MyVerticallyCenteredModal
                     show={modalShow}
@@ -398,16 +397,8 @@ function Writing(props) {
 
 //User input screen component
 function Userinput(props) {
-    //for textfield monitoring
     const temp_input = useRef("");
     const temp_comment_input = useRef("");
-
-
-    /*const handleOnKeyPress = e => {
-        if (e.key === "Enter") {
-            props.addConversationFromUser(temp_input.current, temp_comment_input.current)
-        }
-    }*/
 
     return (
         <div>
@@ -425,14 +416,13 @@ function Userinput(props) {
                     <div className="writing_box">
                         <Form.Label htmlFor="userInput">✏️ 나의 일기 입력하기</Form.Label>
                         <Form.Control
-                            type="input"
+                            type="text"
                             as="textarea"
                             rows={3}
                             id="userInput"
-                            onChange={(e) => {
-                                temp_input.current = e.target.value
-                            }}
-                            // onKeyPress={handleOnKeyPress}
+                            value={props.textInput}
+                            onChange={(e) => props.setTextInput(e.target.value)}
+
                         />
                         <Form.Text id="userInput" muted>
                             📝 정해진 양식은 없어요. 편안하고 자유롭게 최근에 있었던 일을 작성해주세요.
@@ -449,7 +439,6 @@ function Userinput(props) {
                                 onChange={(e) => {
                                     temp_comment_input.current = e.target.value
                                 }}
-                                // onKeyPress={handleOnKeyPress}
                             />
 
                         </div>
@@ -461,41 +450,33 @@ function Userinput(props) {
                             <Col>
                                 <div className="d-grid gap-2">
                                     <Button
+                                        variant="dark"
+                                        style={{backgroundColor: "007AFF", fontWeight: "600"}}
+                                        onClick={props.toggleListening}>
+                                        {props.isListening ? '🛑 음성인식 종료하기' : '🎙️ 말로 응답하기'}
+                                    </Button>
+                                    <Form.Text id="userInput" muted>
+                                        📖 3턴이 넘어가면 다이어리가 자동으로 생성됩니다.
+                                    </Form.Text>
+                                </div>
+                            </Col>
+                            <Col>
+                                <div className="d-grid gap-2">
+                                    <Button
                                         variant="primary"
                                         style={{backgroundColor: "007AFF", fontWeight: "600"}}
                                         onClick={() => {
                                             (function () {
-                                                if ((temp_input.current).length < 11) {
+                                                if ((props.textInput).length < 11) {
                                                     alert('입력한 내용이 너무 짧아요. 조금 더 길게 적어볼까요?')
                                                 } else {
-                                                    props.addConversationFromUser(temp_input.current, temp_comment_input.current)
+                                                    props.addConversationFromUser(props.textInput, temp_comment_input.current)
                                                 }
                                             })()
                                         }}>💬 응답 기록하기</Button>
-                                    <Form.Text id="userInput" muted>
-                                    📖 3턴이 넘어가면 다이어리가 자동으로 생성됩니다.
-                                     </Form.Text>
+
                                 </div>
 
-                                {/*<div className="d-grid gap-2">
-
-                                    {props.turnCount < 3 ?
-                                        <Button
-                                            variant="dark"
-                                            onClick={() => {
-                                                alert("3턴 이후 일기로 정리하기 기능이 활성화 됩니다. 조금만 더 진행해 볼까요?")
-                                            }}
-                                        >일기로 정리하기 ({3 - props.turnCount}턴 이후 가능해요)</Button>
-                                        :
-                                        <Button
-                                            variant="dark"
-                                            onClick={() => {
-                                                // props.setDiary("")
-                                                props.requestSummerization()
-                                            }}
-                                        >일기로 정리하기</Button>
-                                    }
-                                </div>*/}
                             </Col>
 
                         </Row>
@@ -531,13 +512,7 @@ function DiaryView(props) {
                             <Col>
                                 <div className="submission"></div>
                                 <div className="d-grid gap-2">
-                                    {/*<Button
-                                    variant="primary"
-                                    style={{backgroundColor: "007AFF", fontWeight: "600"}}
-                                    onClick={() => {
-                                        props.submitDiary()
-                                    }}
-                                >📝 일기 저장하고 종료하기</Button>*/}
+
 
                                     <Button
                                         variant="dark"
@@ -577,13 +552,6 @@ function DiaryView(props) {
                             <Col>
                                 <div className="submission"></div>
                                 <div className="d-grid gap-2">
-                                    {/*<Button
-                                    variant="primary"
-                                    style={{backgroundColor: "007AFF", fontWeight: "600"}}
-                                    onClick={() => {
-                                        props.submitDiary()
-                                    }}
-                                >📝 일기 저장하고 종료하기</Button>*/}
 
                                     <Button
                                         variant="dark"
@@ -606,34 +574,6 @@ function DiaryView(props) {
 
 }
 
-function SummarizationView(props) {
-    return (
-        <div className="inwriting_review_box">
-            <Container>
-                <Row xs={'auto'} md={1} className="g-4">
-                    <Col>
-                        <Card style={{
-                            width: '100%',
-                        }}>
-                            <Card.Body>
-                                <Card.Title>현재까지의 대화 내용</Card.Title>
-                                <Card.Subtitle className="mb-2 text-muted">
-                                    <div>아래의 요약은 정확하지 않을 수 있습니다.</div>
-                                </Card.Subtitle>
-                                <Card.Text>
-                                    <div>{props.summarization}</div>
-                                </Card.Text>
-                            </Card.Body>
-                        </Card>
-
-
-                    </Col>
-                </Row>
-            </Container>
-        </div>
-    )
-}
-
 function Loading() {
     return (
         <div>
@@ -651,44 +591,7 @@ function Loading() {
                         </div>
                     </Col>
                 </Row>
-                {/*<Row>
-                    <div className="writing_box">
-                        <Form.Label htmlFor="userInput">✏️ 나의 일기 입력하기</Form.Label>
-                        <Form.Control
-                            type="input"
-                            as="textarea"
-                            rows={3}
-                            id="userInput"
-                            disabled
-                            readOnly
-                        />
-                        <Form.Text id="userInput" muted>
-                            📝 정해진 양식은 없어요. 편안하고 자유롭게 최근에 있었던 일을 작성해주세요.
-                        </Form.Text>
-                    </div>
-                    <Container>
-                        <Row>
-                            <Col>
-                                <div className="d-grid gap-2">
-                                    <Button
-                                        variant="primary"
-                                        disabled={true}
-                                        style={{backgroundColor: "007AFF", fontWeight: "600"}}
-                                    >응답 기록하기</Button>
-                                </div>
-                            </Col>
-                            <Col>
-                                <div className="d-grid gap-2">
-                                    <Button
-                                        variant="secondary"
-                                        disabled={true}
-                                        style={{backgroundColor: "264362", fontWeight: "600"}}
-                                    >일기로 정리하기</Button>
-                                </div>
-                            </Col>
-                        </Row>
-                    </Container>
-                </Row>*/}
+
             </Container>
         </div>
     )

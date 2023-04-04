@@ -59,7 +59,7 @@ function Home(props) {
 
     async function receiveDiaryData() {
         let tempArr = [];
-        const userDocRef = doc(db, 'session', props.userName);
+        const userDocRef = doc(db, 'session', props.userMail);
         const diaryCompleteCollRef = collection(userDocRef, 'diary');
         const q = query(diaryCompleteCollRef, where('isFinished', '==', true), orderBy('sessionEnd', 'desc'));
         const querySnapshot = await getDocs(q);

@@ -58,7 +58,7 @@ function DiaryList(props) {
 
     async function addLike(idx) {
         const findSession = diaryList[idx]["sessionNumber"]
-        const userDocRef = doc(db, 'session', props.userName, 'diary', findSession);
+        const userDocRef = doc(db, 'session', props.userMail, 'diary', findSession);
         await updateDoc(userDocRef, {
             like: increment(1)
         })
@@ -69,7 +69,7 @@ function DiaryList(props) {
 
     async function addMuscle(idx) {
         const findSession = diaryList[idx]["sessionNumber"]
-        const userDocRef = doc(db, 'session', props.userName, 'diary', findSession);
+        const userDocRef = doc(db, 'session', props.userMail, 'diary', findSession);
         await updateDoc(userDocRef, {
             muscle: increment(1)
         })
@@ -92,7 +92,7 @@ function DiaryList(props) {
 
     async function receiveDiaryData() {
         let tempArr = [];
-        const userDocRef = doc(db, 'session', props.userName);
+        const userDocRef = doc(db, 'session', props.userMail);
         const diaryCompleteCollRef = collection(userDocRef, 'diary');
         const q = query(diaryCompleteCollRef, where('isFinished', '==', true), orderBy('sessionEnd', 'desc'));
         const querySnapshot = await getDocs(q);

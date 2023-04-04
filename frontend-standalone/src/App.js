@@ -26,6 +26,7 @@ function App() {
     //firebase setting
     const [isAuth, setIsAuth] = useState(cookies.get("auth-token"))
     const [userName, setUserName] = useState('')
+    const [userMail, setUserMail] = useState('')
     const [diaryCount, setDiaryCount] = useState(null)
     const current = new Date();
     const date = `${current.getFullYear()}년 ${current.getMonth() + 1}월 ${current.getDate()}일`;
@@ -34,7 +35,9 @@ function App() {
         const docRef = doc(db, 'prompt', 'module1_1');
         const docSnap = await getDoc(docRef);
         var user = await (auth.currentUser.displayName)
+        var mail = await (auth.currentUser.email)
         setUserName(user)
+        setUserMail(mail)
     }
 
     useEffect(() => {
@@ -86,16 +89,16 @@ function App() {
                 <Routes>
                     <Route path="/" element={
                         <div>
-                            {isAuth ? (<Home userName={userName} diaryCount={diaryCount}/>) : (
+                            {isAuth ? (<Home userName={userName} userMail={userMail} diaryCount={diaryCount}/>) : (
                                 <Auth setIsAuth={setIsAuth} setUserName={setUserName}/>)}
                         </div>
                     }/>
                     <Route path="/writing"
-                           element={isAuth ? (<div><Writing userName={userName}/></div>) : (
-                               <Auth setIsAuth={setIsAuth} setUserName={setUserName}/>)
+                           element={isAuth ? (<div><Writing userName={userName} userMail={userMail}/></div>) : (
+                               <Auth setIsAuth={setIsAuth} setUserName={setUserName} setUserMail={setUserMail}/>)
                            }/>
-                    <Route path="/list" element={isAuth ? (<div><DiaryList userName={userName}/></div>) : (
-                        <Auth setIsAuth={setIsAuth} setUserName={setUserName}/>)}/>
+                    <Route path="/list" element={isAuth ? (<div><DiaryList userName={userName} userMail={userMail}/></div>) : (
+                        <Auth setIsAuth={setIsAuth} setUserName={setUserName} setUserMail={setUserMail}/>)}/>
                     <Route path="/loading" element={<div><Loading/></div>}/>
                     <Route path="*" element={<div>404~ 없는페이지임</div>}/>
                 </Routes>
