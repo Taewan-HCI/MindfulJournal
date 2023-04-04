@@ -111,14 +111,16 @@ function Writing(props) {
             await setDoc(doc(db, "session", props.userName, "diary", session), {
                 outputFromLM: ["만나서 반가워요. 오늘 하루는 어떤가요?", "Initiation"],
                 conversation: [],
-                isFinish: false,
+                isFinished: false,
                 module: "",
                 fiveOptionFromLLM: [],
                 diary: "",
                 topic: "",
                 sessionStart: Math.floor(Date.now() / 1000),
                 summary: "",
-                history: []
+                history: [],
+                turn: 0,
+                sessionNumber: session
             });
         }
         setSessionStatus(true)
@@ -140,7 +142,7 @@ function Writing(props) {
 
 
     async function submitDiary() {
-        await setDoc(doc(db, "session", props.userName, "diary_complete", session), {
+        await setDoc(doc(db, "session", props.userName, "diary", session), {
             sessionEnd: Math.floor(Date.now() / 1000),
             isFinished: true,
             like: 0,

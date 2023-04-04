@@ -8,7 +8,7 @@ import book_blue from "../img/book_blue.jpg";
 import book_purple from "../img/book_purple.jpg";
 import chat from "../img/chat.jpg";
 import lock from "../img/lock.jpg";
-import {collection, getDocs} from "firebase/firestore";
+import {collection, doc, onSnapshot, query, where, orderBy, getDocs, setDoc, updateDoc, increment} from "firebase/firestore";
 import {db} from "../firebase-config";
 
 
@@ -54,19 +54,25 @@ function Home(props) {
         var year = date.getFullYear();
         var month = "0" + (date.getMonth() + 1);
         var day = "0" + date.getDate();
-        return year + "년" + month.substr(-2) + "월" + day.substr(-2) + "일 ";
+        return year + "년 " + month.substr(-2) + "월 " + day.substr(-2) + "일 ";
     }
 
     async function receiveDiaryData() {
-        let tempArr = []
-        const querySnapshot = await getDocs(collection(db, "session", props.userName, "diary_complete"));
+        let tempArr = [];
+        const userDocRef = doc(db, 'session', props.userName);
+        const diaryCompleteCollRef = collection(userDocRef, 'diary');
+        const q = query(diaryCompleteCollRef, where('isFinished', '==', true), orderBy('sessionEnd', 'desc'));
+        const querySnapshot = await getDocs(q);
+
         querySnapshot.forEach((doc) => {
-            tempArr.push(doc.data())
+            // doc.data() is never undefined for query doc snapshots
+            // console.log(doc.id, " => ", doc.data());
+            tempArr.push(doc.data());
         });
         if (tempArr.length === -1) {
             return tempArr
         } else {
-            setLastDate(tempArr[tempArr.length - 1]["createdAt"])
+            setLastDate(tempArr[tempArr.length - 1]["sessionEnd"])
             return tempArr
         }
 
