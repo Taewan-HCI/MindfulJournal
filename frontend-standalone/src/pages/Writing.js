@@ -5,7 +5,7 @@ import {
     setDoc,
     collection,
     onSnapshot,
-    getCountFromServer, updateDoc, arrayUnion
+    getCountFromServer, updateDoc, arrayUnion, increment
 } from 'firebase/firestore'
 import {db} from "../firebase-config";
 import Container from 'react-bootstrap/Container';
@@ -153,26 +153,49 @@ function Writing(props) {
     }
 
     //사용자-sessionID의 doc을 계속 관찰하고 있다가 업데이트가 발생하면 prompt를 업데이트 하는 useEffect 함수
+    // useEffect(() => {
+    //     if (sessionStatus) {
+    //         if (session !== "") {
+    //             const unsuscribe = onSnapshot(doc(db, "session", props.userName, "diary", session), doc => {
+    //                 receivedText.current = doc.data()["outputFromLM"]
+    //                 const response = receivedText.current;
+    //                 getLastSentence(response)
+    //             })
+    //             const unsuscribe2 = onSnapshot(doc(db, "session", props.userName, "diary", session), doc => {
+    //                 receivedDiary.current = doc.data()["diary"]
+    //                 const response = receivedDiary.current;
+    //                 setDiary(response)
+    //             })
+    //             return () => {
+    //                 unsuscribe();
+    //                 unsuscribe2();
+    //             }
+    //         }
+    //     }
+    // })
+
     useEffect(() => {
-        if (sessionStatus) {
-            if (session !== "") {
-                const unsuscribe = onSnapshot(doc(db, "session", props.userName, "diary", session), doc => {
-                    receivedText.current = doc.data()["outputFromLM"]
-                    const response = receivedText.current;
-                    getLastSentence(response)
-                })
-                const unsuscribe2 = onSnapshot(doc(db, "session", props.userName, "diary", session), doc => {
-                    receivedDiary.current = doc.data()["diary"]
-                    const response = receivedDiary.current;
-                    setDiary(response)
-                })
-                return () => {
-                    unsuscribe();
-                    unsuscribe2();
-                }
-            }
+        if (sessionStatus && session !== '') {
+            const diaryDocRef = doc(db, 'session', props.userName, 'diary', session);
+
+            const unsubscribe = onSnapshot(diaryDocRef, (doc) => {
+                const data = doc.data();
+
+                // Tracking "outputFromLM" field
+                receivedText.current = data['outputFromLM'];
+                getLastSentence(receivedText.current);
+
+                // Tracking "diary" field
+                receivedDiary.current = data['diary'];
+                setDiary(receivedDiary.current);
+            });
+
+            return () => {
+                unsubscribe();
+            };
         }
-    })
+    });
+
 
     async function getLastSentence(response) {
         let a = setTimeout(() => {
@@ -195,9 +218,13 @@ function Writing(props) {
         const docSnap = await getDoc(docRef3);
         if (docSnap.exists()) {
             const readyRequest = docSnap.data().conversation;
-            console.log(readyRequest)
-            turnCount.current = turnCount.current + 1
+            turnCount.current = docSnap.data().turn
+            console.log(turnCount.current)
+            // console.log(readyRequest)
             requestPrompt(readyRequest, props.userName, session, turnCount.current, module)
+            if (turnCount.current > 3) {
+                requestSummerization()
+            }
         } else {
             console.log("No such document!");
         }
@@ -262,8 +289,11 @@ function Writing(props) {
                 await setDoc(docRef2, {
                     conversation: message,
                     outputFromLM: "",
-                    history: history
+                    history: history,
                 }, {merge: true});
+                await updateDoc(docRef2, {
+                    turn: increment(1)
+                })
                 assemblePrompt();
                 setLoading(true);
             }, 500)
@@ -339,8 +369,8 @@ function Writing(props) {
                     </div>
                 </Row>
                 <Row>
-                    {diaryShow === true ? <DiaryView diary={diary} submitDiary={submitDiary}
-                                                     setModalShow={setModalShow}/> :
+                    {turnCount.current > 3 && loading === false ? <DiaryView diary={diary} submitDiary={submitDiary}
+                                                                             setModalShow={setModalShow}/> :
                         <div></div>}
                     {/*<SummarizationView summarization={summarization}/>*/}
                 </Row>
@@ -423,7 +453,7 @@ function Userinput(props) {
                                 <div className="d-grid gap-2">
                                     <Button
                                         variant="primary"
-                                        style={{backgroundColor: "007AFF"}}
+                                        style={{backgroundColor: "007AFF", fontWeight: "600"}}
                                         onClick={() => {
                                             (function () {
                                                 if ((temp_input.current).length < 11) {
@@ -432,11 +462,13 @@ function Userinput(props) {
                                                     props.addConversationFromUser(temp_input.current, temp_comment_input.current)
                                                 }
                                             })()
-                                        }}>응답 기록하기</Button>
+                                        }}>💬 응답 기록하기</Button>
+                                    <Form.Text id="userInput" muted>
+                                    📖 3턴이 넘어가면 다이어리가 자동으로 생성됩니다.
+                                     </Form.Text>
                                 </div>
-                            </Col>
-                            <Col>
-                                <div className="d-grid gap-2">
+
+                                {/*<div className="d-grid gap-2">
 
                                     {props.turnCount < 3 ?
                                         <Button
@@ -454,7 +486,7 @@ function Userinput(props) {
                                             }}
                                         >일기로 정리하기</Button>
                                     }
-                                </div>
+                                </div>*/}
                             </Col>
 
                         </Row>
@@ -477,9 +509,9 @@ function DiaryView(props) {
                                 width: '100%',
                             }}>
                                 <Card.Body>
-                                    <Card.Title> <BeatLoader color="#007AFF" size={10}/> 일기 작성중</Card.Title>
+                                    <Card.Title> <BeatLoader color="#007AFF" size={10}/>일기 작성중</Card.Title>
                                     <Card.Subtitle className="mb-2 text-muted">
-                                        <div>핵심키워드 도출 중</div>
+                                        <div>조금만 기다려주세요</div>
                                     </Card.Subtitle>
                                     <Card.Text>
                                         <div>{props.diary}</div>
@@ -499,8 +531,9 @@ function DiaryView(props) {
                                 >📝 일기 저장하고 종료하기</Button>*/}
 
                                     <Button
-                                        variant="primary"
-                                        style={{backgroundColor: "007AFF", fontWeight: "600"}}
+                                        variant="dark"
+                                        style={{fontWeight: "600"}}
+                                        disabled={true}
                                         onClick={() => {
                                             props.setModalShow(true)
                                         }}
@@ -544,7 +577,7 @@ function DiaryView(props) {
                                 >📝 일기 저장하고 종료하기</Button>*/}
 
                                     <Button
-                                        variant="primary"
+                                        variant="dark"
                                         style={{backgroundColor: "007AFF", fontWeight: "600"}}
                                         onClick={() => {
                                             props.setModalShow(true)
@@ -609,7 +642,7 @@ function Loading() {
                         </div>
                     </Col>
                 </Row>
-                <Row>
+                {/*<Row>
                     <div className="writing_box">
                         <Form.Label htmlFor="userInput">✏️ 나의 일기 입력하기</Form.Label>
                         <Form.Control
@@ -646,7 +679,7 @@ function Loading() {
                             </Col>
                         </Row>
                     </Container>
-                </Row>
+                </Row>*/}
             </Container>
         </div>
     )

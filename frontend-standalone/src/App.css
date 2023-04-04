@@ -37,6 +37,9 @@
     background-color: cutom-color;
 }
 
+.likebutton {
+    cursor: pointer;
+}
 
 
 /*

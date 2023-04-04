@@ -153,17 +153,17 @@ function DiaryList(props) {
                                                 <Card.Text>
                                                     {diaryList[idx]["diary"]}
                                                 </Card.Text>
-                                                <span
+                                                <span className="likebutton"
                                                     onClick={()=>{
                                                         addLike(idx)
                                                     }}
-                                                >❤️ <b>{diaryList[idx]["like"]}</b> </span>
+                                                >️❤️</span> <b>{diaryList[idx]["like"]}</b>
 
-                                                <span
+                                                <span className="likebutton"
                                                     onClick={()=>{
                                                         addMuscle(idx)
                                                     }}
-                                                >💪️ <b>{diaryList[idx]["muscle"]}</b> </span>
+                                                >&nbsp;&nbsp;&nbsp;💪️ </span><b>{diaryList[idx]["muscle"]}</b>
                                             </Card.Body>
                                         </Card>
                                     </Col>
