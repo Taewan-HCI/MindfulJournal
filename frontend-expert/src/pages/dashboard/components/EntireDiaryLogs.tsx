@@ -2,8 +2,8 @@
 import React from 'react';
 import { Card } from 'react-bootstrap';
 import { Journals } from 'react-bootstrap-icons';
-import assistant from '../assets/image/assistant.png';
-import user from '../assets/image/user.png';
+import assistant from '../../../assets/image/assistant.png';
+import user from '../../../assets/image/user.png';
 
 function ChatLog({
   type,
@@ -55,6 +55,9 @@ function EntireDiaryLogs() {
       </Card>
       <ChatLog type="assistant" contents="날이 화창하군" />
       <ChatLog type="user" contents="날이 화창하군" />
+      <ChatLog type="assistant" contents="날이 화창하군" />
+      <ChatLog type="assistant" contents="날이 화창하군" />
+      <ChatLog type="assistant" contents="날이 화창하군" />{' '}
       <ChatLog type="assistant" contents="날이 화창하군" />
       <ChatLog
         type="user"
