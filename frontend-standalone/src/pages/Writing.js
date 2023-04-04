@@ -313,17 +313,26 @@ function Writing(props) {
                     <div className="loading_box">
                         <div>
                             {date}<br/><b>마음챙김 다이어리를 시작합니다</b> 😀
-
                         </div>
                     </div>
                 </Row>
                 <Row>
                     <Col>
                         <div className="d-grid gap-2">
-                            종료되지 않은 세션을 이어 진행하고자 한다면<br/>진행중인 세션 번호를 입력해주세요
-                            <input placeholder="세션 번호를 입력해주세요" ref={sessionInputRef} onChange={() => {
+                            {/*종료되지 않은 세션을 이어 진행하고자 한다면<br/>진행중인 세션 번호를 입력해주세요*/}
+                           {/* <input placeholder="세션 번호를 입력해주세요" ref={sessionInputRef} onChange={() => {
                                 setSession(sessionInputRef.current.value)
-                            }}></input>
+                            }}></input>*/}
+                            <Form.Text className="text-muted">
+                                종료되지 않은 세션을 이어 진행하고자 한다면<br/>진행중인 세션 번호를 입력해주세요
+                            </Form.Text>
+                            <Form.Group className="mb-3" controlId="formSessionNumber">
+                                <Form.Control type="text" placeholder="세션 번호를 입력해주세요" ref={sessionInputRef} onChange={() => {
+                                setSession(sessionInputRef.current.value)
+                            }}/>
+                                <Form.Text className="text-muted">
+                                </Form.Text>
+                            </Form.Group>
                             <Button
                                 variant="primary"
                                 style={{backgroundColor: "007AFF", fontWeight: "600"}}

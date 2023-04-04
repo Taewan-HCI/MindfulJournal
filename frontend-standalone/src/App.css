@@ -37,6 +37,12 @@
     background-color: cutom-color;
 }
 
+.btn-dark:hover {
+    color: #fff;
+    background-color: #243752;
+    background-color: cutom-color;
+}
+
 .likebutton {
     cursor: pointer;
 }
