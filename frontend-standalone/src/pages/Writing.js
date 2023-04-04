@@ -453,7 +453,7 @@ function Userinput(props) {
                                         variant="dark"
                                         style={{backgroundColor: "007AFF", fontWeight: "600"}}
                                         onClick={props.toggleListening}>
-                                        {props.isListening ? '🛑 음성인식 종료하기' : '🎙️ 말로 응답하기'}
+                                        {props.isListening ? '🛑 응답 종료하기' : '🎙️ 목소리로 응답하기'}
                                     </Button>
                                     <Form.Text id="userInput" muted>
                                         📖 3턴이 넘어가면 다이어리가 자동으로 생성됩니다.
@@ -467,13 +467,14 @@ function Userinput(props) {
                                         style={{backgroundColor: "007AFF", fontWeight: "600"}}
                                         onClick={() => {
                                             (function () {
-                                                if ((props.textInput).length < 11) {
-                                                    alert('입력한 내용이 너무 짧아요. 조금 더 길게 적어볼까요?')
+                                                if (props.isListening === true) {
+                                                    props.toggleListening()
+                                                    props.addConversationFromUser(props.textInput, temp_comment_input.current)
                                                 } else {
                                                     props.addConversationFromUser(props.textInput, temp_comment_input.current)
                                                 }
                                             })()
-                                        }}>💬 응답 기록하기</Button>
+                                        }}>💬 응답 전송하기</Button>
 
                                 </div>
 

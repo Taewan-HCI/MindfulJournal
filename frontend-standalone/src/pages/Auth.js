@@ -43,13 +43,13 @@ export const Auth = (props) => {
         } catch (err) {
             console.error(err);
             if (err.message.includes("wrong-password")) {
-                alert("비밀번호가 틀렸습니다.");
+                alert("비밀번호가 틀렸습니다. 비밀번호가 기억나지 않으신다면, taewan@kaist.ac.kr 또는 010-9085-2356으로 연락부탁드립니다.");
             }
             else if (err.message.includes("user-not-found")) {
                 alert("계정정보가 없습니다.")
             }
             else if (err.message.includes("invalid-email")) {
-                alert("메일 형식이 아닙니다.")
+                alert("올바른 이메일 형식이 아닙니다.")
             }
             else {
                 alert('Error: ' + err.message);
@@ -59,7 +59,7 @@ export const Auth = (props) => {
 
     const signUpWithEmailPassword = async () => {
         if (password !== passwordCheck) {
-            alert("비밀번호가 일치하지 않습니다.");
+            alert("비밀번호가 일치하지 않습니다. 동일한 비밀번호를 입력해주세요");
         }
         else {
             try {
@@ -73,10 +73,10 @@ export const Auth = (props) => {
         } catch (err) {
             console.error(err);
             if (err.message.includes("email-already-in-use")) {
-                alert("이미 가입된 이메일입니다.");
+                alert("이미 가입된 이메일입니다. 비밀번호가 기억나지 않으신다면, taewan@kaist.ac.kr 또는 010-9085-2356으로 연락부탁드립니다.");
             }
             else if (err.message.includes("invalid-email")) {
-                alert("메일 형식이 아닙니다.")
+                alert("올바른 이메일 형식이 아닙니다.")
             }
 
             else if (err.message.includes("weak-password")) {
@@ -117,7 +117,7 @@ export const Auth = (props) => {
 
                             <Form.Group className="mb-3" controlId="formBasicUsername">
                                 {/*<Form.Label>사용자 이름</Form.Label>*/}
-                                <Form.Control type="text" placeholder="👤 사용자 이름"
+                                <Form.Control type="text" placeholder="👤 성함을 입력해주세요"
                                               onChange={(e) => setUsername(e.target.value)}/>
                                 <Form.Text className="text-muted">
                                 </Form.Text>

@@ -110,7 +110,7 @@ def m1_1_standalone(text, turn, module):
     ]
 
     completion1 = openai.ChatCompletion.create(
-        model="gpt-4",
+        model="gpt-3.5-turbo",
         # model="gpt-4",
         messages=messages_0,
         stop=['User: '],
@@ -181,7 +181,7 @@ def m1_1_standalone(text, turn, module):
         messages_1.append(extracted[i])
 
     completion2 = openai.ChatCompletion.create(
-        model="gpt-4",
+        model="gpt-3.5-turbo",
         messages=messages_1,
         stop=['User: '],
         max_tokens=245,
@@ -445,7 +445,7 @@ def m1_3_init(result, topic):
 
     messages.extend(result)
     completion = openai.ChatCompletion.create(
-        model="gpt-4",
+        model="gpt-3.5-turbo",
         messages=messages,
         stop=['User: '],
         max_tokens=245,
