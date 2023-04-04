@@ -146,6 +146,7 @@ function Writing(props) {
             sessionEnd: Math.floor(Date.now() / 1000),
             isFinished: true,
             like: 0,
+            muscle: 0,
             diary: diary
         }, {merge: true});
         navigateToReview()
@@ -165,7 +166,6 @@ function Writing(props) {
                     const response = receivedDiary.current;
                     setDiary(response)
                 })
-
                 return () => {
                     unsuscribe();
                     unsuscribe2();
@@ -250,7 +250,6 @@ function Writing(props) {
             "comment": comment,
             "turn": turnCount.current
         }
-
         const docRef2 = doc(db, "session", props.userName, "diary", session);
         const docSnap2 = await getDoc(docRef2);
         if (docSnap2.exists()) {

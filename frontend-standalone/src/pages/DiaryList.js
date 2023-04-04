@@ -66,6 +66,17 @@ function DiaryList(props) {
         setRefresh(refresh+1)
     }
 
+
+    async function addMuscle(idx) {
+        const findSession = diaryList[idx]["sessionNumber"]
+        const userDocRef = doc(db, 'session', props.userName, 'diary', findSession);
+        await updateDoc(userDocRef, {
+            muscle: increment(1)
+        })
+        updateProgress.current = true
+        setRefresh(refresh+1)
+    }
+
     /*async function receiveDiaryData() {
         let tempArr = []
         const q = query(collection(db, "session", props.userName, "diary_complete"), where("isFinished", "==", "true"), orderBy("sessionEnd", "desc"))
@@ -147,6 +158,12 @@ function DiaryList(props) {
                                                         addLike(idx)
                                                     }}
                                                 >❤️ <b>{diaryList[idx]["like"]}</b> </span>
+
+                                                <span
+                                                    onClick={()=>{
+                                                        addMuscle(idx)
+                                                    }}
+                                                > 💪️ <b>{diaryList[idx]["muscle"]}</b> </span>
                                             </Card.Body>
                                         </Card>
                                     </Col>
