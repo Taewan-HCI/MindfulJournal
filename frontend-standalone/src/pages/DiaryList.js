@@ -163,7 +163,7 @@ function DiaryList(props) {
                                                     onClick={()=>{
                                                         addMuscle(idx)
                                                     }}
-                                                > 💪️ <b>{diaryList[idx]["muscle"]}</b> </span>
+                                                >💪️ <b>{diaryList[idx]["muscle"]}</b> </span>
                                             </Card.Body>
                                         </Card>
                                     </Col>
