@@ -15,7 +15,7 @@ import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Card from "react-bootstrap/Card";
 import Badge from 'react-bootstrap/Badge';
-import {ScaleLoader, BeatLoader} from "react-spinners";
+import {ScaleLoader, BeatLoader, HashLoader} from "react-spinners";
 import "react-datepicker/dist/react-datepicker.css";
 import {useNavigate} from "react-router-dom";
 import Modal from 'react-bootstrap/Modal';
@@ -515,14 +515,6 @@ function DiaryView(props) {
                                 <div className="d-grid gap-2">
 
 
-                                    <Button
-                                        variant="dark"
-                                        style={{fontWeight: "600"}}
-                                        disabled={true}
-                                        onClick={() => {
-                                            props.setModalShow(true)
-                                        }}
-                                    >📝 일기 저장하고 종료하기</Button>
                                 </div>
                             </Col>
 
@@ -583,11 +575,12 @@ function Loading() {
                     <Col>
                         <div className="loading_box">
                             <div>
-                                <ScaleLoader
+                                <HashLoader
                                     color="#007AFF"
                                     speedMultiplier={0.9}
                                 />
                             </div>
+                            &nbsp;
                             <div>지금까지의 이야기를 정리중입니다</div>
                         </div>
                     </Col>
