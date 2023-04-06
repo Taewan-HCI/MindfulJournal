@@ -313,9 +313,20 @@ function Writing(props) {
             <Container>
                 <Row>
                     <div className="loading_box">
-                        <div>
+
+                        <span className="desktop-view">
+                            <div>
                             {date}<br/><b>마음챙김 다이어리를 시작합니다</b> 😀
                         </div>
+                        </span>
+                        <span className="smartphone-view-view">
+                            <div>
+                            {date}<br/><b>마음챙김 다이어리를<br/>시작합니다</b> 😀
+                        </div>
+                        </span>
+
+
+
                     </div>
                 </Row>
 
@@ -518,7 +529,8 @@ function Userinput(props) {
                                     </Form.Text>
                         </Row>
 
-                        <Row className="smartphone-view">
+                        <div className="smartphone-view">
+
                                 <div className="d-grid gap-2">
                                     <Button
                                         variant="dark"
@@ -541,12 +553,13 @@ function Userinput(props) {
                                                 }
                                             })()
                                         }}>💬 응답 전송하기</Button>
-
                                 </div>
+
+
                             <Form.Text id="userInput" muted>
                                         📖 3턴이 넘어가면 다이어리가 자동으로 생성됩니다.
                                     </Form.Text>
-                        </Row>
+                        </div>
 
                 </Row>
             </Container>

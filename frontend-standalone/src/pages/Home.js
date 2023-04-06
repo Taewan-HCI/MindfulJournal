@@ -114,9 +114,18 @@ function NoDiary(props) {
             </Row>
             <Row>
                 <div className="loading_box_home_bottom">
-                    <div>
+                    <span className="desktop-view">
+
                         🥲 아직 작성한 일기가 없어요. 첫 일기를 작성해볼까요?
-                    </div>
+
+                    </span>
+
+                    <span className="smartphone-view-text">
+
+                        🥲 아직 작성한 일기가 없어요. 첫 일기를 작성해볼까요?
+
+                    </span>
+
                 </div>
                 {/*<Row>
                     <Col>

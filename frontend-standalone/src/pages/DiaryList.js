@@ -5,7 +5,18 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import React from 'react';
 import Card from 'react-bootstrap/Card';
-import {collection, doc, onSnapshot, query, where, orderBy, getDocs, setDoc, updateDoc, increment} from "firebase/firestore";
+import {
+    collection,
+    doc,
+    onSnapshot,
+    query,
+    where,
+    orderBy,
+    getDocs,
+    setDoc,
+    updateDoc,
+    increment
+} from "firebase/firestore";
 import {auth, db} from "../firebase-config";
 
 
@@ -23,6 +34,7 @@ function DiaryList(props) {
             setDiaryList(diary)
             updateProgress.current = false
         }
+
         if (updateProgress.current) {
             renewList()
         } else {
@@ -63,7 +75,7 @@ function DiaryList(props) {
             like: increment(1)
         })
         updateProgress.current = true
-        setRefresh(refresh+1)
+        setRefresh(refresh + 1)
     }
 
 
@@ -74,7 +86,7 @@ function DiaryList(props) {
             muscle: increment(1)
         })
         updateProgress.current = true
-        setRefresh(refresh+1)
+        setRefresh(refresh + 1)
     }
 
     /*async function receiveDiaryData() {
@@ -117,9 +129,17 @@ function DiaryList(props) {
                                 <div>일기 돌아보기</div>
                             </div>
                             <div className="loading_box_home_bottom">
-                                <div>
-                                    🥲 아직 작성한 일기가 없어요. 첫 일기를 작성해볼까요?
-                                </div>
+                                <span className="desktop-view">
+
+                        🥲 아직 작성한 일기가 없어요. 첫 일기를 작성해볼까요?
+
+                    </span>
+
+                                <span className="smartphone-view-text">
+
+                        🥲 아직 작성한 일기가 없어요. 첫 일기를 작성해볼까요?
+
+                    </span>
                             </div>
                         </Col>
                     </Row>
@@ -148,21 +168,22 @@ function DiaryList(props) {
                                             <Card.Body>
                                                 <Card.Title>{Unix_timestamp(diaryList[idx]["sessionEnd"])}</Card.Title>
                                                 <Card.Subtitle className="mb-2 text-muted">
-                                                    <div className="nav_title_blue">{Unix_timestamp2(diaryList[idx]["sessionEnd"])}</div>
+                                                    <div
+                                                        className="nav_title_blue">{Unix_timestamp2(diaryList[idx]["sessionEnd"])}</div>
                                                 </Card.Subtitle>
                                                 <Card.Text>
                                                     {diaryList[idx]["diary"]}
                                                 </Card.Text>
                                                 <span className="likebutton"
-                                                    onClick={()=>{
-                                                        addLike(idx)
-                                                    }}
+                                                      onClick={() => {
+                                                          addLike(idx)
+                                                      }}
                                                 >️❤️</span> <b>{diaryList[idx]["like"]}</b>
 
                                                 <span className="likebutton"
-                                                    onClick={()=>{
-                                                        addMuscle(idx)
-                                                    }}
+                                                      onClick={() => {
+                                                          addMuscle(idx)
+                                                      }}
                                                 >&nbsp;&nbsp;&nbsp;💪️ </span><b>{diaryList[idx]["muscle"]}</b>
                                             </Card.Body>
                                         </Card>
