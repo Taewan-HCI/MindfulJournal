@@ -103,14 +103,13 @@ def m1_1_standalone(text, turn, module):
     print(str(text))
     messages_0 = [
         {"role": "system",
-         "content": "Current turn:" + str(turn) + "Current module: " + str(
-             module) + "\nYou will read a conversation transcript and determine which conversation phase is appropriate to continue. Choose the most suitable phase from the following five options: Rapport building, Getting information, Exploration, Wrapping up, and Sensitive topic. The conversation usually proceeds in the order of Rapport building, Getting information, Exploration, and Wrapping up phases. The entire conversation should consist of approximately 12-24 turns. A brief description of each phase is provided below.\n[Rapport building]: Typically the first phase of the conversation, where the user and the agent establish rapport and engage in casual conversation.\n[Getting information]: This phase is for asking the user about key events or anecdotes in the user's life. Transition to this phase once enough rapport and comfort has been built through casual conversation with the user for about 2~3 turns. \n[Exploration]: A deeper, more detailed conversation about a main event or anecdote in the user's life. You can entere this phase when a major event or thought is mentioned that can be discussed further.\n[Wrapping up]: The final phase of the conversation, in which the user and agent conclude their discussion. Enter this phase once enough conversation has occurred and the user and agent need to end the conversation. Note that once you enter the Wrapping up phase, you must remain in it.\n[Sensitive topic]: This module can be triggered at any time. Activate it if the conversation includes indications of suicide or death. Note that once you enter the Sesnsitive topic phase, you must remain in it."},
+         "content": "Turn: " + str(turn) + ", Module: " + str(module) + "\nYour task is to read a conversation transcript and determine the appropriate conversation phase to continue. Select the most fitting phase among these five options: Rapport Building, Getting Information, Exploration, Wrapping Up, and Sensitive Topic. Conversations generally follow the sequence: Rapport Building, Getting Information, Exploration, and Wrapping Up. The entire conversation should consist of approximately 12-24 turns. Brief descriptions of each phase are as follows:\n1. [Rapport Building]: The initial phase, where the user and agent establish a connection through casual conversation.\n2. [Getting Information]: After building rapport (usually 2-3 turns), transition to this phase to inquire about significant events or stories in the user's life.\n 3. [Exploration]: Delve deeper into a major event or anecdote mentioned by the user. Proceed to this phase when there's an important topic to discuss further.\n4. [Wrapping Up]: The concluding phase, in which the user and agent wrap up their discussion. Enter this phase after sufficient conversation and when it's time to end the conversation. Note that once you enter the Wrapping Up phase, you must remain in it.\n 5. [Sensitive Topic]: Activate this module at any point if the conversation involves indications of suicide or death. Note that once you enter the Sensitive Topic phase, you must remain in it."},
         {"role": "user",
          "content": str(text)}
     ]
 
     completion1 = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
+        model="gpt-4",
         # model="gpt-4",
         messages=messages_0,
         stop=['User: '],
@@ -212,8 +211,8 @@ def m1_1_standalone(text, turn, module):
     # # print(moduleRecommendation)
 
     # print(moduleRecommendation)
-    if len(text) > 7:
-        extracted = text[-5:]
+    if len(text) > 4:
+        extracted = text[-4:]
     else:
         print("아직 증가 안함")
     extracted = text
@@ -432,7 +431,7 @@ def makeDiary(text):
                  "content": text}]
 
     completion = openai.ChatCompletion.create(
-        model="gpt-4",
+        model="gpt-3.5-turbo",
         messages=messages,
         stop=['User: ', 'Assistant: '],
         max_tokens=245,

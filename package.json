@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "font-awesome": "^4.7.0",
+    "react-textarea-autosize": "^8.4.1"
+  }
+}
