@@ -55,7 +55,7 @@ function App() {
         <div className="App">
             <div>
                 <div>
-                    <Navbar bg="light" variant="light">
+                    <Navbar collapseOnSelect expand="sm" bg="light" variant="light">
                         <Container>
                             <Navbar.Brand onClick={() => {
                                 navigate('/')
@@ -65,24 +65,36 @@ function App() {
                                     <div className="nav_title_blue">다이어리</div>
                                 </Stack>
                             </Navbar.Brand>
-                            <Nav className="me-auto">
-                                <Nav.Link onClick={() => {
-                                    navigate('/')
-                                }}><div className="nav_title_black">홈</div></Nav.Link>
-                                <Nav.Link onClick={() => {
-                                    navigate('/writing')
-                                }}><div className="nav_title_black">일기 작성하기</div></Nav.Link>
-                                <Nav.Link onClick={() => {
-                                    navigate('/list')
-                                }}><div className="nav_title_black">일기 돌아보기</div></Nav.Link>
-                                {isAuth ? (<Nav.Link onClick={signUserOut}><div className="nav_title_black">로그아웃</div></Nav.Link>) : (null)}
-                            </Nav>
-                            <Nav>
-                                <Stack gap={0}>
-                                    <div className="nav_title_blue"><b>GPT-User Direct Mode</b></div>
-                                    <div className="nav_title_black">{date}</div>
-                                </Stack>
-                            </Nav>
+                            <Navbar.Toggle aria-controls="responsive-navbar-nav"/>
+                            <Navbar.Collapse id="responsive-navbar-nav">
+                                <Nav className="me-auto">
+                                    <Nav.Link onClick={() => {
+                                        navigate('/')
+                                    }}>
+                                        <div className="nav_title_black">홈</div>
+                                    </Nav.Link>
+                                    <Nav.Link onClick={() => {
+                                        navigate('/writing')
+                                    }}>
+                                        <div className="nav_title_black">일기 작성하기</div>
+                                    </Nav.Link>
+                                    <Nav.Link onClick={() => {
+                                        navigate('/list')
+                                    }}>
+                                        <div className="nav_title_black">일기 돌아보기</div>
+                                    </Nav.Link>
+                                    {isAuth ? (<Nav.Link onClick={signUserOut}>
+                                        <div className="nav_title_black">로그아웃</div>
+                                    </Nav.Link>) : (null)}
+                                </Nav>
+                                <Nav>
+                                    <Stack gap={0}>
+                                        <div className="nav_title_blue"><b>GPT-User Direct Mode</b></div>
+                                        <div className="nav_title_black">{date}</div>
+                                    </Stack>
+                                </Nav>
+                            </Navbar.Collapse>
+
                         </Container>
                     </Navbar>
                 </div>
@@ -97,8 +109,9 @@ function App() {
                            element={isAuth ? (<div><Writing userName={userName} userMail={userMail}/></div>) : (
                                <Auth setIsAuth={setIsAuth} setUserName={setUserName} setUserMail={setUserMail}/>)
                            }/>
-                    <Route path="/list" element={isAuth ? (<div><DiaryList userName={userName} userMail={userMail}/></div>) : (
-                        <Auth setIsAuth={setIsAuth} setUserName={setUserName} setUserMail={setUserMail}/>)}/>
+                    <Route path="/list"
+                           element={isAuth ? (<div><DiaryList userName={userName} userMail={userMail}/></div>) : (
+                               <Auth setIsAuth={setIsAuth} setUserName={setUserName} setUserMail={setUserMail}/>)}/>
                     <Route path="/loading" element={<div><Loading/></div>}/>
                     <Route path="*" element={<div>404~ 없는페이지임</div>}/>
                 </Routes>

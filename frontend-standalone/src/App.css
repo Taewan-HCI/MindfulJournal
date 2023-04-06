@@ -1,10 +1,52 @@
 
+/* Hide smartphone-text by default */
+.smartphone-view {
+  display: none;
+}
+
+.smartphone-view-text {
+  display: none;
+}
+
+.smartphone-view-text-large {
+  display: none;
+}
+
+.smartphone-view-text-tiny {
+  display: none;
+}
+
+/* Show smartphone-text and hide desktop-text for smartphone screens */
+@media (max-width: 575px) {
+  .desktop-view {
+    display: none;
+  }
+  .smartphone-view {
+    display: inline;
+  }
+
+  .smartphone-view-text {
+    display: inline;
+      font-size: 17px;
+      word-break: keep-all;
+  }
+
+  .smartphone-view-text-large {
+    display: inline;
+      font-size: 23px;
+      word-break: keep-all;
+  }
+
+  .smartphone-view-text-tiny {
+    display: inline;
+      font-size: 15px;
+      word-break: keep-all;
+  }
+}
+
 .datePicker {
     border-right: 30px;
 }
-
-
-
 
 @media (min-width: 1200px) {
   .container {
@@ -77,8 +119,8 @@
     overflow: hidden;
     height: auto;
     font-size: 30px;
-    padding-top: 50px;
-    padding-bottom: 30px;
+    padding-top: 30px;
+    padding-bottom: 20px;
     text-align: left;
     font-weight: bolder;
     color: black;

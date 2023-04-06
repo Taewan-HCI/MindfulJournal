@@ -183,18 +183,37 @@ function Loading_complete(props) {
         <Container>
             <Row>
                 <div className="loading_box_home_top">
-                    <div>
+
+                    <span className="desktop-view">
                         <b>안녕하세요 {props.userName}님</b> 😀<br/>마음챙김 다이어리에 오신걸 환영합니다.
-                    </div>
+            </span>
+                            <span className="smartphone-view">
+                        <b>{props.userName}님</b> 😀<br/>오신걸 환영해요
+            </span>
+
+
                 </div>
             </Row>
             <Row>
                 <div className="loading_box_home_bottom">
-                    <div>
-                        📅 마지막으로 작성한 다이어리는 <b>{props.Unix_timestamp(props.lastDate)}</b> 일기에요.
+
+                    <span className="desktop-view">
+<div>
+                        📅 마지막으로 작성한 일기는 <b>{props.Unix_timestamp(props.lastDate)}</b> 일기에요.
                         <br/>
                         📖 지금까지 <b>{props.diaryList.length}</b>개의 일기를 작성하셨네요!
                     </div>
+                    </span>
+                            <span className="smartphone-view-text">
+<div>
+                        📅 마지막 일기는 <b>{props.Unix_timestamp(props.lastDate)}</b> 일기에요.
+                        <br/>
+                        📖 지금까지 <b>{props.diaryList.length}</b>개의 일기를 작성하셨네요!
+                    </div>
+                            </span>
+
+
+
                 </div>
                 {/*<Row>
                     <Col>
