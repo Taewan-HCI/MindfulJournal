@@ -8,8 +8,20 @@ import book_blue from "../img/book_blue.jpg";
 import book_purple from "../img/book_purple.jpg";
 import chat from "../img/chat.jpg";
 import lock from "../img/lock.jpg";
-import {collection, doc, onSnapshot, query, where, orderBy, getDocs, setDoc, updateDoc, increment} from "firebase/firestore";
+import {
+    collection,
+    doc,
+    onSnapshot,
+    query,
+    where,
+    orderBy,
+    getDocs,
+    setDoc,
+    updateDoc,
+    increment
+} from "firebase/firestore";
 import {db} from "../firebase-config";
+import Button from "react-bootstrap/Button";
 
 
 function Home(props) {
@@ -187,7 +199,7 @@ function Loading_complete(props) {
                     <span className="desktop-view">
                         <b>안녕하세요 {props.userName}님</b> 😀<br/>마음챙김 다이어리에 오신걸 환영합니다.
             </span>
-                            <span className="smartphone-view">
+                    <span className="smartphone-view">
                         <b>{props.userName}님</b> 😀<br/>오신걸 환영해요
             </span>
 
@@ -204,14 +216,31 @@ function Loading_complete(props) {
                         📖 지금까지 <b>{props.diaryList.length}</b>개의 일기를 작성하셨네요!
                     </div>
                     </span>
-                            <span className="smartphone-view-text">
+                    <span className="smartphone-view-text">
 <div>
                         📅 마지막 일기는 <b>{props.Unix_timestamp(props.lastDate)}</b> 일기에요.
                         <br/>
                         📖 지금까지 <b>{props.diaryList.length}</b>개의 일기를 작성하셨네요!
-                    </div>
-                            </span>
 
+
+                    </div>
+                        <div className="d-grid gap-2">
+                            &nbsp;
+                        <Button
+                            variant="primary"
+                            style={{backgroundColor: "007AFF", fontWeight: "600"}}
+                            onClick={props.navigateToWriting}>
+                            📝 오늘의 일기 작성하러 가기
+                        </Button>
+
+                        <Button
+                            variant="dark"
+                            style={{backgroundColor: "6c757d", fontWeight: "600"}}
+                            onClick={props.navigateToReview}>
+                            📖 작성한 일기 다시보기
+                        </Button>
+                        </div>
+                            </span>
 
 
                 </div>
@@ -236,7 +265,11 @@ function Loading_complete(props) {
 
                     </Col>
                 </Row>*/}
+                <span className="center_temp">
+                                                &nbsp;
+
                 <Row xs={1} md={2} className="g-4">
+
                     <Col>
                         <Card>
                             <Card.Img variant="top" src={book_purple}/>
@@ -281,6 +314,8 @@ function Loading_complete(props) {
                         </Card>
                     </Col>
                 </Row>
+
+                </span>
             </Row>
             <div className="footer"></div>
         </Container>

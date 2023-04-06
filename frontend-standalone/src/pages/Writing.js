@@ -484,7 +484,6 @@ function Userinput(props) {
 
 
                     </div>
-                    <Container>
                         <Row className="desktop-view">
                                 <Col>
                                 <div className="d-grid gap-2">
@@ -512,7 +511,6 @@ function Userinput(props) {
                                                 }
                                             })()
                                         }}>💬 응답 전송하기</Button>
-
                                 </div>
                             </Col>
                             <Form.Text id="userInput" muted>
@@ -550,7 +548,6 @@ function Userinput(props) {
                                     </Form.Text>
                         </Row>
 
-                    </Container>
                 </Row>
             </Container>
         </div>

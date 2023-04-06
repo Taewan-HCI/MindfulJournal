@@ -4,6 +4,10 @@
   display: none;
 }
 
+.center_temp {
+    alignment: center;
+}
+
 .smartphone-view-text {
   display: none;
 }

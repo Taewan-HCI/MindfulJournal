@@ -50,51 +50,76 @@ function App() {
         setIsAuth(false)
     }
 
+    const [expanded, setExpanded] = useState(false);
+
 
     return (
+
+
         <div className="App">
             <div>
                 <div>
-                    <Navbar collapseOnSelect expand="sm" bg="light" variant="light">
+                    <Navbar collapseOnSelect expand="sm" bg="light" variant="light" expanded={expanded}>
                         <Container>
-                            <Navbar.Brand onClick={() => {
-                                navigate('/')
-                            }}>
+                            <Navbar.Brand
+                                onClick={() => {
+                                    navigate('/');
+                                    setExpanded(false);
+                                }}
+                            >
                                 <Stack gap={0}>
                                     <div className="nav_title_black">마음챙김</div>
                                     <div className="nav_title_blue">다이어리</div>
                                 </Stack>
                             </Navbar.Brand>
-                            <Navbar.Toggle aria-controls="responsive-navbar-nav"/>
+                            <Navbar.Toggle aria-controls="responsive-navbar-nav"
+                                           onClick={() => setExpanded(!expanded)}/>
                             <Navbar.Collapse id="responsive-navbar-nav">
                                 <Nav className="me-auto">
-                                    <Nav.Link onClick={() => {
-                                        navigate('/')
-                                    }}>
+                                    <Nav.Link
+                                        onClick={() => {
+                                            navigate('/');
+                                            setExpanded(false);
+                                        }}
+                                    >
                                         <div className="nav_title_black">홈</div>
                                     </Nav.Link>
-                                    <Nav.Link onClick={() => {
-                                        navigate('/writing')
-                                    }}>
+                                    <Nav.Link
+                                        onClick={() => {
+                                            navigate('/writing');
+                                            setExpanded(false);
+                                        }}
+                                    >
                                         <div className="nav_title_black">일기 작성하기</div>
                                     </Nav.Link>
-                                    <Nav.Link onClick={() => {
-                                        navigate('/list')
-                                    }}>
+                                    <Nav.Link
+                                        onClick={() => {
+                                            navigate('/list');
+                                            setExpanded(false);
+                                        }}
+                                    >
                                         <div className="nav_title_black">일기 돌아보기</div>
                                     </Nav.Link>
-                                    {isAuth ? (<Nav.Link onClick={signUserOut}>
-                                        <div className="nav_title_black">로그아웃</div>
-                                    </Nav.Link>) : (null)}
+                                    {isAuth ? (
+                                        <Nav.Link
+                                            onClick={() => {
+                                                signUserOut();
+                                                setExpanded(false);
+                                            }}
+                                        >
+                                            <div className="nav_title_black">로그아웃</div>
+                                        </Nav.Link>
+                                    ) : null}
                                 </Nav>
                                 <Nav>
                                     <Stack gap={0}>
-                                        <div className="nav_title_blue"><b>GPT-User Direct Mode</b></div>
+                                        <div className="nav_title_blue">
+                                            <b>GPT-User Direct Mode</b>
+                                        </div>
                                         <div className="nav_title_black">{date}</div>
                                     </Stack>
                                 </Nav>
                             </Navbar.Collapse>
-
                         </Container>
                     </Navbar>
                 </div>
