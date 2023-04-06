@@ -30,7 +30,7 @@ function Writing(props) {
     const receivedText = useRef("");
     const receivedDiary = useRef("");
 
-    const turnCount = useRef(0);
+    const turnCount = useRef(null);
     const sessionInputRef = useRef(null)
     const [session, setSession] = useState("")
     let [inputUser, setInputUser] = useState('')
@@ -78,9 +78,9 @@ function Writing(props) {
         };
 
         if (isListening) {
-            recognition.start({ continuous: true });
+            recognition.start({continuous: true});
         } else {
-            recognition.stop({ continuous: true });
+            recognition.stop({continuous: true});
         }
 
         return () => {
@@ -196,6 +196,8 @@ function Writing(props) {
                 // Tracking "diary" field
                 receivedDiary.current = data['diary'];
                 setDiary(receivedDiary.current);
+
+                turnCount.current = data['turn'];
             });
 
             return () => {
@@ -319,24 +321,23 @@ function Writing(props) {
                             {date}<br/><b>마음챙김 다이어리를 시작합니다</b> 😀
                         </div>
                         </span>
-                        <span className="smartphone-view-view">
+
+                        <span className="smartphone-view">
                             <div>
                             {date}<br/><b>마음챙김 다이어리를<br/>시작합니다</b> 😀
                         </div>
                         </span>
 
 
-
                     </div>
                 </Row>
 
 
-
-                         <Row>
+                <Row>
                     <Col>
                         <div className="d-grid gap-2">
                             <Form.Text className="text-muted">
-                                종료되지 않은 세션을 이어 진행하고자 한다면<br/>진행중인 세션 번호를 입력해주세요
+                                종료되지 않은 세션을 이어 진행하려면<br/>진행중인 세션 번호를 입력해주세요
                             </Form.Text>
                             <Form.Group className="mb-3" controlId="formSessionNumber">
                                 <Form.Control type="text" placeholder="세션 번호를 입력해주세요" ref={sessionInputRef}
@@ -357,16 +358,11 @@ function Writing(props) {
                             </Button>
                         </div>
                     </Col>
-                             <Col className="desktop-view">
-                             </Col>
+                    <Col className="desktop-view">
+                    </Col>
 
                 </Row>
-
-
-
-
-
-
+                <div className="footer"></div>
 
 
             </Container>
@@ -392,7 +388,9 @@ function Writing(props) {
                             <Userinput prompt={prompt} setInputUser={setInputUser} inputUser={inputUser}
                                        addConversationFromUser={addConversationFromUser}
                                        requestSummerization={requestSummerization} setLoading={setLoading}
-                                       turnCount={turnCount.current} setDiary={setDiary} textInput={textInput} setTextInput={setTextInput} toggleListening={toggleListening} isListening={isListening}/>}
+                                       turnCount={turnCount.current} setDiary={setDiary} textInput={textInput}
+                                       setTextInput={setTextInput} toggleListening={toggleListening}
+                                       isListening={isListening}/>}
                     </div>
                 </Row>
                 <Row>
@@ -404,6 +402,7 @@ function Writing(props) {
                     show={modalShow}
                     onHide={() => setModalShow(false)}
                 />
+                <div className="footer"></div>
             </Container>
 
         )
@@ -437,7 +436,6 @@ function Userinput(props) {
                             </span>
 
 
-
                         </div>
                     </Col>
                 </Row>
@@ -447,10 +445,9 @@ function Userinput(props) {
                         <span className="desktop-view">
                             ✏️ 나의 일기 입력하기
                         </span>
-                            <span className="smartphone-view-text-tiny">
+                            <span className="smartphone-view-text-tiny" 의>
                                 ✏️ 나의 일기 입력하기
                             </span>
-
 
 
                         </Form.Label>
@@ -468,14 +465,15 @@ function Userinput(props) {
                             📝 정해진 양식은 없어요. 편안하고 자유롭게 최근에 있었던 일을 작성해주세요.
                         </Form.Text>
 
-                        <div className="writing_box">
+                        <span className="desktop-view">
+                            <div className="writing_box">
 
                             <Form.Label htmlFor="commentInput">
 
                                 <span className="desktop-view">
                                 ✍️ 언어모델 출력에 대한 코멘트를 입력해주세요
                         </span>
-                            <span className="smartphone-view-text-tiny">
+                                <span className="smartphone-view-text-tiny">
                                 ✍️ 언어모델 출력에 대한 코멘트를 입력해주세요
                             </span>
 
@@ -492,74 +490,75 @@ function Userinput(props) {
                             />
 
                         </div>
-
+                        </span>
+                        
 
                     </div>
-                        <Row className="desktop-view">
-                                <Col>
-                                <div className="d-grid gap-2">
-                                    <Button
-                                        variant="dark"
-                                        style={{backgroundColor: "007AFF", fontWeight: "600"}}
-                                        onClick={props.toggleListening}>
-                                        {props.isListening ? '🛑 응답 종료하기' : '🎙️ 목소리로 응답하기'}
-                                    </Button>
+                    <Row className="desktop-view">
+                        <Col>
+                            <div className="d-grid gap-2">
+                                <Button
+                                    variant="dark"
+                                    style={{backgroundColor: "007AFF", fontWeight: "600"}}
+                                    onClick={props.toggleListening}>
+                                    {props.isListening ? '🛑 응답 종료하기' : '🎙️ 목소리로 응답하기'}
+                                </Button>
 
-                                </div>
-                            </Col>
-                            <Col>
-                                <div className="d-grid gap-2">
-                                    <Button
-                                        variant="primary"
-                                        style={{backgroundColor: "007AFF", fontWeight: "600"}}
-                                        onClick={() => {
-                                            (function () {
-                                                if (props.isListening === true) {
-                                                    props.toggleListening()
-                                                    props.addConversationFromUser(props.textInput, temp_comment_input.current)
-                                                } else {
-                                                    props.addConversationFromUser(props.textInput, temp_comment_input.current)
-                                                }
-                                            })()
-                                        }}>💬 응답 전송하기</Button>
-                                </div>
-                            </Col>
-                            <Form.Text id="userInput" muted>
-                                        📖 3턴이 넘어가면 다이어리가 자동으로 생성됩니다.
-                                    </Form.Text>
-                        </Row>
+                            </div>
+                        </Col>
+                        <Col>
+                            <div className="d-grid gap-2">
+                                <Button
+                                    variant="primary"
+                                    style={{backgroundColor: "007AFF", fontWeight: "600"}}
+                                    onClick={() => {
+                                        (function () {
+                                            if (props.isListening === true) {
+                                                props.toggleListening()
+                                                props.addConversationFromUser(props.textInput, temp_comment_input.current)
+                                            } else {
+                                                props.addConversationFromUser(props.textInput, temp_comment_input.current)
+                                            }
+                                        })()
+                                    }}>💬 응답 전송하기</Button>
+                            </div>
+                        </Col>
+                        <Form.Text id="userInput" muted>
+                            📖 3턴이 넘어가면 다이어리가 자동으로 생성됩니다.
+                        </Form.Text>
+                    </Row>
 
-                        <div className="smartphone-view">
+                    <div className="smartphone-view">
 
-                                <div className="d-grid gap-2">
-                                    <Button
-                                        variant="dark"
-                                        style={{backgroundColor: "007AFF", fontWeight: "600"}}
-                                        onClick={props.toggleListening}>
-                                        {props.isListening ? '🛑 응답 종료하기' : '🎙️ 목소리로 응답하기'}
-                                    </Button>
-
-
-                                    <Button
-                                        variant="primary"
-                                        style={{backgroundColor: "007AFF", fontWeight: "600"}}
-                                        onClick={() => {
-                                            (function () {
-                                                if (props.isListening === true) {
-                                                    props.toggleListening()
-                                                    props.addConversationFromUser(props.textInput, temp_comment_input.current)
-                                                } else {
-                                                    props.addConversationFromUser(props.textInput, temp_comment_input.current)
-                                                }
-                                            })()
-                                        }}>💬 응답 전송하기</Button>
-                                </div>
+                        <div className="d-grid gap-2">
+                            <Button
+                                variant="dark"
+                                style={{backgroundColor: "007AFF", fontWeight: "600"}}
+                                onClick={props.toggleListening}>
+                                {props.isListening ? '🛑 응답 종료하기' : '🎙️ 목소리로 응답하기'}
+                            </Button>
 
 
-                            <Form.Text id="userInput" muted>
-                                        📖 3턴이 넘어가면 다이어리가 자동으로 생성됩니다.
-                                    </Form.Text>
+                            <Button
+                                variant="primary"
+                                style={{backgroundColor: "007AFF", fontWeight: "600"}}
+                                onClick={() => {
+                                    (function () {
+                                        if (props.isListening === true) {
+                                            props.toggleListening()
+                                            props.addConversationFromUser(props.textInput, temp_comment_input.current)
+                                        } else {
+                                            props.addConversationFromUser(props.textInput, temp_comment_input.current)
+                                        }
+                                    })()
+                                }}>💬 응답 전송하기</Button>
                         </div>
+
+
+                        <Form.Text id="userInput" muted>
+                            📖 3턴이 넘어가면 다이어리가 자동으로 생성됩니다.
+                        </Form.Text>
+                    </div>
 
                 </Row>
             </Container>
@@ -573,31 +572,24 @@ function DiaryView(props) {
         return (
             <div className="inwriting_review_box">
                 <Container>
-                    <Row xs={'auto'} md={1} className="g-4">
-                        <Col>
-                            <Card style={{
-                                width: '100%',
-                            }}>
-                                <Card.Body>
-                                    <Card.Title> <BeatLoader color="#007AFF" size={10}/>일기 작성중</Card.Title>
-                                    <Card.Subtitle className="mb-2 text-muted">
-                                        <div>조금만 기다려주세요</div>
-                                    </Card.Subtitle>
-                                    <Card.Text>
-                                        <div>{props.diary}</div>
-                                    </Card.Text>
-                                </Card.Body>
-                            </Card>
+                    <Row>
 
-                            <Col>
-                                <div className="submission"></div>
-                                <div className="d-grid gap-2">
+                        <div className="loading_box_2">
+                            <div>
+                                <BeatLoader
+                                    color="#007AFF"
+                                    speedMultiplier={0.6}
+                                />
+                            </div>
+                            <span className="desktop-view">
+                                <Form.Text id="userInput" muted><div style={{fontSize: '20px'}}>일기 작성중입니다. 조금만 기다려주세요</div></Form.Text>
+                            </span>
+                            <span className="smartphone-view">
+                                <Form.Text id="userInput" muted><div style={{fontSize: '15px'}}>일기 작성중입니다.<br/>조금만 기다려주세요</div></Form.Text>
+                            </span>
 
+                        </div>
 
-                                </div>
-                            </Col>
-
-                        </Col>
                     </Row>
                 </Container>
             </div>
@@ -660,7 +652,7 @@ function Loading() {
                                 />
                             </div>
                             &nbsp;
-                            <div>지금까지의 이야기를 정리중입니다</div>
+                            <div>지금까지의 이야기를<br/>정리중입니다</div>
                         </div>
                     </Col>
                 </Row>

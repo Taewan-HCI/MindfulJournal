@@ -93,7 +93,9 @@ function Home(props) {
     return (
         <div>
 
-            {lastDate === "" ? <NoDiary userName={props.userName}/> :
+            {lastDate === "" ? <NoDiary userName={props.userName} diaryList={diaryList} lastDate={lastDate}
+                                  navigateToWriting={navigateToWriting}
+                                  navigateToReview={navigateToReview} Unix_timestamp={Unix_timestamp}/> :
                 <Loading_complete userName={props.userName} diaryList={diaryList} lastDate={lastDate}
                                   navigateToWriting={navigateToWriting}
                                   navigateToReview={navigateToReview} Unix_timestamp={Unix_timestamp}/>}
@@ -107,24 +109,43 @@ function NoDiary(props) {
         <Container>
             <Row>
                 <div className="loading_box_home_top">
-                    <div>
+
+                    <span className="desktop-view">
                         <b>안녕하세요 {props.userName}님</b> 😀<br/>마음챙김 다이어리에 오신걸 환영합니다.
-                    </div>
+            </span>
+                    <span className="smartphone-view">
+                        <b>{props.userName}님</b> 😀<br/>오신걸 환영해요
+            </span>
+
+
                 </div>
             </Row>
             <Row>
                 <div className="loading_box_home_bottom">
+
                     <span className="desktop-view">
-
                         🥲 아직 작성한 일기가 없어요. 첫 일기를 작성해볼까요?
-
                     </span>
-
                     <span className="smartphone-view-text">
+                        🥲 아직 작성한 일기가 없어요.<br/>첫 일기를 작성해볼까요?</span>
+                        <div className="d-grid gap-2">
+                            &nbsp;
+                        <Button
+                            variant="primary"
+                            style={{backgroundColor: "007AFF", fontWeight: "600"}}
+                            onClick={props.navigateToWriting}>
+                            📝 오늘의 일기 작성하러 가기
+                        </Button>
 
-                        🥲 아직 작성한 일기가 없어요. 첫 일기를 작성해볼까요?
+                        <Button
+                            variant="dark"
+                            style={{backgroundColor: "6c757d", fontWeight: "600"}}
+                            onClick={props.navigateToReview}>
+                            📖 작성한 일기 다시보기
+                        </Button>
+                        </div>
 
-                    </span>
+
 
                 </div>
                 {/*<Row>
@@ -148,7 +169,11 @@ function NoDiary(props) {
 
                     </Col>
                 </Row>*/}
+                <span className="center_temp">
+                                                &nbsp;
+
                 <Row xs={1} md={2} className="g-4">
+
                     <Col>
                         <Card>
                             <Card.Img variant="top" src={book_purple}/>
@@ -193,6 +218,8 @@ function NoDiary(props) {
                         </Card>
                     </Col>
                 </Row>
+
+                </span>
             </Row>
             <div className="footer"></div>
         </Container>
