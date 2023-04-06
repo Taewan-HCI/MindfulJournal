@@ -432,7 +432,7 @@ function Userinput(props) {
 
     return (
         <div>
-            <Container>
+
                 <Row>
                     <ToastContainer className="p-3" position={"top-center"}>
                         <Toast onClose={() => props.setShow(false)} show={props.show} delay={3000} autohide>
@@ -485,7 +485,7 @@ function Userinput(props) {
                         />
                         <Form.Text id="userInput" muted>
 
-                            📝 정해진 양식은 없어요. 편안하고 자유롭게 최근에 있었던 일을 작성해주세요.
+                            📝 편안하고 자유롭게 최근에 있었던 일을 작성해주세요.
                         </Form.Text>
 
                         <span className="desktop-view">
@@ -584,7 +584,7 @@ function Userinput(props) {
                     </div>
 
                 </Row>
-            </Container>
+
         </div>
     )
 }
@@ -594,7 +594,7 @@ function DiaryView(props) {
     if (props.diary === "") {
         return (
             <div className="inwriting_review_box">
-                <Container>
+
                     <Row>
 
                         <div className="loading_box_2">
@@ -615,13 +615,13 @@ function DiaryView(props) {
                         </div>
 
                     </Row>
-                </Container>
+
             </div>
         )
     } else {
         return (
             <div className="inwriting_review_box">
-                <Container>
+
                     &nbsp;
                     <Row xs={'auto'} md={1} className="g-4">
                         <Col>
@@ -650,13 +650,15 @@ function DiaryView(props) {
                                         }}
                                     >📝 일기 저장하고 종료하기</Button>
                                 </div>
+                                <div className="footer"></div>
+
                             </Col>
 
                         </Col>
                     </Row>
 
 
-                </Container>
+
             </div>
         )
 
