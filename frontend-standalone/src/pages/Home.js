@@ -128,22 +128,7 @@ function NoDiary(props) {
                     </span>
                     <span className="smartphone-view-text">
                         🥲 아직 작성한 일기가 없어요.<br/>첫 일기를 작성해볼까요?</span>
-                        <div className="d-grid gap-2">
-                            &nbsp;
-                        <Button
-                            variant="primary"
-                            style={{backgroundColor: "007AFF", fontWeight: "600"}}
-                            onClick={props.navigateToWriting}>
-                            📝 오늘의 일기 작성하러 가기
-                        </Button>
 
-                        <Button
-                            variant="dark"
-                            style={{backgroundColor: "6c757d", fontWeight: "600"}}
-                            onClick={props.navigateToReview}>
-                            📖 작성한 일기 다시보기
-                        </Button>
-                        </div>
 
 
 

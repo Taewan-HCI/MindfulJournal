@@ -15,14 +15,20 @@ import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Card from "react-bootstrap/Card";
 import Badge from 'react-bootstrap/Badge';
+import Toast from 'react-bootstrap/Toast';
+
 import {ScaleLoader, BeatLoader, HashLoader} from "react-spinners";
 import "react-datepicker/dist/react-datepicker.css";
 import {useNavigate} from "react-router-dom";
 import Modal from 'react-bootstrap/Modal';
 import templateFactory from "bootstrap/js/src/util/template-factory";
+import {ToastContainer} from "react-bootstrap";
 
 
 function Writing(props) {
+
+    const [show, setShow] = useState(false);
+
 
     let [loading, setLoading] = useState(false)
 
@@ -196,6 +202,11 @@ function Writing(props) {
                 // Tracking "diary" field
                 receivedDiary.current = data['diary'];
                 setDiary(receivedDiary.current);
+                if (receivedDiary.current !== ""){
+                    if (receivedDiary.current !== diary) {
+                        setShow(true)
+                    }
+                }
 
                 turnCount.current = data['turn'];
             });
@@ -384,13 +395,15 @@ function Writing(props) {
                         <Badge bg="light" text="dark">
                             모듈: {module}
                         </Badge>{' '}
+
+
                         {loading === true ? <Loading/> :
                             <Userinput prompt={prompt} setInputUser={setInputUser} inputUser={inputUser}
                                        addConversationFromUser={addConversationFromUser}
                                        requestSummerization={requestSummerization} setLoading={setLoading}
                                        turnCount={turnCount.current} setDiary={setDiary} textInput={textInput}
                                        setTextInput={setTextInput} toggleListening={toggleListening}
-                                       isListening={isListening}/>}
+                                       isListening={isListening} setShow={setShow} show={show}/>}
                     </div>
                 </Row>
                 <Row>
@@ -421,6 +434,16 @@ function Userinput(props) {
         <div>
             <Container>
                 <Row>
+                    <ToastContainer className="p-3" position={"top-center"}>
+                        <Toast onClose={() => props.setShow(false)} show={props.show} delay={3000} autohide>
+                            <Toast.Header>
+                                <strong className="me-auto">알림</strong>
+                                <small>이창은 3초 후 자동으로 닫힘니다</small>
+                            </Toast.Header>
+                            <Toast.Body>새로운 다이어리가 작성되었어요. 스크롤해서 확인해보세요</Toast.Body>
+                        </Toast>
+
+                    </ToastContainer>
                     <Col>
                         <div className="prompt_box">
 
@@ -491,7 +514,7 @@ function Userinput(props) {
 
                         </div>
                         </span>
-                        
+
 
                     </div>
                     <Row className="desktop-view">
@@ -582,7 +605,8 @@ function DiaryView(props) {
                                 />
                             </div>
                             <span className="desktop-view">
-                                <Form.Text id="userInput" muted><div style={{fontSize: '20px'}}>일기 작성중입니다. 조금만 기다려주세요</div></Form.Text>
+                                <Form.Text id="userInput" muted><div
+                                    style={{fontSize: '20px'}}>일기 작성중입니다. 조금만 기다려주세요</div></Form.Text>
                             </span>
                             <span className="smartphone-view">
                                 <Form.Text id="userInput" muted><div style={{fontSize: '15px'}}>일기 작성중입니다.<br/>조금만 기다려주세요</div></Form.Text>
@@ -598,6 +622,7 @@ function DiaryView(props) {
         return (
             <div className="inwriting_review_box">
                 <Container>
+                    &nbsp;
                     <Row xs={'auto'} md={1} className="g-4">
                         <Col>
                             <Card style={{
@@ -629,6 +654,8 @@ function DiaryView(props) {
 
                         </Col>
                     </Row>
+
+
                 </Container>
             </div>
         )
