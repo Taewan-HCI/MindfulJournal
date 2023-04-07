@@ -18,9 +18,11 @@ function ChatLog({
     <div className="d-flex my-3">
       <img src={logoImage} alt="profile img" width="50" height="50" />
       <div className="ms-4">
-        <div className={nameStyle}>
+        <span className={nameStyle}>
           <b>{type}</b>
-        </div>
+        </span>
+        <span className="text-secondary ms-2"> 22:50 PM </span>
+
         <div>{contents} </div>
       </div>
     </div>

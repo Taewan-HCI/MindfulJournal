@@ -44,34 +44,62 @@ export const initialSettings = {
 };
 
 function WordCloud() {
-  const [settings, setSettings] = useState(initialSettings);
+  useEffect(() => {
+    const data = [
+      'Hello',
+      'world',
+      'normally',
+      'you',
+      'want',
+      'more',
+      'words',
+      'than',
+      'this',
+    ];
 
-  const { wordcloud: wordcloudSettings } = settings;
+    function end(words: any) {
+      d3.select('#word-cloud')
+        .append('svg')
+        .attr('width', 500)
+        .attr('height', 500)
+        .style('border', '1px solid black')
+        .append('g')
+        .attr('transform', `translate(${500 / 2},${500 / 2}')`)
+        .selectAll('text')
+        .data(words)
+        .enter()
+        .append('text')
+        .style('font-size', (d: any) => `${d.size}px`)
+        .style('font-family', 'Impact')
+        .attr('text-anchor', 'middle')
+        .attr(
+          'transform',
+          (d: any) => `translate(${d.x}, ${d.y})rotate(${d.rotate})`,
+        )
+        .text((d: any) => d.text);
+    }
 
-  const wordcloudCallbacks = useMemo(
-    () => ({
-      onWordClick: (word: any) => {
-        console.log(word);
-      },
-    }),
-    [],
-  );
-
-  const words = [{ text: 'text', value: 1 }];
-
-  const wordcloudOptions = useMemo(
-    () => ({
-      ...wordcloudSettings,
-    }),
-    [wordcloudSettings],
-  );
+    cloud()
+      .size([width, height])
+      .words(
+        data.map((d) => ({
+          text: d,
+          size: 10 + Math.random() * 90,
+          test: 'haha',
+        })),
+      )
+      .padding(5)
+      .font('Impact')
+      .fontSize((d) => d.size ?? 0)
+      .on('end', end)
+      .start();
+  });
 
   return (
-    <ReactWordcloud
-      options={wordcloudOptions}
-      words={words}
-      callbacks={wordcloudCallbacks}
-    />
+    <div>
+      <h1>리뷰 분석 결과</h1>
+      <div id="word-cloud" />
+    </div>
   );
 }
 
