@@ -57,9 +57,7 @@ function EntireDiaryLogs() {
       </Card>
       <ChatLog type="assistant" contents="날이 화창하군" />
       <ChatLog type="user" contents="날이 화창하군" />
-      <ChatLog type="assistant" contents="날이 화창하군" />
-      <ChatLog type="assistant" contents="날이 화창하군" />
-      <ChatLog type="assistant" contents="날이 화창하군" />{' '}
+
       <ChatLog type="assistant" contents="날이 화창하군" />
       <ChatLog
         type="user"
