@@ -90,7 +90,7 @@ function App() {
                                             setExpanded(false);
                                         }}
                                     >
-                                        <div className="nav_title_black">일기 작성하기</div>
+                                        <div className="nav_title_black">작성하기</div>
                                     </Nav.Link>
                                     <Nav.Link
                                         onClick={() => {
@@ -98,7 +98,7 @@ function App() {
                                             setExpanded(false);
                                         }}
                                     >
-                                        <div className="nav_title_black">일기 돌아보기</div>
+                                        <div className="nav_title_black">돌아보기</div>
                                     </Nav.Link>
                                     {isAuth ? (
                                         <Nav.Link
