@@ -12,6 +12,7 @@ __pycache__/
 .env
 <MindfulDiary>_service_account_keys.json
 firebase_config.json
+credentials.json
 mindfuljournal-44166-firebase-adminsdk-frpg8-10b50844cf.json
 
 node_modules/
