@@ -417,7 +417,7 @@ def downloadConversation_2(user, num):
 
 
 def makeDiary(messages):
-
+    print("다이어리진입")
     messages1 = [{"role": "system",
                  "content": "I summarise the dialogue below in the form of a diary entry. Summarise the events, feelings, and anecdotes from the conversation like a diary entry as you reflect on your day."},
                 {"role": "user",
