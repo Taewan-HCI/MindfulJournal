@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Card, Nav } from 'react-bootstrap';
 import { Calendar3, Stopwatch, TextLeft } from 'react-bootstrap-icons';
 import TimeSeriesChart from './charts/TimeSeriesChart';
+import MarkedCalander from './MarkedCalander/MarkedCalander';
 
 function TabContent({ tab }: { tab: string | null }) {
   if (tab === null) {
@@ -13,13 +14,15 @@ function TabContent({ tab }: { tab: string | null }) {
       </>
     );
   }
+  const today = new Date();
+  const mark = [today];
 
   if (tab === 'frequency') {
     return (
       <>
         <Card.Title>총 참여 횟수</Card.Title>
         <Card.Text>총 16회 참여했습니다.</Card.Text>
-        <TimeSeriesChart />
+        <MarkedCalander mark={mark} />
       </>
     );
   }
