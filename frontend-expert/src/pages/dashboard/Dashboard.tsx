@@ -21,12 +21,16 @@ import TimeLine from './components/timeLine/TimeLine';
 
 function Dashboard() {
   const [radioValue, setRadioValue] = useState<string | null>(null);
+  const [dateRange, setDateRange] = useState<(null | Date)[]>([null, null]);
 
   const radios = [
     { name: '3일 전', value: '1', id: 1 },
     { name: '7일 전', value: '2', id: 2 },
     { name: '14일 전', value: '3', id: 3 },
   ];
+
+  const isDateSelected =
+    radioValue !== null || (dateRange[0] !== null && dateRange[1] !== null);
 
   return (
     <div>
@@ -76,10 +80,17 @@ function Dashboard() {
                 </div>
               </Col>
               <Col xs={9} className="d-flex justify-content-between ">
-                <DateRangePicker />
-                <Button variant="primary" className="my-auto">
+                <DateRangePicker
+                  dateRange={dateRange}
+                  setDateRange={setDateRange}
+                />
+                <Button
+                  variant="primary"
+                  className="my-auto"
+                  disabled={!isDateSelected}
+                >
                   <ArrowClockwise className="ml-4" />
-                  <span className="px-2 fw-bold"> 분석 </span>
+                  <span className="px-2 fw-bold"> 적용 </span>
                 </Button>
               </Col>
             </Row>

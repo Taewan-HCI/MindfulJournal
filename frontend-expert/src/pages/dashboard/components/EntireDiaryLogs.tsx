@@ -14,12 +14,13 @@ function ChatLog({
 }) {
   const logoImage = type === 'user' ? user : assistant;
   const nameStyle = type === 'user' ? '' : 'text-primary';
+  const authorName = type === 'user' ? '사용자' : '상담사';
   return (
     <div className="d-flex my-3">
       <img src={logoImage} alt="profile img" width="50" height="50" />
       <div className="ms-4">
         <span className={nameStyle}>
-          <b>{type}</b>
+          <b>{authorName}</b>
         </span>
         <span className="text-secondary ms-2"> 22:50 PM </span>
 
@@ -57,7 +58,6 @@ function EntireDiaryLogs() {
       </Card>
       <ChatLog type="assistant" contents="날이 화창하군" />
       <ChatLog type="user" contents="날이 화창하군" />
-
       <ChatLog type="assistant" contents="날이 화창하군" />
       <ChatLog
         type="user"
