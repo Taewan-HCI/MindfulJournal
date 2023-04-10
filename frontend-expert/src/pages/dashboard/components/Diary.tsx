@@ -85,7 +85,7 @@ function Diary({
           </Card.Title>
 
           <Card.Subtitle className="mb-2 text-muted">
-            <div className="text-primary">자전거타기, 기쁨, 상쾌함</div>
+            <div className="text-primary">우울함, 당황, 두려움</div>
           </Card.Subtitle>
           <Card.Text>{content}</Card.Text>
           <div className="d-flex align-items-center justify-content-between">

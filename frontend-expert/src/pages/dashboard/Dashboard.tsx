@@ -11,24 +11,26 @@ import {
   Row,
   ToggleButton,
 } from 'react-bootstrap';
-import { ArrowClockwise, ArrowRepeat } from 'react-bootstrap-icons';
-import { Link } from 'react-router-dom';
+import { ArrowClockwise } from 'react-bootstrap-icons';
 import ContentWithTitle from '../../components/ContentWithTitle';
 import DateRangePicker from './components/datePicker/DateRangePicker';
 import Diary from './components/Diary';
 import mockDiary from '../../mocks/diaryData';
 import Tabs from './components/Tabs';
-import PercentAreaChart from './components/charts/PercentAreaChart';
 import TimeLine from './components/timeLine/TimeLine';
 
 function Dashboard() {
   const [radioValue, setRadioValue] = useState<string | null>(null);
+  const [dateRange, setDateRange] = useState<(null | Date)[]>([null, null]);
 
   const radios = [
     { name: '3일 전', value: '1', id: 1 },
     { name: '7일 전', value: '2', id: 2 },
     { name: '14일 전', value: '3', id: 3 },
   ];
+
+  const isDateSelected =
+    radioValue !== null || (dateRange[0] !== null && dateRange[1] !== null);
 
   return (
     <div>
@@ -41,12 +43,6 @@ function Dashboard() {
                 <br />
                 <b>마음챙김 다이어리</b>
               </div>
-              <Link to="/patients">
-                <Button variant="info" className="align-self-end ">
-                  <ArrowRepeat className="ml-4" />
-                  <span className="px-2 fw-bold"> 환자 변경 </span>
-                </Button>
-              </Link>
             </div>
           </Col>
           <Col xs={8} className="ps-4">
@@ -84,10 +80,17 @@ function Dashboard() {
                 </div>
               </Col>
               <Col xs={9} className="d-flex justify-content-between ">
-                <DateRangePicker />
-                <Button variant="primary" className="my-auto">
+                <DateRangePicker
+                  dateRange={dateRange}
+                  setDateRange={setDateRange}
+                />
+                <Button
+                  variant="primary"
+                  className="my-auto"
+                  disabled={!isDateSelected}
+                >
                   <ArrowClockwise className="ml-4" />
-                  <span className="px-2 fw-bold"> 분석 </span>
+                  <span className="px-2 fw-bold"> 적용 </span>
                 </Button>
               </Col>
             </Row>
@@ -126,9 +129,6 @@ function Dashboard() {
               <Card body>
                 <TimeLine />
               </Card>
-            </ContentWithTitle>
-            <ContentWithTitle title="긍정/부정 비율">
-              <PercentAreaChart />
             </ContentWithTitle>
           </Col>
         </Row>

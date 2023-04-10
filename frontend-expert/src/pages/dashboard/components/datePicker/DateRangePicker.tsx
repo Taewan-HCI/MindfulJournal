@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable react/function-component-definition */
-import React, { forwardRef, useRef, useState } from 'react';
+import React, { forwardRef, useRef } from 'react';
 import { Form } from 'react-bootstrap';
 import ReactDatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -10,8 +10,13 @@ const CustomInput = forwardRef((props: any, ref) => (
   <Form.Control {...props} ref={ref} className="me-4 border-primary" />
 ));
 
-function DateRangePicker() {
-  const [dateRange, setDateRange] = useState<(null | Date)[]>([null, null]);
+function DateRangePicker({
+  dateRange,
+  setDateRange,
+}: {
+  dateRange: (null | Date)[];
+  setDateRange: React.Dispatch<React.SetStateAction<(Date | null)[]>>;
+}) {
   const inputRef = useRef(null);
   const [startDate, endDate] = dateRange;
 
