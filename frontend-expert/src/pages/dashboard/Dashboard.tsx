@@ -61,13 +61,7 @@ function Dashboard() {
                       name="radio"
                       value={radio.value}
                       checked={radioValue === radio.value}
-                      onChange={(e) => {
-                        const select =
-                          e.currentTarget.value === radioValue
-                            ? null
-                            : e.currentTarget.value;
-                        setRadioValue(select);
-                      }}
+                      onChange={(e) => setRadioValue(e.currentTarget.value)}
                     >
                       {radio.name}
                     </ToggleButton>
@@ -82,7 +76,10 @@ function Dashboard() {
               <Col xs={9} className="d-flex justify-content-between ">
                 <DateRangePicker
                   dateRange={dateRange}
-                  setDateRange={setDateRange}
+                  setDateRange={(v) => {
+                    setDateRange(v);
+                    setRadioValue(null);
+                  }}
                 />
                 <Button
                   variant="primary"

@@ -15,7 +15,8 @@ function TabContent({ tab }: { tab: string | null }) {
     );
   }
   const today = new Date();
-  const mark = [today];
+  const sampleDay = new Date('2023-04-01 10:20:30');
+  const mark = [today, sampleDay];
 
   if (tab === 'frequency') {
     return (

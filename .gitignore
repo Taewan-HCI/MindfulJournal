@@ -1,30 +1,33 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # Byte-compiled / optimized / DLL files
-# test
 
 __pycache__/
 *.pyc
 *.py[cod]
+*.pack
+*.cache
+*.eslintcache
 
 .env
 <MindfulDiary>_service_account_keys.json
 firebase_config.json
+credentials.json
 mindfuljournal-44166-firebase-adminsdk-frpg8-10b50844cf.json
-firebase-config.js
 
-
-# dependencies
-/node_modules
+node_modules/
+frontend-enduser/node_modules/
+frontend-expert/node_modules/
+frontend-operator/node_modules/
+frontend-standalone/node_modules/
 /.pnp
 .pnp.js
-*.pack
 
-# testing
 /coverage
 
-# production
 /build
+
+firebase-config.js
 
 # misc
 .DS_Store
