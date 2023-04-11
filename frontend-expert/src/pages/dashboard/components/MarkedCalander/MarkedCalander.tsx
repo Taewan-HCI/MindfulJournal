@@ -6,8 +6,18 @@ import { Calendar } from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import './MarkedCalander.css';
 
-function CalanderMark({ mark, date }: { mark: Date[]; date: Date }) {
-  if (new Date().getTime() < date.getTime()) {
+function CalanderMark({
+  mark,
+  date,
+  view,
+}: {
+  mark: Date[];
+  date: Date;
+  view: string;
+}) {
+  if (view !== 'month' || new Date().getTime() < date.getTime()) {
+    //  달력 보기가 month view가 아닌 경우에 리턴
+    //  타일을 순회하며 날짜가 일치하는지 확인하는데 진료일 이후의 기록은 체크하지 않으므로 리턴
     return;
   }
 
@@ -16,12 +26,8 @@ function CalanderMark({ mark, date }: { mark: Date[]; date: Date }) {
     html.push(<div className="dot" />);
   }
 
-  if (html.length === 0) {
-    html.push(<div className="close" />);
-  }
-
   return (
-    <div className="d-flex justify-content-center align-items-center">
+    <div className="d-flex justify-content-center align-items-center position-absolute top-0 start-0 w-100 h-100">
       {html}
     </div>
   );
@@ -36,7 +42,7 @@ function MarkedCalander({ mark }: { mark: Date[] }) {
       formatDay={(locale, date) => `${date.getDate()}`}
       showWeekNumbers={false}
       tileDisabled={({ date }) => date.getTime() > new Date().getTime()}
-      tileContent={({ date }) => CalanderMark({ mark, date })}
+      tileContent={({ date, view }) => CalanderMark({ mark, date, view })}
     />
   );
 }
