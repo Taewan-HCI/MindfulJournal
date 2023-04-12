@@ -493,7 +493,12 @@ def m1_3_init(result, topic):
     return completion["choices"][0]["message"]['content']
 
 
-def m1_1_standalone_review(text, turn, module):
+def m1_1_standalone_review(text, turn, module, model):
+    if (model == "gpt3.5"):
+        engine = "gpt-3.5-turbo"
+    else:
+        engine = "gpt-4"
+    print(engine)
     print("m1_1_review")
     print(str(text))
     messages_0 = [
@@ -505,7 +510,7 @@ def m1_1_standalone_review(text, turn, module):
     ]
 
     completion1 = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
+        model=engine,
         # model="gpt-4",
         messages=messages_0,
         stop=['User: '],
@@ -583,7 +588,7 @@ def m1_1_standalone_review(text, turn, module):
         messages_1.append(extracted[i])
 
     completion2 = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
+        model=engine,
         messages=messages_1,
         stop=['User: '],
         max_tokens=245,
@@ -608,9 +613,10 @@ async def calc(request: Request):
     turn = body['turn']
     topic = ""
     module = body['module']
+    model = body['model']
     print(turn)
 
-    response_text = m1_1_standalone_review(text, turn, module)
+    response_text = m1_1_standalone_review(text, turn, module, model)
     upload(response_text, user, num, topic)
 
 

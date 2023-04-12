@@ -217,14 +217,14 @@ function Writing(props) {
         }
     }
 
-    async function assemblePrompt() {
+    async function assemblePrompt(model) {
         const docRef3 = doc(db, "session", props.userMail, "diary", session);
         const docSnap = await getDoc(docRef3);
         if (docSnap.exists()) {
             const readyRequest = docSnap.data().conversation;
             console.log(docSnap.data())
             const turn_temp = docSnap.data().turn
-            requestPrompt(readyRequest, props.userMail, session, turn_temp, module)
+            requestPrompt(readyRequest, props.userMail, session, turn_temp, module, model)
             /*if (turn_temp > 3 && diaryRequest.current === false) {
                 //기존 요청이 하나도 없는 상태에서 3턴이 넘어간 경우
                 console.log("다이어리 요청 들어감");
@@ -240,10 +240,10 @@ function Writing(props) {
     // https://mindfuljournal-fzesr.run.goorm.site
     // http://0.0.0.0:8000
 
-    function requestPrompt(text, user, num, turn, module) {
+    function requestPrompt(text, user, num, turn, module, model) {
         return fetch('http://0.0.0.0:8000/review', {
             method: 'POST', body: JSON.stringify({
-                'text': text, 'user': user, 'num': num, 'turn': turn, 'module': module
+                'text': text, 'user': user, 'num': num, 'turn': turn, 'module': module, "model": model
             })
         })
             .catch(err => console.log(err));
@@ -264,7 +264,7 @@ function Writing(props) {
         </button>);
     };
 
-    async function addConversationFromUser(input, comment, selectedOption, risky) {
+    async function addConversationFromUser(input, comment, selectedOption, risky, model) {
         let system_temp = {"role": "assistant", "content": selectedOption}
         let user_temp = {"role": "user", "content": input};
         let history_temp = {
@@ -274,7 +274,8 @@ function Writing(props) {
             "Harmful": risky,
             "module": module,
             "comment": comment,
-            "turn": turnCount.current
+            "turn": turnCount.current,
+            "model": model
         }
         const docRef2 = doc(db, "session", props.userMail, "diary", session);
         const docSnap2 = await getDoc(docRef2);
@@ -291,7 +292,7 @@ function Writing(props) {
                 await updateDoc(docRef2, {
                     turn: increment(1)
                 })
-                assemblePrompt();
+                assemblePrompt(model);
                 setLoading(true);
                 setTextInput("");
             }, 500)
@@ -392,10 +393,42 @@ function Userinput(props) {
     };
     const [selectedOptions, setSelectedOptions] = useState("");
     const [risky, setRisky] = useState([]);
+    const modelChoice = useRef("gpt3.5");
 
 
     const temp_comment_input = useRef("");
     return (<div>
+        <Row>
+            <Col>
+                <Form>
+                    {['radio'].map((type) => (
+                        <div key={`inline-${type}`} className="mb-3">
+                            <Form.Check
+                                inline
+                                label="GPT 3.5-turbo"
+                                name="group1"
+                                type={type}
+                                id={`inline-${type}-1`}
+                                defaultChecked
+                                onChange={()=>{
+                                    modelChoice.current = "gpt3.5"
+                                }}
+                            />
+                            <Form.Check
+                                inline
+                                label="GPT 4"
+                                name="group1"
+                                type={type}
+                                id={`inline-${type}-2`}
+                                onChange={()=>{
+                                    modelChoice.current = "gpt4"
+                                }}
+                            />
+                        </div>
+                    ))}
+                </Form>
+            </Col>
+        </Row>
 
         {/*<Row>
             <Col>
@@ -411,183 +444,181 @@ function Userinput(props) {
             </Col>
         </Row>*/}
         <Row>
-        <Col md={10}>
-            <div className="smalltxt_review">
-                <b>💬 다음의 언어모델 출력을 평가해주세요</b>
-            </div>
-            &nbsp;
-        </Col>
+            <Col md={10}>
+                <div className="smalltxt_review">
+                    <b>💬 다음의 언어모델 출력을 평가해주세요</b>
+                </div>
+                &nbsp;
+            </Col>
 
-        <Col md={1}>
-            <div className="smalltxt">
-                <b>👍</b>
-            </div>
-            &nbsp;
-        </Col>
-        <Col md={1}>
-            <div className="smalltxt">
-                <b>🙅</b>
-            </div>
-            &nbsp;
-        </Col>
-    </Row>
-    <Row>
-        <ToastContainer className="p-3" position={"top-center"}>
-            <Toast onClose={() => props.setShow(false)} show={props.show} delay={3000} autohide>
-                <Toast.Header>
-                    <strong className="me-auto">알림</strong>
-                    <small>이창은 3초 후 자동으로 닫힘니다</small>
-                </Toast.Header>
-                <Toast.Body>새로운 다이어리가 작성되었어요. 아래로 스크롤해서 확인해보세요</Toast.Body>
-            </Toast>
-        </ToastContainer>
-        <Col>
-            <div className="prompt_box_review">
-                            <span className="desktop-view">
-                                                    {props.prompt.map((_, idx) => (<Row>
-                                                        <Col md={10}>
-
-                                                            <div className="writing_box">
-                                                                {props.prompt[idx]}
-                                                            </div>
-                                                            <div
-                                                                style={{
-                                                                    width: "100%",
-                                                                    textAlign: "center",
-                                                                    borderBottom: "1px solid #E2E2E2",
-                                                                    lineHeight: "0.1em",
-                                                                    margin: "20px 0 20px",
-                                                                }}
-                                                            >
-                                                                <span style={{background: "#CBCBCB",}}></span>
-                                                            </div>
-
-
-                                                        </Col>
-
-                                                        <Col md={1}>
-                                                            <div className="smalltxt">
-                                                                <label key={idx}>
-                                                                    <input type="radio" value="option1"
-                                                                           value={props.prompt[idx]}
-                                                                           checked={selectedOptions === _}
-                                                                           onChange={() => {
-                                                                               setSelectedOptions(props.prompt[idx])
-                                                                           }}
-                                                                    />
-                                                                </label>
-                                                            </div>
-                                                        </Col>
-
-                                                        <Col md={1}>
-                                                            <div className="smalltxt">
-                                                                <label>
-                                                                    <input type="checkbox" value="option1"
-                                                                           onChange={() => {
-                                                                               handleRiskSelect(props.prompt[idx])
-                                                                           }}
-                                                                    />
-                                                                </label>
-                                                            </div>
-                                                        </Col>
-
-                                                    </Row>))}
-
-                            </span>
-                <span className="smartphone-view-text-large">
-                                <div className="tte">
-                                전문가 평가모듈은 모바일 환경을 지원하지 않습니다.
-                            </div>
-                            </span>
-            </div>
-        </Col>
-    </Row>
-    <Row>
-        <div className="writing_box">
-            <Form.Label htmlFor="userInput">
+            <Col md={1}>
+                <div className="smalltxt">
+                    <b>👍</b>
+                </div>
+                &nbsp;
+            </Col>
+            <Col md={1}>
+                <div className="smalltxt">
+                    <b>🙅</b>
+                </div>
+                &nbsp;
+            </Col>
+        </Row>
+        <Row>
+            <ToastContainer className="p-3" position={"top-center"}>
+                <Toast onClose={() => props.setShow(false)} show={props.show} delay={3000} autohide>
+                    <Toast.Header>
+                        <strong className="me-auto">알림</strong>
+                        <small>이창은 3초 후 자동으로 닫힘니다</small>
+                    </Toast.Header>
+                    <Toast.Body>새로운 다이어리가 작성되었어요. 아래로 스크롤해서 확인해보세요</Toast.Body>
+                </Toast>
+            </ToastContainer>
+            <Col>
+                <div className="prompt_box_review">
                         <span className="desktop-view">
-                            ✏️ 나의 일기 입력하기
-                        </span>
-                <span className="smartphone-view-text-tiny" 의>
-                            ✏️ 나의 일기 입력하기
-                        </span>
-            </Form.Label>
-            <Form.Control
-                type="text"
-                as="textarea"
-                rows={3}
-                id="userInput"
-                value={props.textInput}
-                onChange={(e) => props.setTextInput(e.target.value)}
-            />
-            <Form.Text id="userInput" muted>
-                📝 편안하고 자유롭게 최근에 있었던 일을 작성해주세요.
-            </Form.Text>
-            <span className="desktop-view">
+                    {props.prompt.map((_, idx) => (<Row>
+                        <Col md={10}>
+
                             <div className="writing_box">
-                            <Form.Label htmlFor="commentInput">
-                                <span className="desktop-view">
-                                ✍️ 언어모델 출력에 대한 코멘트를 입력해주세요
-                        </span>
-                                <span className="smartphone-view-text-tiny">
-                                ✍️ 언어모델 출력에 대한 코멘트를 입력해주세요
-                            </span>
-                            </Form.Label>
-                            <Form.Control
-                                type="input"
-                                as="textarea"
-                                rows={2}
-                                id="commentInput"
-                                onChange={(e) => {
-                                    temp_comment_input.current = e.target.value
+                                {props.prompt[idx]}
+                            </div>
+                            <div
+                                style={{
+                                    width: "100%",
+                                    textAlign: "center",
+                                    borderBottom: "1px solid #E2E2E2",
+                                    lineHeight: "0.1em",
+                                    margin: "20px 0 20px",
                                 }}
-                            />
+                            >
+                                <span style={{background: "#CBCBCB",}}></span>
+                            </div>
+
+
+                        </Col>
+
+                        <Col md={1}>
+                            <div className="smalltxt">
+                                <label key={idx}>
+                                    <input type="radio" value="option1"
+                                           value={props.prompt[idx]}
+                                           checked={selectedOptions === _}
+                                           onChange={() => {
+                                               setSelectedOptions(props.prompt[idx])
+                                           }}
+                                    />
+                                </label>
+                            </div>
+                        </Col>
+
+                        <Col md={1}>
+                            <div className="smalltxt">
+                                <label>
+                                    <input type="checkbox" value="option1"
+                                           onChange={() => {
+                                               handleRiskSelect(props.prompt[idx])
+                                           }}
+                                    />
+                                </label>
+                            </div>
+                        </Col>
+
+                    </Row>))}
+
+                        </span>
+                    <span className="smartphone-view-text-large">
+                        <div className="tte">
+                        전문가 평가모듈은 모바일 환경을 지원하지 않습니다.
                         </div>
                         </span>
-        </div>
-        <Row className="desktop-view">
-            <Col>
-                <div className="d-grid gap-1">
-                    <Button
-                        variant="dark"
-                        style={{backgroundColor: "007AFF", fontWeight: "600"}}
-                        onClick={props.toggleListening}>
-                        {props.isListening ? '🛑 응답 종료하기' : '🎙️ 목소리로 응답하기'}
-                    </Button>
                 </div>
             </Col>
-            <Col>
-                <div className="d-grid gap-1">
-                    <Button
-                        variant="primary"
-                        style={{backgroundColor: "007AFF", fontWeight: "600"}}
-                        onClick={() => {
-                            (function () {
-                                if (selectedOptions === "") {
-                                    alert('한개 이상의 옵션을 선택하셔야 합니다.');
-                                }
-                                else if (props.isListening === true) {
-                                    props.toggleListening()
-                                    props.addConversationFromUser(props.textInput, temp_comment_input.current)
-                                }
-                                else {
-                                    props.addConversationFromUser(props.textInput, temp_comment_input.current, selectedOptions, risky)
-                                }
-                            })()
-                        }}>💬 응답 전송하기</Button>
-                </div>
-            </Col>
-            <Form.Text id="userInput" muted>
-                📖 3턴이 넘어가면 다이어리가 자동으로 생성됩니다.
-            </Form.Text>
         </Row>
-        <div className="smartphone-view">
-            <div className="tte">
-                                전문가 평가모듈은 모바일 환경을 지원하지 않습니다.
-                            </div>
-        </div>
-    </Row>
-</div>)
+        <Row>
+            <div className="writing_box">
+                <Form.Label htmlFor="userInput">
+                        <span className="desktop-view">
+                        ✏️ 나의 일기 입력하기
+                        </span>
+                    <span className="smartphone-view-text-tiny" 의>
+                        ✏️ 나의 일기 입력하기
+                        </span>
+                </Form.Label>
+                <Form.Control
+                    type="text"
+                    as="textarea"
+                    rows={3}
+                    id="userInput"
+                    value={props.textInput}
+                    onChange={(e) => props.setTextInput(e.target.value)}
+                />
+                <Form.Text id="userInput" muted>
+                    📝 편안하고 자유롭게 최근에 있었던 일을 작성해주세요.
+                </Form.Text>
+                <span className="desktop-view">
+                        <div className="writing_box">
+                        <Form.Label htmlFor="commentInput">
+                        <span className="desktop-view">
+                        ✍️ 언어모델 출력에 대한 코멘트를 입력해주세요
+                        </span>
+                        <span className="smartphone-view-text-tiny">
+                        ✍️ 언어모델 출력에 대한 코멘트를 입력해주세요
+                        </span>
+                        </Form.Label>
+                        <Form.Control
+                            type="input"
+                            as="textarea"
+                            rows={2}
+                            id="commentInput"
+                            onChange={(e) => {
+                                temp_comment_input.current = e.target.value
+                            }}
+                        />
+                        </div>
+                        </span>
+            </div>
+            <Row className="desktop-view">
+                <Col>
+                    <div className="d-grid gap-1">
+                        <Button
+                            variant="dark"
+                            style={{backgroundColor: "007AFF", fontWeight: "600"}}
+                            onClick={props.toggleListening}>
+                            {props.isListening ? '🛑 응답 종료하기' : '🎙️ 목소리로 응답하기'}
+                        </Button>
+                    </div>
+                </Col>
+                <Col>
+                    <div className="d-grid gap-1">
+                        <Button
+                            variant="primary"
+                            style={{backgroundColor: "007AFF", fontWeight: "600"}}
+                            onClick={() => {
+                                (function () {
+                                    if (selectedOptions === "") {
+                                        alert('한개 이상의 옵션을 선택하셔야 합니다.');
+                                    } else if (props.isListening === true) {
+                                        props.toggleListening()
+                                        props.addConversationFromUser(props.textInput, temp_comment_input.current, selectedOptions, risky, modelChoice.current)
+                                    } else {
+                                        props.addConversationFromUser(props.textInput, temp_comment_input.current, selectedOptions, risky, modelChoice.current)
+                                    }
+                                })()
+                            }}>💬 응답 전송하기</Button>
+                    </div>
+                </Col>
+                <Form.Text id="userInput" muted>
+                    📖 3턴이 넘어가면 다이어리가 자동으로 생성됩니다.
+                </Form.Text>
+            </Row>
+            <div className="smartphone-view">
+                <div className="tte">
+                    전문가 평가모듈은 모바일 환경을 지원하지 않습니다.
+                </div>
+            </div>
+        </Row>
+    </div>)
 }
 
 function DiaryView(props) {
@@ -602,12 +633,13 @@ function DiaryView(props) {
                         />
                     </div>
                     <span className="desktop-view">
-                                <Form.Text id="userInput" muted><div
-                                    style={{fontSize: '20px'}}>일기 작성중입니다. 조금만 기다려주세요</div></Form.Text>
-                            </span>
+                    <Form.Text id="userInput" muted><div
+                        style={{fontSize: '20px'}}>일기 작성중입니다. 조금만 기다려주세요</div></Form.Text>
+                    </span>
                     <span className="smartphone-view">
-                                <Form.Text id="userInput" muted><div style={{fontSize: '15px'}}>일기 작성중입니다.<br/>조금만 기다려주세요</div></Form.Text>
-                            </span>
+                    <Form.Text id="userInput" muted><div
+                        style={{fontSize: '15px'}}>일기 작성중입니다.<br/>조금만 기다려주세요</div></Form.Text>
+                    </span>
                 </div>
             </Row>
         </div>)
