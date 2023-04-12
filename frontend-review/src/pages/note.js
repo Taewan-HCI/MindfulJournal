@@ -1,12 +1,5 @@
-import {useEffect, useState, useRef, React} from "react";
-import {
-    doc,
-    getDoc,
-    setDoc,
-    collection,
-    onSnapshot,
-    getCountFromServer, updateDoc, arrayUnion, increment
-} from 'firebase/firestore'
+import {React, useEffect, useRef, useState} from "react";
+import {doc, getDoc, increment, onSnapshot, setDoc, updateDoc} from 'firebase/firestore'
 import {db} from "../firebase-config";
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
@@ -27,21 +20,20 @@ function Writing(props) {
     const [show, setShow] = useState(false);
     let [loading, setLoading] = useState(false)
     const [sessionStatus, setSessionStatus] = useState(false)
-    const receivedText = useRef("");
-    const receivedDiary = useRef("");
-    const turnCount = useRef(null);
-    const sessionInputRef = useRef(null)
     const [session, setSession] = useState("")
     let [inputUser, setInputUser] = useState('')
     let [prompt, setPrompt] = useState('')
     let [module, setModule] = useState('')
     let [diary, setDiary] = useState("")
-
-    const diaryRequest = useRef(false)
-
     const [modalShow, setModalShow] = useState(false);
     const [isListening, setIsListening] = useState(false);
     const [textInput, setTextInput] = useState('');
+
+    const receivedText = useRef("");
+    const receivedDiary = useRef("");
+    const turnCount = useRef(null);
+    const sessionInputRef = useRef(null)
+
     const navigate = useNavigate()
     const current = new Date();
     const date = `${current.getFullYear()}년 ${current.getMonth() + 1}월 ${current.getDate()}일`;
@@ -50,7 +42,7 @@ function Writing(props) {
     // voice input feature
     useEffect(() => {
         if (!('webkitSpeechRecognition' in window)) {
-            alert('Web Speech API is not supported in this browser. Please use Google Chrome.');
+            alert('음성인식이 지원되지 않는 환경입니다. 크롬 또는 사파리 브라우저를 활용해주세요');
             return;
         }
         const recognition = new window.webkitSpeechRecognition();
@@ -91,20 +83,20 @@ function Writing(props) {
         if (sessionStatus && session !== '') {
             const diaryDocRef = doc(db, 'session', props.userMail, 'diary', session);
             const unsubscribe = onSnapshot(diaryDocRef, (doc) => {
-                const data = doc.data();
-                // Tracking "outputFromLM" field
-                if (data) {
+                if (doc.exist()) {
+                    const data = doc.data();
+                    // Tracking "outputFromLM" field
                     receivedText.current = data['outputFromLM'];
+                    console.log(receivedText.current)
                     getLastSentence(receivedText.current);
                     // Tracking "diary" field
                     receivedDiary.current = data['diary'];
                     if (receivedDiary.current !== "") {
                         if (receivedDiary.current !== diary) {
                             setShow(true)
-                            diaryRequest.current = false
-                            setDiary(receivedDiary.current)
                         }
                     }
+                    setDiary(receivedDiary.current);
                     // Tracking "turn" field
                     turnCount.current = data['turn'];
                 }
@@ -113,24 +105,33 @@ function Writing(props) {
                 unsubscribe();
             };
         }
-    });
+    }, []);
 
     // create NewDoc
     async function createNewDoc() {
         const docRef = doc(db, "session", props.userMail, "diary", session);
         const docSnap = await getDoc(docRef);
+        //진행중인 세션이 있는 경우
         if (docSnap.exists()) {
             const message = docSnap.data().outputFromLM;
-            console.log("진행중인 세션이 있습니다");
+            console.log("진행중인 세션이 있지만, 언어모델 출력 내용 없음. 언어모델에 최근 입력 요청");
             if (message.length === 0) {
-                assemblePrompt()
+                await assemblePrompt()
             } else {
-                console.log("기존에 언어모델 문장 존재");
+                console.log("기존에 언어모델 출력 문장 존재");
                 setSessionStatus(true)
                 setLoading(true)
             }
         } else {
-            const myArray = ["만나서 반가워요, 오늘 하루 어떻게 지내셨나요?", "오늘 하루 어땠어요? 말하고 싶은 것이 있다면 자유롭게 이야기해주세요.", "안녕하세요! 오늘 하루는 어땠나요?", "오늘 하루도 정말 고생 많으셨어요. 어떤 일이 있었는지 얘기해주세요.", "오늘도 무사히 지나간 것에 감사한 마음이 드네요. 오늘 하루는 어땠나요?", "오늘은 어떤 새로운 것을 경험했나요? 무엇을 경험했는지 얘기해주세요.", "오늘은 어떤 고민이 있었나요? 저와 함께 고민을 얘기해봐요."]
+            const myArray = [
+                "만나서 반가워요, 오늘 하루 어떻게 지내셨나요?",
+                "오늘 하루 어땠어요? 말하고 싶은 것이 있다면 자유롭게 이야기해주세요.",
+                "안녕하세요! 오늘 하루는 어땠나요?",
+                "오늘 하루도 정말 고생 많으셨어요. 어떤 일이 있었는지 얘기해주세요.",
+                "오늘도 무사히 지나간 것에 감사한 마음이 드네요. 오늘 하루는 어땠나요?",
+                "오늘은 어떤 새로운 것을 경험했나요? 무엇을 경험했는지 얘기해주세요.",
+                "오늘은 어떤 고민이 있었나요? 저와 함께 고민을 얘기해봐요."
+            ]
             await setDoc(doc(db, "session", props.userMail, "diary", session), {
                 outputFromLM: [myArray[Math.floor(Math.random() * myArray.length)], "Initiation"],
                 conversation: [],
@@ -149,6 +150,38 @@ function Writing(props) {
         setSessionStatus(true)
         setLoading(true)
     }
+
+    async function assemblePrompt() {
+        const docRef = doc(db, "session", props.userMail, "diary", session);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            const readyRequest = docSnap.data().conversation;
+            turnCount.current = docSnap.data().turn;
+            console.log("현재 턴은" + turnCount.current);
+            await requestPrompt(readyRequest, props.userMail, session, turnCount.current, module)
+        } else {
+            console.log("No such document!");
+        }
+    }
+
+    function getLastSentence(response) {
+        let a = setTimeout(() => {
+            setModule(response[1])
+            setPrompt(response[0])
+            console.log(prompt)
+            if (prompt) {
+                if ((prompt).trim() === "") {
+                    setLoading(true)
+                } else {
+                    setLoading(false)
+                }
+            }
+        }, 10)
+        return () => {
+            clearTimeout(a)
+        }
+    }
+
 
     // submit diary
     async function submitDiary() {
@@ -206,45 +239,6 @@ function Writing(props) {
         );
     }
 
-    // checking Prompt exist
-    async function getLastSentence(response) {
-        let a = setTimeout(() => {
-            setModule(response[1])
-            setPrompt(response[0])
-            if (prompt) {
-                if ((prompt).trim() === "") {
-                    setLoading(true)
-                } else {
-                    setLoading(false)
-                }
-            }
-
-        }, 10)
-        return () => {
-            clearTimeout(a)
-        }
-    }
-
-    async function assemblePrompt() {
-        const docRef3 = doc(db, "session", props.userMail, "diary", session);
-        const docSnap = await getDoc(docRef3);
-        if (docSnap.exists()) {
-            const readyRequest = docSnap.data().conversation;
-            console.log(docSnap.data())
-            const turn_temp = docSnap.data().turn
-            requestPrompt(readyRequest, props.userMail, session, turn_temp, module)
-            if (turn_temp > 3 && diaryRequest.current === false) {
-                //기존 요청이 하나도 없는 상태에서 3턴이 넘어간 경우
-                console.log("다이어리 요청 들어감");
-                requestSummerization();
-                diaryRequest.current = true;
-            }
-            turnCount.current = turn_temp;
-        } else {
-            console.log("No such document!");
-        }
-    }
-
     // https://mindfuljournal-fzesr.run.goorm.site
     // http://0.0.0.0:8000
 
@@ -262,12 +256,49 @@ function Writing(props) {
             .catch(err => console.log(err));
     }
 
+    async function requestCombined(text, user, num, turn, module) {
+        const promptRequest = fetch('http://0.0.0.0:8000/standalone', {
+            method: 'POST',
+            body: JSON.stringify({
+                'text': text,
+                'user': user,
+                'num': num,
+                'turn': turn,
+                'module': module
+            })
+        });
+
+        const summarizationRequest = fetch('http://0.0.0.0:8000/diary', {
+            method: 'POST',
+            body: JSON.stringify({
+                'user': user,
+                'num': num
+            })
+        });
+
+        try {
+            const [promptResponse, summarizationResponse] = await Promise.all([
+                promptRequest,
+                summarizationRequest
+            ]);
+
+            // Process the responses if needed
+            // const promptJson = await promptResponse.json();
+            // const summarizationJson = await summarizationResponse.json();
+
+            return {promptResponse, summarizationResponse};
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
+
     async function requestSummerization() {
         return fetch('http://0.0.0.0:8000/diary', {
             method: 'POST',
             body: JSON.stringify({
                 'user': props.userMail,
-                'num': session,
+                'num': session
             })
         })
             .catch(err => console.log(err));
@@ -291,8 +322,8 @@ function Writing(props) {
             "comment": comment,
             "turn": turnCount.current
         }
-        const docRef2 = doc(db, "session", props.userMail, "diary", session);
-        const docSnap2 = await getDoc(docRef2);
+        const docRef = doc(db, "session", props.userMail, "diary", session);
+        const docSnap2 = await getDoc(docRef);
         if (docSnap2.exists()) {
             const message = docSnap2.data().conversation;
             const history = docSnap2.data().history;
@@ -300,15 +331,15 @@ function Writing(props) {
             message[message.length] = user_temp;
             history[history.length] = history_temp
             let a = setTimeout(async () => {
-                await setDoc(docRef2, {
-                    conversation: message,
+                await setDoc(docRef, {
                     outputFromLM: "",
+                    conversation: message,
                     history: history,
                 }, {merge: true});
-                await updateDoc(docRef2, {
+                await updateDoc(docRef, {
                     turn: increment(1)
                 })
-                assemblePrompt();
+                await assemblePrompt();
                 setLoading(true);
                 setTextInput("");
             }, 500)
@@ -375,13 +406,8 @@ function Writing(props) {
                         <Badge bg="primary">
                             세션: {session}
                         </Badge>{' '}
-                        <Badge bg="light" text="dark">
-                            모듈: {module}
-                        </Badge>{' '}
-                        <Badge bg="light" text="dark">
-                            턴: {turnCount.current}
-                        </Badge>{' '}
-
+                        {loading === false ? <Badge bg="light" text="dark">모듈: {module}</Badge> : <div></div>}{' '}
+                        {loading === false ? <Badge bg="light" text="dark">턴: {turnCount.current}</Badge> : <div></div>}
                         {loading === true ? <Loading/> :
                             <Userinput prompt={prompt} setInputUser={setInputUser} inputUser={inputUser}
                                        addConversationFromUser={addConversationFromUser}
@@ -392,7 +418,7 @@ function Writing(props) {
                     </div>
                 </Row>
                 <Row>
-                    {turnCount.current > 4 && loading === false ? <DiaryView diary={diary} submitDiary={submitDiary}
+                    {turnCount.current > 3 && loading === false ? <DiaryView diary={diary} submitDiary={submitDiary}
                                                                              setModalShow={setModalShow}/> :
                         <div></div>}
                 </Row>
@@ -508,7 +534,7 @@ function Userinput(props) {
                         </div>
                     </Col>
                     <Form.Text id="userInput" muted>
-                        📖 3턴이 넘어가면 다이어리가 자동으로 생성됩니다.
+                        📖 네번째 턴부터 다이어리가 자동으로 생성됩니다.
                     </Form.Text>
                 </Row>
                 <div className="smartphone-view">
