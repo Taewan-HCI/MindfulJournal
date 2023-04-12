@@ -493,6 +493,127 @@ def m1_3_init(result, topic):
     return completion["choices"][0]["message"]['content']
 
 
+def m1_1_standalone_review(text, turn, module):
+    print("m1_1_review")
+    print(str(text))
+    messages_0 = [
+        {"role": "system",
+         "content": "Current turn: " + str(turn) + ", Module: " + str(
+             module) + "\nYour task is to read a conversation transcript and determine the appropriate conversation phase to continue. Select the most fitting phase among these five options: Rapport Building, Getting Information, Exploration, Wrapping Up, and Sensitive Topic. Conversations generally follow the sequence: Rapport Building, Getting Information, Exploration, and Wrapping Up. The entire conversation should consist of approximately 12-24 turns. Brief descriptions of each phase are as follows:\n1. [Rapport Building]: The initial phase, where the user and agent establish a connection through casual conversation.\n2. [Getting Information]: After building rapport (usually 2-3 turns), transition to this phase to inquire about significant events or stories in the user's life.\n 3. [Exploration]: Delve deeper into a major event or anecdote mentioned by the user. Proceed to this phase when there's an important topic to discuss further.\n4. [Wrapping Up]: The concluding phase, in which the user and agent wrap up their discussion. Enter this phase after sufficient conversation and when it's time to end the conversation. Note that once you enter the Wrapping Up phase, you must remain in it.\n 5. [Sensitive Topic]: Activate this module at any point if the conversation involves indications of suicide or death. Note that once you enter the Sensitive Topic phase, you must remain in it."},
+        {"role": "user",
+         "content": str(text)}
+    ]
+
+    completion1 = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        # model="gpt-4",
+        messages=messages_0,
+        stop=['User: '],
+        max_tokens=245,
+        temperature=0.7,
+        #t: 0.7, 0.9
+        #prompt: 2종류 2*2 => 어떤거를 기준으로 prompt를 다르게 만들어야 할지..
+        #네개의 응답이 의미있는지 확인하는.
+
+        presence_penalty=0.5,
+        frequency_penalty=0.5,
+        # logit_bias={
+        #     49: 10.0,
+        #     1324: 10.0,
+        #     419: 10.0,
+        #     2615: 10.0,
+        #     20570: 10.0,
+        #     1321: 10.0,
+        #     18438: 10.0,
+        #     6944: 10.0,
+        #     50: 10.0,
+        #     18464: 10.0,
+        #     7243: 10.0
+        # }
+    )
+    moduleRecommendation = completion1["choices"][0]["message"]['content']
+    print(moduleRecommendation)
+
+    if "Rapport" in moduleRecommendation:
+        module = "Rapport building"
+        messages_1 = [
+            {"role": "system",
+             "content": "As a counselor, engage in a rapport-building conversation with the user, demonstrating empathy and sensitivity to their feelings. Encourage them to discuss their day, and share relevant personal experiences when appropriate. Avoid showcasing knowledge or asserting authority, and limit responses to concise, one or two-sentence statements. Refrain from concluding conversations with formal closings or greetings, and do not introduce new ideas or concepts, instead transitioning smoothly to new topics."},
+        ]
+    elif "Getting Information" in moduleRecommendation:
+        module = "Getting information"
+        messages_1 = [
+            {"role": "system",
+             "content": "As a counselor, my role is to support users in sharing their personal stories regarding daily events, thoughts, emotions, and challenges. I initiate conversations with general inquiries and gradually focus on more specific, detailed questions. I employ a combination of open-ended and closed-ended questions to facilitate user engagement. Users are encouraged to select their own topics and develop their own perspectives on their issues. If a user does not provide sufficient details about their day, I pose questions to prompt further reflection and elaboration. My approach is empathetic and encouraging, focusing on understanding rather than providing new information or skills. I communicate in concise sentences and ask only one question at a time, ensuring that the conversation remains open-ended."}
+        ]
+    elif "Exploration" in moduleRecommendation:
+        module = "Exploration"
+        messages_1 = [
+            {"role": "system",
+             "content": "As a counselor, I inquire further into your thoughts and emotions regarding the topic you mentioned. I ask about your reaction to the topic, your feelings and emotions, its impact on your life or mindset, and if it involved a challenging emotion, how you overcame it and your current perspective. I pose questions that encourage deep reflection. I provide empathy and support. I use concise sentences and ask only one question at a time. I refrain from offering solutions or new ideas and do not conclude the conversation."},
+        ]
+    elif "Wrapping" in moduleRecommendation:
+        module = "Wrapping up"
+        messages_1 = [
+            {"role": "system",
+             "content": "Let's discuss your day:\nSleep quality ->\nMedications ->\nStress levels ->\nDominant mood or emotions ->\nAs a counselor, I approach each conversation with empathy and attentiveness. To facilitate reflection, I'll inquire about your sleep quality the previous night, adherence to medication schedules, current stress levels, and prevailing mood or emotions. I'll pose one question at a time to encourage focused and thoughtful responses."},
+        ]
+    elif "Sensitive" in moduleRecommendation:
+        module = "Sensitive"
+        messages_1 = [
+            {"role": "system",
+             "content": "If a user mentions suicide or self-harm, carefully ask them about the following aspects, one question at a time, while maintaining a supportive tone. Inquire about the intensity of their suicidal thoughts, for example, whether they were only having thoughts of self-harm, if they had specific plans, or if they were on the verge of attempting suicide. Please communicate in Korean."},
+        ]
+
+    else:
+        module = "Not selected"
+        messages_1 = [
+            {"role": "system",
+             "content": "As a counselor, engage in rapport-building conversations with the user by being an empathetic listener. Be sensitive to their emotions and express compassion. Encourage them to discuss their day, mood, and feelings, sharing your own experiences when appropriate. Avoid showcasing your knowledge or asserting authority. Keep your responses concise, limited to one or two sentences. Refrain from ending conversations with closing statements or greetings, and continue introducing new topics. Do not introduce new ideas or concepts."}
+        ]
+
+
+    if len(text) > 5:
+        extracted = text[-5:]
+    else:
+        print("아직 증가 안함")
+        extracted = text
+
+    for i in range(0, len(extracted)):
+        messages_1.append(extracted[i])
+
+    completion2 = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=messages_1,
+        stop=['User: '],
+        max_tokens=245,
+        temperature=1,
+        presence_penalty=0.5,
+        frequency_penalty=0.5,
+        n=4
+    )
+    options = []
+    for i in range(0, len(completion2["choices"])):
+        options.append(completion2["choices"][i]["message"]['content'])
+    print(options)
+    return {"options": options, "module": module}
+
+
+@app.post("/review")
+async def calc(request: Request):
+    body = await request.json()
+    text = body['text']
+    user = body['user']
+    num = body['num']
+    turn = body['turn']
+    topic = ""
+    module = body['module']
+    print(turn)
+
+    response_text = m1_1_standalone_review(text, turn, module)
+    upload(response_text, user, num, topic)
+
+
 @app.post("/")
 async def calc(request: Request):
     body = await request.json()
@@ -529,6 +650,9 @@ async def calc(request: Request):
 
     response_text = m1_1_standalone(text, turn, module)
     upload(response_text, user, num, topic)
+
+
+
 
 
 @app.post("/diary")

@@ -134,6 +134,20 @@
     word-wrap: break-word;
 }
 
+.prompt_box_review {
+    background-color: white;
+    overflow: hidden;
+    height: auto;
+    font-size: 20px;
+    padding-top: 0px;
+    padding-bottom: 20px;
+    text-align: left;
+    font-weight: bolder;
+    color: black;
+    white-space: normal;
+    word-wrap: break-word;
+}
+
 .diarylist_box {
     background-color: white;
     height: auto;
@@ -314,6 +328,13 @@
 .smalltxt {
     font-size: x-large;
     font-weight: normal;
+}
+
+.smalltxt_review {
+    padding-top: 20px;
+    font-size: large;
+    font-weight: normal;
+
 }
 
 .writing_box {

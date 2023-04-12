@@ -172,7 +172,8 @@ function Writing(props) {
                             <Userinput userInput={userInput.current} prompt={prompt.current}
                                        sendOptionChoice={sendOptionChoice} directMsg={directMsg} userName={userName}
                                        reviewMode={reviewMode} setReviewMode={setReviewMode} reviewSubmit={reviewSubmit}
-                                       optionsforReview={optionsforReview.current} promptforReview={promptforReview.current}/>}
+                                       optionsforReview={optionsforReview.current}
+                                       promptforReview={promptforReview.current}/>}
                     </div>
                 </Row>
 
@@ -219,7 +220,6 @@ function Userinput(props) {
     const handleOptionSelect = (option) => {
         setSelectedOptions([...selectedOptions, option]);
     };
-
 
 
     if (props.reviewMode) {
@@ -284,7 +284,7 @@ function Userinput(props) {
                             <Col md={1}>
                                 <div className="smalltxt">
                                     <label>
-                                        <input type="checkbox" value="option1" onChange={()=>{
+                                        <input type="checkbox" value="option1" onChange={() => {
                                             handleOptionSelect(props.optionsforReview[idx])
                                         }}
                                         />

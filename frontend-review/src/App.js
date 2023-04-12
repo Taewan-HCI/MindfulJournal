@@ -90,15 +90,7 @@ function App() {
                                             setExpanded(false);
                                         }}
                                     >
-                                        <div className="nav_title_black">작성하기</div>
-                                    </Nav.Link>
-                                    <Nav.Link
-                                        onClick={() => {
-                                            navigate('/list');
-                                            setExpanded(false);
-                                        }}
-                                    >
-                                        <div className="nav_title_black">돌아보기</div>
+                                        <div className="nav_title_black">평가하기</div>
                                     </Nav.Link>
                                     {isAuth ? (
                                         <Nav.Link
@@ -114,7 +106,7 @@ function App() {
                                 <Nav>
                                     <Stack gap={0}>
                                         <div className="nav_title_blue">
-                                            <b>GPT-User Direct Mode</b>
+                                            <b>언어모델 평가용 모듈</b>
                                         </div>
                                         <div className="nav_title_black">{date}</div>
                                     </Stack>
