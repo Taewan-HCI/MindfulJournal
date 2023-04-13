@@ -26,11 +26,13 @@ function Writing(props) {
     const receivedDiary = useRef("");
     const turnCount = useRef(null);
     const sessionInputRef = useRef(null)
+    const engine = useRef(null);
     const [session, setSession] = useState("")
     let [inputUser, setInputUser] = useState('')
     let [prompt, setPrompt] = useState('')
     let [module, setModule] = useState('')
     let [diary, setDiary] = useState("")
+
 
     const diaryRequest = useRef(false)
 
