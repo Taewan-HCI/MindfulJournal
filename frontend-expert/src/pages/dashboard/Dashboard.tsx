@@ -18,6 +18,7 @@ import Diary from './components/Diary';
 import mockDiary from '../../mocks/diaryData';
 import Tabs from './components/Tabs';
 import TimeLine from './components/timeLine/TimeLine';
+import CustomWordCloud from './components/CustomWordCloud';
 
 function Dashboard() {
   const [radioValue, setRadioValue] = useState<string | null>(null);
@@ -120,6 +121,7 @@ function Dashboard() {
               <Tabs />
             </ContentWithTitle>
             <ContentWithTitle title="핵심 감정">
+              <CustomWordCloud />
               <Card body>핵심 감정의 나열</Card>
             </ContentWithTitle>
             <ContentWithTitle title="주요 사건">
