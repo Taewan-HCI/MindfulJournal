@@ -375,8 +375,8 @@ function Writing(props) {
                 </div>
             </Row>
             <Row>
-                {turnCount.current > 4 && loading === false ? <DiaryView diary={diary} submitDiary={submitDiary}
-                                                                         setModalShow={setModalShow}/> : <div></div>}
+                {/*{turnCount.current > 4 && loading === false ? <DiaryView diary={diary} submitDiary={submitDiary}
+                                                                         setModalShow={setModalShow}/> : <div></div>}*/}
             </Row>
             <MyVerticallyCenteredModal
                 show={modalShow}
@@ -405,7 +405,19 @@ function Userinput(props) {
                 <Form>
                     {['radio'].map((type) => (
                         <div key={`inline-${type}`} className="mb-3">
-                            <Form.Check
+
+                            <Form>
+      <Form.Check // prettier-ignore
+        type="switch"
+        id="custom-switch"
+        label="GPT-4로 응답받기"
+        onChange={()=>{
+                                    modelChoice.current = "gpt4"
+                                }}
+      />
+    </Form>
+
+                           {/* <Form.Check
                                 inline
                                 label="GPT 3.5-turbo"
                                 name="group1"
@@ -425,7 +437,7 @@ function Userinput(props) {
                                 onChange={()=>{
                                     modelChoice.current = "gpt4"
                                 }}
-                            />
+                            />*/}
                         </div>
                     ))}
                 </Form>
@@ -543,7 +555,7 @@ function Userinput(props) {
                         <span className="desktop-view">
                         ✏️ 나의 일기 입력하기
                         </span>
-                    <span className="smartphone-view-text-tiny" 의>
+                    <span className="smartphone-view-text-tiny">
                         ✏️ 나의 일기 입력하기
                         </span>
                 </Form.Label>
