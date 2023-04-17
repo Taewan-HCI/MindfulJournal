@@ -1,7 +1,6 @@
 import React from 'react';
 import WordCloud from 'react-d3-cloud';
-import { scaleOrdinal } from 'd3-scale';
-import { schemeCategory10 } from 'd3-scale-chromatic';
+import { Word } from 'react-d3-cloud/lib/WordCloud';
 import { ResponsiveContainer } from 'recharts';
 
 const data = [
@@ -31,22 +30,27 @@ const data = [
   { text: '못하니까', value: 1 },
 ];
 
-const schemeCategory10ScaleOrdinal = scaleOrdinal(schemeCategory10);
-
 function CustomWordCloud() {
+  const sensitiveWordsDict = ['자살', '자해']; // 민감한 단어를 추가해서 워드클라우드 표시 할 때 해당 단어들은 붉은 색으로 강조
   return (
     <ResponsiveContainer width="80%" aspect={4}>
       <WordCloud
         data={data}
         width={100}
         height={100}
+        font="pretendard"
         fontWeight="bold"
         fontSize={(word: any) => Math.log2(word.value + 1) * 20}
         spiral="rectangular"
-        rotate={(word: any) => word.value % 360}
+        rotate={(word: Word) => word.value % 360}
         padding={5}
         random={Math.random}
-        fill={(d: any, i: any) => schemeCategory10ScaleOrdinal(i)}
+        fill={(d: Word) => {
+          if (sensitiveWordsDict.includes(d.text)) {
+            return '#dc3545';
+          }
+          return '#000000';
+        }}
         onWordClick={(event: any, d: any) => {
           console.log(`onWordClick: ${d.text}`);
         }}
