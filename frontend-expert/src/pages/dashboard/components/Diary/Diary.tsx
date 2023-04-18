@@ -1,7 +1,8 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { useState } from 'react';
 import { Badge, Button, Card, Modal } from 'react-bootstrap';
-import EntireDiaryLogs from './EntireDiaryLogs';
+import EntireDiaryLogs from '../EntireDiaryLogs';
+import './diary.css';
 
 interface ModalProps {
   onHide: () => void;
@@ -67,9 +68,10 @@ function Diary({
   return (
     <>
       <Card
-        className="my-2"
+        className="my-2 diary"
         style={{
           width: '100%',
+          cursor: 'pointer',
         }}
         onClick={() => setModalShow(true)}
       >
