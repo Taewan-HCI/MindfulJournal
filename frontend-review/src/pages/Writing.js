@@ -20,27 +20,29 @@ import {ToastContainer} from "react-bootstrap";
 
 function Writing(props) {
     const [show, setShow] = useState(false);
-    let [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(false)
     const [sessionStatus, setSessionStatus] = useState(false)
+    const [session, setSession] = useState("")
+    const [inputUser, setInputUser] = useState('')
+    const [prompt, setPrompt] = useState(null)
+    const [module, setModule] = useState('')
+    const [diary, setDiary] = useState("")
+    const [modalShow, setModalShow] = useState(false);
+    const [isListening, setIsListening] = useState(false);
+    const [textInput, setTextInput] = useState('');
+
     const receivedText = useRef("");
     const receivedDiary = useRef("");
     const turnCount = useRef(null);
     const sessionInputRef = useRef(null)
     const engine = useRef(null);
-    const [session, setSession] = useState("")
-    let [inputUser, setInputUser] = useState('')
-    let [prompt, setPrompt] = useState('')
-    let [module, setModule] = useState('')
-    let [diary, setDiary] = useState("")
-
-
     const diaryRequest = useRef(false)
+    const prevOutputFromLM = useRef("");
 
-    const [modalShow, setModalShow] = useState(false);
-    const [isListening, setIsListening] = useState(false);
-    const [textInput, setTextInput] = useState('');
     const navigate = useNavigate()
     const current = new Date();
+
+
     const date = `${current.getFullYear()}년 ${current.getMonth() + 1}월 ${current.getDate()}일`;
 
 
@@ -82,6 +84,10 @@ function Writing(props) {
             recognition.abort();
         };
     }, [isListening]);
+    const toggleListening = () => {
+        setIsListening((prevState) => !prevState);
+    };
+
 
     // monitoring firebase data
     useEffect(() => {
@@ -92,16 +98,13 @@ function Writing(props) {
                 // Tracking "outputFromLM" field
                 if (data) {
                     receivedText.current = data['outputFromLM'];
-                    getLastSentence(receivedText.current);
+                    console.log(receivedText.current)
+                    console.log(prevOutputFromLM)
+                    if (receivedText.current !== prevOutputFromLM.current) {
+                        getLastSentence(receivedText.current);
+                        prevOutputFromLM.current = receivedText.current;
+                    }
                     // Tracking "diary" field
-                    /*receivedDiary.current = data['diary'];
-                    if (receivedDiary.current !== "") {
-                        if (receivedDiary.current !== diary) {
-                            setShow(true)
-                            diaryRequest.current = false
-                            setDiary(receivedDiary.current)
-                        }
-                    }*/
                     // Tracking "turn" field
                     turnCount.current = data['turn'];
                 }
@@ -110,7 +113,7 @@ function Writing(props) {
                 unsubscribe();
             };
         }
-    });
+    }, [sessionStatus, session, props.userMail, db, prompt]);
 
     // create NewDoc
     async function createNewDoc() {
@@ -120,7 +123,7 @@ function Writing(props) {
             const message = docSnap.data().outputFromLM;
             console.log("진행중인 세션이 있습니다");
             if (message.length === 0) {
-                assemblePrompt()
+                assemblePrompt("gpt3.5")
             } else {
                 console.log("기존에 언어모델 문장 존재");
                 setSessionStatus(true)
@@ -157,9 +160,7 @@ function Writing(props) {
         navigateToReview()
     }
 
-    const toggleListening = () => {
-        setIsListening((prevState) => !prevState);
-    };
+
 
 
     // Moaal management
@@ -199,6 +200,15 @@ function Writing(props) {
         </Modal>);
     }
 
+    function shuffleArray(array) {
+        const shuffled = array.slice();
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled;
+    }
+
     // checking Prompt exist
     async function getLastSentence(response) {
         let a = setTimeout(() => {
@@ -209,6 +219,7 @@ function Writing(props) {
                 if (prompt.length === 0) {
                     setLoading(true)
                 } else {
+
                     setLoading(false)
                 }
             }
@@ -407,56 +418,22 @@ function Userinput(props) {
                         <div key={`inline-${type}`} className="mb-3">
 
                             <Form>
-      <Form.Check // prettier-ignore
-        type="switch"
-        id="custom-switch"
-        label="GPT-4로 응답받기"
-        onChange={()=>{
-                                    modelChoice.current = "gpt4"
-                                }}
-      />
-    </Form>
+                                <Form.Check // prettier-ignore
+                                    type="switch"
+                                    id="custom-switch"
+                                    label="GPT-4로 응답받기"
+                                    onChange={() => {
+                                        modelChoice.current = "gpt4"
+                                    }}
+                                />
+                            </Form>
 
-                           {/* <Form.Check
-                                inline
-                                label="GPT 3.5-turbo"
-                                name="group1"
-                                type={type}
-                                id={`inline-${type}-1`}
-                                defaultChecked
-                                onChange={()=>{
-                                    modelChoice.current = "gpt3.5"
-                                }}
-                            />
-                            <Form.Check
-                                inline
-                                label="GPT 4"
-                                name="group1"
-                                type={type}
-                                id={`inline-${type}-2`}
-                                onChange={()=>{
-                                    modelChoice.current = "gpt4"
-                                }}
-                            />*/}
                         </div>
                     ))}
                 </Form>
             </Col>
         </Row>
 
-        {/*<Row>
-            <Col>
-                <div className="prompt_box">
-                    <div className="smalltxt">
-                        💬 직전 사용자의 입력 내용
-                    </div>
-                    <div className="tte">
-                        {props.inputUser}
-                    </div>
-                    &nbsp;
-                </div>
-            </Col>
-        </Row>*/}
         <Row>
             <Col md={10}>
                 <div className="smalltxt_review">
