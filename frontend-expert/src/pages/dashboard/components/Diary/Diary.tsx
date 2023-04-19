@@ -1,7 +1,8 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { useState } from 'react';
 import { Badge, Button, Card, Modal } from 'react-bootstrap';
-import EntireDiaryLogs from './EntireDiaryLogs';
+import EntireDiaryLogs from '../EntireDiaryLogs';
+import './diary.css';
 
 interface ModalProps {
   onHide: () => void;
@@ -67,9 +68,10 @@ function Diary({
   return (
     <>
       <Card
-        className="my-2"
+        className="my-2 diary"
         style={{
           width: '100%',
+          cursor: 'pointer',
         }}
         onClick={() => setModalShow(true)}
       >
@@ -81,11 +83,11 @@ function Diary({
                 {toStringTimeByFormatting(createdAt)}
               </div>
             </div>
-            <Badge bg="primary">8분 44초 </Badge>
+            <Badge bg="primary">홍길동 상담사 </Badge>
           </Card.Title>
 
           <Card.Subtitle className="mb-2 text-muted">
-            <div className="text-primary">우울함, 당황, 두려움</div>
+            <div className="text-primary">8분 30초 참여 · 3032자 작성</div>
           </Card.Subtitle>
           <Card.Text>{content}</Card.Text>
           <div className="d-flex align-items-center justify-content-between">
@@ -93,7 +95,6 @@ function Diary({
               ❤️
               <b>{like}</b>
             </div>
-            <div className="fs-6 text-secondary">홍길동 상담사</div>
           </div>
         </Card.Body>
       </Card>
