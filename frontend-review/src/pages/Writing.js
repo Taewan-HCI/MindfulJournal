@@ -133,7 +133,7 @@ function Writing(props) {
             const myArray = ["만나서 반가워요, 오늘 하루 어떻게 지내셨나요?", "오늘 하루 어땠어요? 말하고 싶은 것이 있다면 자유롭게 이야기해주세요.", "안녕하세요! 오늘 하루는 어땠나요?", "오늘 하루도 정말 고생 많으셨어요. 어떤 일이 있었는지 얘기해주세요.", "오늘도 무사히 지나간 것에 감사한 마음이 드네요. 오늘 하루는 어땠나요?", "오늘은 어떤 새로운 것을 경험했나요? 무엇을 경험했는지 얘기해주세요.", "오늘은 어떤 고민이 있었나요? 저와 함께 고민을 얘기해봐요."]
             await setDoc(doc(db, "session", props.userMail, "diary", session), {
                 outputFromLM: {
-                    "options": [myArray[Math.floor(Math.random() * myArray.length)]], "module": "initiation"
+                    "options": [myArray[Math.floor(Math.random() * myArray.length)]], "module": "Rapport building"
                 },
                 conversation: [],
                 isFinished: false,

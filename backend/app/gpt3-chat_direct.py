@@ -838,47 +838,57 @@ def m1_1_standalone_review(text, turn, module, model):
     print(engine)
     print("m1_1_review")
     print(str(text))
-    messages_0 = [
-        {"role": "system",
-         "content": "Current turn: " + str(turn) + ", Module: " + str(
-             module) + "\nYour task is to read a conversation transcript and determine the appropriate conversation phase to continue. Select the most fitting phase among these five options: Rapport Building, Getting Information, Exploration, Wrapping Up, and Sensitive Topic. Conversations generally follow the sequence: Rapport Building, Getting Information, Exploration, and Wrapping Up. Brief descriptions of each phase are as follows:\n1. [Rapport Building]: The initial phase, where the user and agent establish a connection through casual conversation.\n2. [Getting Information]: After building rapport, transition to this phase to inquire about significant events or stories in the user's life.\n 3. [Exploration]: Delve deeper into a major event or anecdote mentioned by the user. Proceed to this phase when there's an specific topic to discuss further.\n4. [Wrapping Up]: The concluding phase, in which the user and agent wrap up their discussion. Enter this phase after sufficient conversation and when it's time to end the conversation.\n 5. [Sensitive Topic]: Activate this module at any point if the conversation involves indications of self-harm, suicide or death. Note that once you enter the Sensitive Topic phase, you must remain in it."},
-        {"role": "user",
-         "content": str(text)}
-    ]
-
-    # for 구문으로 돌리기
-
-    completion1 = openai.ChatCompletion.create(
-        # model=engine,
-        model="gpt-4",
-        messages=messages_0,
-        stop=['User: '],
-        max_tokens=245,
-        temperature=0.7,
-        # t: 0.7, 0.9
-        # prompt: 2종류 2*2 => 어떤거를 기준으로 prompt를 다르게 만들어야 할지..
-        # 네개의 응답이 의미있는지 확인하는.
-
-        presence_penalty=0.5,
-        frequency_penalty=0.5,
-        # logit_bias={
-        #     49: 10.0,
-        #     1324: 10.0,
-        #     419: 10.0,
-        #     2615: 10.0,
-        #     20570: 10.0,
-        #     1321: 10.0,
-        #     18438: 10.0,
-        #     6944: 10.0,
-        #     50: 10.0,
-        #     18464: 10.0,
-        #     7243: 10.0
-        # }
-    )
-    moduleRecommendation = completion1["choices"][0]["message"]['content']
+    conversation_text = ""
+    # for i in range (0, len(text)):
+    #     conversation_text = conversation_text + text[i]["role"] + ": " + text[i]["content"] +"\n"
+    # print(conversation_text)
+    # messages_0 = [
+    #     {"role": "system",
+    #      "content": "Current phase: " + str(module) + "\nYour task is to read a conversation transcript and determine the appropriate conversation phase to continue.\nFirst. Read the conversation between user and assistent.\nSecond. Evaluate which conversation is elect the most fitting phase among these five options: Rapport Building, Getting Information, Exploration, Wrapping Up, and Sensitive Topic.\n Tips: Conversations generally follow the sequence: Rapport Building, Getting Information, Exploration, and Wrapping Up.\nBrief descriptions of each phase are as follows:\n1. [Rapport Building]: The initial phase, where the user and agent establish a connection through casual conversation for about 2-3turn.\n2. [Getting Information]: After 2-3 turns of sufficient casual conversation through [Rapport Building] phase, transition to this phase to inquire about significant events or stories in the user's life.\n 3. [Exploration]: If the previous conversation sparked a topic, thought, or event that you'd like to talk about in more depth, delve deeper into a major event or anecdote mentioned by the user. \n4. [Wrapping Up]: The concluding phase, in which the user and agent wrap up their discussion. Enter this phase after sufficient conversation and when it's time to end the conversation.\n 5. [Sensitive Topic]: Activate this module at any point if the conversation involves indications of self-harm, suicide or death. Note that once you enter the Sensitive Topic phase, you must remain in it."},
+    #     {"role": "user",
+    #      "content": conversation_text}
+    # ]
+    #
+    # # for 구문으로 돌리기
+    #
+    # completion1 = openai.ChatCompletion.create(
+    #     # model=engine,
+    #     model="gpt-4",
+    #     messages=messages_0,
+    #     stop=['User: '],
+    #     max_tokens=245,
+    #     temperature=0.7,
+    #     # t: 0.7, 0.9
+    #     # prompt: 2종류 2*2 => 어떤거를 기준으로 prompt를 다르게 만들어야 할지..
+    #     # 네개의 응답이 의미있는지 확인하는.
+    #
+    #     presence_penalty=0.5,
+    #     frequency_penalty=0.5,
+    #     # logit_bias={
+    #     #     49: 10.0,
+    #     #     1324: 10.0,
+    #     #     419: 10.0,
+    #     #     2615: 10.0,
+    #     #     20570: 10.0,
+    #     #     1321: 10.0,
+    #     #     18438: 10.0,
+    #     #     6944: 10.0,
+    #     #     50: 10.0,
+    #     #     18464: 10.0,
+    #     #     7243: 10.0
+    #     # }
+    # )
+    # moduleRecommendation = completion1["choices"][0]["message"]['content']
+    moduleRecommendation = "Test"
     print(moduleRecommendation)
+    if "Test" in moduleRecommendation:
+        module = "empathy"
+        messages_1 = [
+            {"role": "system",
+             "content": "As a counselor, I engage in casual conversations with the user by as an empathetic listener. Encourage them to discuss their day, mood, and feelings, sharing their own experiences when appropriate. I don't showcase my knowledge or asserting authority. \n!Important: I Don't offer new ideas, Topic or methods. I listen to the user's message, show interest and sympathy.\n!Important:I only ask one question at a time."}
+        ]
 
-    if "Rapport" in moduleRecommendation:
+    elif "Rapport" in moduleRecommendation:
         module = "Rapport building"
         messages_1 = [
             {"role": "system",
@@ -1013,40 +1023,42 @@ def m1_1_standalone_review(text, turn, module, model):
         ]
 
 
-    if len(text) > 3:
-        extracted = text[-3:]
+    if len(text) > 2:
+        extracted = text[-2:]
     else:
         print("아직 증가 안함")
         extracted = text
-    extracted[-1]["content"] = extracted[-1]["content"] + " 한두 문장 정도로 간결하게 응답해주세요."
-    print(extracted)
+    extracted[-1]["content"] = extracted[-1]["content"] + "한두 문장 정도로 간결하게 응답해주세요. "
+    # print(extracted)
     messages_1 = messages_1 + extracted
-    messages_2 = messages_2 + extracted
-    messages_3 = messages_3 + extracted
-    messages_4 = messages_4 + extracted
-    messages_5 = messages_5 + extracted
-    # messages_2.append(extracted)
-    # messages_3.append(extracted)
-    # messages_4.append(extracted)
+    # messages_2 = messages_2 + extracted
+    # messages_3 = messages_3 + extracted
+    # messages_4 = messages_4 + extracted
+    # messages_5 = messages_5 + extracted
 
-
-    options = [0.7, 0.9, 0.7, 0.9]
+    # # messages_2.append(extracted)
+    # # messages_3.append(extracted)
+    # # messages_4.append(extracted)
+    #
+    #
+    # options = [0.7, 0.9, 0.7, 0.9]
     result = []
-    messages_list = {
-        0: messages_1,
-        1: messages_2,
-        2: messages_3,
-        3: messages_4,
-        4: messages_5,
-    }
-    options_2 = [messages_1, messages_2]
+    # messages_list = {
+    #     0: messages_1,
+    #     1: messages_2,
+    #     2: messages_3,
+    #     3: messages_4,
+    #     4: messages_5,
+    # }
+    # options_2 = [messages_1, messages_2]
 
 
     for i in range (0, 5):
         print(i)
         completion2 = openai.ChatCompletion.create(
             model=engine,
-            messages=messages_list[i],
+            # messages=messages_list[i],
+            messages=messages_1,
             stop=['User: '],
             max_tokens=245,
             temperature=0.7,
