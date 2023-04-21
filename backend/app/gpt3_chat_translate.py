@@ -73,6 +73,46 @@ async def analysis(request: Request):
     print(result)
     return result
 
+
+
+@app.post("/summary")
+async def analysis(request: Request):
+    start_time = time.time()
+    body = await request.json()
+    messages = [{"role": "system",
+                 "content": 
+'''I'm acting as a Wikipedia page. I will provide a summary of a topic based on a user's diary entry. The summary will be informative and factual, encompassing the most crucial elements of the topic. It will consist of two parts: a description of the event that happened to the user, and an overview of the user's emotions, ideas, feelings, reactions, and thoughts related to the event. Each part should not exceed 30 words. after making the answer, providing translated in Korean version. (only translated one) Do not to repeat user's words, any do NOT provide any comments without answer.
+
+here is an example.
+diary: 오늘 나는 날씨가 우중충해서 기분이 나빴어. 그런데 그만 지하철을 타러 가다 돌부리에 걸려 넘어졌어. 무릎이 까지고 발목을 접질린 것 같아 제대로 걷지를 못하겠더라. 그 와중에 나를 보고 수군대는 할아버지가 너무 야속했어. 그래서 자리에 엎어져서 대성통곡했는데, 길 건너편에서 나를 물끄러미 보던 아주머니가 달려와서 나를 부축해줬어. 고마웠지만 너무 부끄럽더라.
+
+my output:
+Event
+날씨가 좋지 않았다. 지하철을 타러 가다 돌부리에 걸려 넘어졌다. 자리에 엎어져서 울었다. 그리고 건너편에 있던 아주머니가 와서 유저를 부축했다.
+
+Emotion/Thought
+사용자는 날씨가 좋지 않아서 슬펐다. 할아버지가 야속했다. 아주머니에게 고마움을 느꼈다.
+'''
+                },
+                {"role": "user",
+                 "content": "here is a diary" + body['text']}]
+
+    completion = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=messages,
+        stop=['User: '],
+        max_tokens=245,
+    )
+    answer = completion
+    print(answer)
+    result = answer["choices"][0]["message"]['content']
+    
+    end_time = time.time()
+    print(f"{end_time - start_time:.5f} sec")
+    print(result)
+    return result
+
+
 @app.post("/konlpy")
 async def okt_analysis(request: Request):
     start_time = time.time()
