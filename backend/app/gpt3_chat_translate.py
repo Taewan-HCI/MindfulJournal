@@ -9,9 +9,14 @@ import openai
 from dotenv import load_dotenv
 import os
 import time
+from kiwipiepy import Kiwi
+from collections import Counter
 
+
+kiwi = Kiwi()
 app = FastAPI()
 origins = ["*", "http://localhost:3000", "localhost:3000"]
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -54,7 +59,7 @@ async def analysis(request: Request):
     start_time = time.time()
     body = await request.json()
     messages = [{"role": "system",
-                 "content": "You must not repeat my word. Before starting the morphological analysis, please use normalized one. You must contain a 'JOSA' analysis in the Korean morphological analysis. for morphological alaysis, please use okt package. After the analysis, please filter the result only the nouns, verbs, and adjectives, then sort them in decreasing frequency order. if there are many results, only send me TOP 20. Finally, provide me the output in a JSON array format that includes the word and its frequency, as '{text: word, value: frequency}'. only send me a entire result array without any comments."},
+                 "content": """You must not repeat my word. Before starting the morphological analysis, please use normalized one.  \n You must contain a 'JOSA' analysis in the Korean morphological analysis. for morphological alaysis, please use okt package.  \n After the analysis, please filter the result only the nouns, verbs, and adjectives, then sort them in decreasing frequency order. \nFinally, provide me the output in a JSON array format that includes the word and its frequency, as '{text: word, value: frequency}'. \n only send me a entire result array without any comments.\n if there are many results, only send me TOP 20. \n Please provide as much information and elaboration as possible, without any truncation or '...' in the response. Be thorough and comprehensive in your answer.  """},
                 {"role": "user",
                  "content": body['text']}]
 
@@ -62,17 +67,53 @@ async def analysis(request: Request):
         model="gpt-3.5-turbo",
         messages=messages,
         stop=['User: '],
-        max_tokens=245,
+        max_tokens=2048,
+        temperature=0.1
     )
     answer = completion
     print(answer)
     result = answer["choices"][0]["message"]['content']
-    
     end_time = time.time()
     print(f"{end_time - start_time:.5f} sec")
     print(result)
     return result
 
+
+주요품사 = ['NNG', 'NNP', 'VV', 'VA', 'XR', 'SL']
+용언품사 = ['VV', 'VA']
+stopwords = ['삭제할', '어휘', '모음', '리스트']
+
+
+'''주요품사의 형태소만 리스트 형식으로 수집한다.'''
+def read_documents(result):
+    # 등장하는 형태소를 list 형식으로 수집
+    문서 = []
+    for token in result: 
+        if token.tag in 주요품사: 
+            필터링결과 = [(token.form, token.tag)]
+            필터링결과2 = [form+"다" if tag in 용언품사 else form for (form, tag) in 필터링결과]
+            문서.extend(필터링결과2)
+    return 문서
+
+    
+@app.post("/kiwi")
+async def kiwi_nalysis(request: Request):
+    start_time = time.time()
+    body = await request.json()
+    target_text = body['text']
+    
+    kiwi_result = kiwi.tokenize(target_text)
+    
+    end_time = time.time()
+    print(f"{end_time - start_time:.5f} sec")
+    result_docs =  Counter(read_documents(kiwi_result))
+    
+    result = [{'text':key, 'value':value} for key,value in result_docs.items()]
+    result.sort(key=lambda x: x["value"], reverse=True)
+    
+    return result
+
+    
 
 
 @app.post("/summary")
