@@ -130,7 +130,7 @@ function Writing(props) {
                 setLoading(true)
             }
         } else {
-            const myArray = ["만나서 반가워요, 오늘 하루 어떻게 지내셨나요?", "오늘 하루 어땠어요? 말하고 싶은 것이 있다면 자유롭게 이야기해주세요.", "안녕하세요! 오늘 하루는 어땠나요?", "오늘 하루도 정말 고생 많으셨어요. 어떤 일이 있었는지 얘기해주세요.", "오늘도 무사히 지나간 것에 감사한 마음이 드네요. 오늘 하루는 어땠나요?", "오늘은 어떤 새로운 것을 경험했나요? 무엇을 경험했는지 얘기해주세요.", "오늘은 어떤 고민이 있었나요? 저와 함께 고민을 얘기해봐요."]
+            const myArray = ["만나서 반가워요, 오늘 하루 어떻게 지내셨나요?", "오늘 하루 어땠어요? 말하고 싶은 것이 있다면 자유롭게 이야기해주세요.", "안녕하세요! 오늘 하루는 어땠나요?", "오늘 하루도 정말 고생 많으셨어요. 어떤 일이 있었는지 얘기해주세요.", "오늘도 무사히 지나간 것에 감사한 마음이 드네요. 오늘 하루는 어땠나요?", "오늘은 어떤 고민이 있었나요? 저와 함께 고민을 얘기해봐요."]
             await setDoc(doc(db, "session", props.userMail, "diary", session), {
                 outputFromLM: {
                     "options": [myArray[Math.floor(Math.random() * myArray.length)]], "module": "Rapport building"
@@ -175,30 +175,7 @@ function Writing(props) {
         }, 500);
     }
 
-    function MyVerticallyCenteredModal(props) {
-        return (<Modal
-            {...props}
-            size="lg"
-            aria-labelledby="contained-modal-title-vcenter"
-            centered
-        >
-            <Modal.Header closeButton>
-                <Modal.Title id="contained-modal-title-vcenter">
-                    마음챙김 다이어리를 종료하시겠어요?
-                </Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-                <h5>아래와 같이 오늘의 다이어리가 저장됩니다 📝</h5>
-                <p>
-                    {diary}
-                </p>
-            </Modal.Body>
-            <Modal.Footer>
-                <Button onClick={props.onHide}>더 작성하기</Button>
-                <Button onClick={handleClick}>저장하고 종료하기</Button>
-            </Modal.Footer>
-        </Modal>);
-    }
+
 
     function shuffleArray(array) {
         const shuffled = array.slice();
@@ -214,6 +191,7 @@ function Writing(props) {
         let a = setTimeout(() => {
             setModule(response["module"])
             setPrompt(response["options"])
+            setDiary(response["summary"])
             console.log(prompt)
             if (prompt) {
                 if (prompt.length === 0) {
@@ -386,11 +364,13 @@ function Writing(props) {
                 </div>
             </Row>
             <Row>
-                {/*{turnCount.current > 4 && loading === false ? <DiaryView diary={diary} submitDiary={submitDiary}
-                                                                         setModalShow={setModalShow}/> : <div></div>}*/}
+                {loading === false ? <DiaryView diary={diary} submitDiary={submitDiary} setModalShow={setModalShow}/> : <div></div>}
             </Row>
             <MyVerticallyCenteredModal
+                diary={diary}
+                handleClick={handleClick}
                 show={modalShow}
+                setModalShow={setModalShow}
                 onHide={() => setModalShow(false)}
             />
             <div className="footer"></div>
@@ -417,7 +397,7 @@ function Userinput(props) {
                     {['radio'].map((type) => (
                         <div key={`inline-${type}`} className="mb-3">
 
-                            <Form>
+                            {/*<Form>
                                 <Form.Check // prettier-ignore
                                     type="switch"
                                     id="custom-switch"
@@ -426,7 +406,7 @@ function Userinput(props) {
                                         modelChoice.current = "gpt4"
                                     }}
                                 />
-                            </Form>
+                            </Form>*/}
 
                         </div>
                     ))}
@@ -643,7 +623,7 @@ function DiaryView(props) {
                         width: '100%',
                     }}>
                         <Card.Body>
-                            <Card.Title>오늘의 마음챙김 다이어리</Card.Title>
+                            <Card.Title>현재까지 대화내용 요약 (in English)</Card.Title>
                             <Card.Subtitle className="mb-2 text-muted">
                             </Card.Subtitle>
                             <Card.Text>
@@ -662,7 +642,7 @@ function DiaryView(props) {
                                 onClick={() => {
                                     props.setModalShow(true)
                                 }}
-                            >📝 일기 저장하고 종료하기</Button>
+                            >📝 저장하고 종료하기</Button>
                         </div>
                         <div className="footer"></div>
                     </Col>
@@ -690,5 +670,30 @@ function Loading() {
         </Row>
     </div>)
 }
+
+function MyVerticallyCenteredModal(props) {
+        return (<Modal
+            {...props}
+            size="lg"
+            aria-labelledby="contained-modal-title-vcenter"
+            centered
+        >
+            <Modal.Header closeButton>
+                <Modal.Title id="contained-modal-title-vcenter">
+                    마음챙김 다이어리를 종료하시겠어요?
+                </Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <h5>아래와 같이 오늘의 다이어리가 저장됩니다 📝</h5>
+                <p>
+                    {props.diary}
+                </p>
+            </Modal.Body>
+            <Modal.Footer>
+                <Button onClick={() => props.setModalShow(false)}>더 작성하기</Button>
+                <Button onClick={props.handleClick}>저장하고 종료하기</Button>
+            </Modal.Footer>
+        </Modal>);
+    }
 
 export default Writing

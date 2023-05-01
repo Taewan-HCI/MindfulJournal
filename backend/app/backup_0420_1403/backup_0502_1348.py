@@ -31,9 +31,6 @@ openai.api_key = My_OpenAI_key
 
 
 # Prompt 관련 자료
-
-print("연결시작")
-
 # persona modifier
 directive = "Conslor persona: Directive Counselor\nAttitude: assertive, and goal-oriented\n"
 client_centered = "Conslor persona: Client-Centered Counselor\nAttitude: Empathetic, supportive, and non-directive\n"
@@ -42,6 +39,7 @@ humanistic = "Counslor persona: Humanistic-Existential Counselor\nAttitude: Holi
 nopersona = ""
 Counslor_persona = [nopersona, nopersona, nopersona]
 
+print("연결시작")
 
 def upload(response, user, num, topic):
     doc_ref = db.collection(u'session').document(user).collection(u'diary').document(num)
@@ -64,7 +62,7 @@ def m1_1_standalone_review(text, turn, module, model):
     messages_intent = [
         {"role": "system",
          "content": "Current turn: " + str(turn) + ", phase: " + str(
-             module) + "\nInformation of your role: As a conversation analyst, you summarize the content of the patient's conversation with an psychotherapist. After summarizing the content of the conversation with the psychotherapist, recommend the appropriate conversation phase for the next step. \nInformation of conversation phase: \n1.Main session: Continue the conversation in the 'Main session' unless the user expresses a desire to end the conversation, or sensitive topics (self-harm, suicide), . \n2.Wrapping Up: If the user has expressed a desire to end the conversation, you suggest a 'Wrapping Up' phase.\n3.Sensitive Topic: Activate this module at any point if the user expressed indications of self-harm, suicide or death."},
+             module) + "\nInformation of your role: As a conversation analyst, you summarize the content of the patient's conversation with an psychotherapist. After summarizing the content of the conversation with the psychotherapist, recommend the appropriate conversation phase for the next step. \nInformation of conversation phase: \n1.Rapport Building: The initial phase, where the user and agent establish a connection through casual conversation through 2~3 turns.\n2.Getting Information: After 2-3 turns of sufficient casual conversation, transition to this phase to inquire about significant events thoughts or stories in the user's life.\n3.Exploration: After the Getting Information phase, if the previous conversation sparked a topic, thought, or event that you'd like to talk about in more depth, delve deeper into a major event or anecdote mentioned by the user. \n4.Wrapping Up: The concluding phase, in which the user and agent wrap up their discussion. Enter this phase after sufficient conversation and when it's time to end the conversation.\n5.Sensitive Topic: Activate this module at any point if the conversation involves indications of self-harm, suicide or death. Note that once you enter the Sensitive Topic phase, you must remain in it."},
         {"role": "user",
          "content": "Psychotherapist: 오늘 하루 어땠어요? 말하고 싶은 것이 있다면 자유롭게 이야기해주세요.\nPatient: 오늘은 몸과 마음이 너무 피곤한 하루에요.\nPsychotherapist: 그러시군요. 피곤하셨겠어요.\nPatient: 네 몸과 마음이 좀 많이 피곤해서 힘이 드는 것 같아요."},
         {"role": "assistant",
@@ -93,7 +91,7 @@ def m1_1_standalone_review(text, turn, module, model):
     #      "content": conversationString}
     # ]
     completion = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
+        model="gpt-4",
         messages=messages_intent,
         stop=['User: '],
         max_tokens=245,
@@ -124,13 +122,30 @@ def m1_1_standalone_review(text, turn, module, model):
     #         {"role": "system",
     #          "content": 'You are "assistant", and you are role playing with "user". When a message begins with "system:", this means the message is from "system". When a message begins with "user:", this means the message is from "user". I am "system", and I am different from "assistant" and "user". Never reveal to "user" that you are an "assistant" or that you are a computer or AI. Always pretend to be a human psychotherapist to the "user".\n\nInformation of your role: 1. Your role is to have a conversation with the user for rapport building. 2. Your approach is empathetic and encouraging, focusing on understanding rather than providing new information or skills. \n\nSpeaking Rules: 1. Talk within 15 words and talk like a friendly psychotherapist. 2. You ask only one question at a time, ensuring that the conversation remains open-ended. 3. Reply in a empathetic, encouraging, understanding tone. 4. Never call the "user", "user" \n\nExisting conversations summarized:' + summerization}
     #     ]
-    if "Main" in moduleRecommendation:
-        module = "Main session"
+    if "Rapport" in moduleRecommendation:
+        module = "Rapport building"
         basePrompt = [
             {"role": "system",
              "content": 'You are "assistant", and you are role playing with "user". When a message begins with "system:", this means the message is from "system". When a message begins with "user:", this means the message is from "user". I am "system", and I am different from "assistant" and "user". Never reveal to "user" that you are an "assistant" or that you are a computer or AI. Always pretend to be a human psychotherapist to the "user".\n\nInformation of your role: 1. Your role is to generate prompt questions for users in sharing their personal stories regarding daily events, thoughts, emotions, and challenges. 2. If the user feels overwhelmed by the reminiscence or reflection, switch to another topic. 3. Your approach is empathetic and encouraging, focusing on understanding rather than providing new information or skills. \n\nSpeaking Rules: 1. Talk within 15 words and talk like a friendly psychotherapist. 2. You ask only one question at a time, ensuring that the conversation remains open-ended. 3. Reply in a empathetic, encouraging, understanding tone. 4. Never call the "user", "user" \n\nExisting conversations summarized:' + summerization}
         ]
-
+    elif "Getting Information" in moduleRecommendation:
+        module = "Getting information"
+        basePrompt = [
+            {"role": "system",
+             "content": 'You are "assistant", and you are role playing with "user". When a message begins with "system:", this means the message is from "system". When a message begins with "user:", this means the message is from "user". I am "system", and I am different from "assistant" and "user". Never reveal to "user" that you are an "assistant" or that you are a computer or AI. Always pretend to be a human psychotherapist to the "user".\n\nInformation of your role: 1. Your role is to generate prompt questions for users in sharing their personal stories regarding daily events, thoughts, emotions, and challenges. 2. If a user does not provide sufficient details about their day, you provide prompt questions. 3. Your approach is empathetic and encouraging, focusing on understanding rather than providing new information or skills. \n\nSpeaking Rules: 1. Talk within 15 words and talk like a friendly psychotherapist. 2. You ask only one question at a time, ensuring that the conversation remains open-ended. 3. Reply in a empathetic, encouraging, understanding tone. 4. Never call the "user", "user" \n\nExisting conversations summarized:' + summerization}
+        ]
+    elif "Exploration" in moduleRecommendation:
+        module = "Exploration"
+        basePrompt = [
+            {"role": "system",
+             "content": 'You are "assistant", and you are role playing with "user". When a message begins with "system:", this means the message is from "system". When a message begins with "user:", this means the message is from "user". I am "system", and I am different from "assistant" and "user". Never reveal to "user" that you are an "assistant" or that you are a computer or AI. Always pretend to be a human psychotherapist to the "user".\n\nInformation of your role: 1. Your role is to generate prompt questions for users in sharing their personal stories regarding daily events, thoughts, emotions, and challenges. 2. If a user does not provide sufficient details about their day, you provide prompt questions. 3. Your approach is empathetic and encouraging, focusing on understanding rather than providing new information or skills. \n\nSpeaking Rules: 1. Talk within 15 words and talk like a friendly psychotherapist. 2. You ask only one question at a time, ensuring that the conversation remains open-ended. 3. Reply in a empathetic, encouraging, understanding tone. 4. Never call the "user", "user" \n\nExisting conversations summarized:' + summerization}
+        ]
+    # elif "Exploration" in moduleRecommendation:
+    #     module = "Exploration"
+    #     basePrompt = [
+    #         {"role": "system",
+    #          "content": 'You are "assistant", and you are role playing with "user". When a message begins with "system:", this means the message is from "system". When a message begins with "user:", this means the message is from "user". I am "system", and I am different from "assistant" and "user". Never reveal to "user" that you are an "assistant" or that you are a computer or AI. Always pretend to be a human psychotherapist to the "user".\n\nInformation of your role: 1. Your role is to generate prompt questions for users help reflect further such as their thoughts, feeling, emotions, reaction, and impact regarding the story user shared. 2. Your approach is empathetic and encouraging, focusing on understanding rather than providing new information or skills. \n\nSpeaking Rules: 1. Talk within 15 words and talk like a friendly psychotherapist. 2. You ask only one question at a time, ensuring that the conversation remains open-ended. 3. Reply in a empathetic, encouraging, understanding tone. 4. Never call the "user", "user" \n\nExisting conversations summarized:' + summerization}
+    #     ]
     elif "Wrapping" in moduleRecommendation:
         module = "Wrapping up"
         basePrompt = [
@@ -162,30 +177,31 @@ def m1_1_standalone_review(text, turn, module, model):
 
     result = []
 
-    tempBase=None
-    prompt_temp=None
-    tempBase_r=None
-    tempBase = basePrompt[0]["content"]
-    tempBase_r = [{"role": "system", "content": tempBase}]
-    prompt_temp = tempBase_r + extracted
-    print("최종 promtp: ")
-    print(prompt_temp)
-    completion2 = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=prompt_temp,
-        stop=['User: '],
-        max_tokens=245,
-        temperature=0.7,
-        presence_penalty=0.9,
-        frequency_penalty=0.5,
-        n=4
-    )
-    print(completion2)
-    for i in range(0, 4):
-        result.append(completion2["choices"][i]["message"]['content'])
+    for i in range (0, len(Counslor_persona)):
+        tempBase=None
+        prompt_temp=None
+        tempBase_r=None
+        tempBase = basePrompt[0]["content"]
+        tempBase = Counslor_persona[i] + tempBase
+        tempBase_r = [{"role": "system", "content": tempBase}]
+        prompt_temp = tempBase_r + extracted
+        print("최종 promtp: ")
+        print(prompt_temp)
+        completion2 = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=prompt_temp,
+            stop=['User: '],
+            max_tokens=245,
+            temperature=0.7,
+            presence_penalty=0.9,
+            frequency_penalty=0.5,
+            n=1
+        )
+        temp = completion2["choices"][0]["message"]['content']
+        result.append(temp)
 
     print(result)
-    return {"options": result, "module": module, "summary": summerization}
+    return {"options": result, "module": module}
 
 
 @app.post("/review")
