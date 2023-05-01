@@ -163,6 +163,7 @@ function Writing(props) {
 
 
 
+
     // Moaal management
     function navigateToReview() {
         navigate("/list")
