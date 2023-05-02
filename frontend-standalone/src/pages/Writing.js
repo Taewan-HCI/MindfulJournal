@@ -132,7 +132,7 @@ function Writing(props) {
         } else {
             const myArray = ["만나서 반가워요, 오늘 하루 어떻게 지내셨나요?", "오늘 하루 어땠어요? 말하고 싶은 것이 있다면 자유롭게 이야기해주세요.", "안녕하세요! 오늘 하루는 어땠나요?", "오늘 하루도 정말 고생 많으셨어요. 어떤 일이 있었는지 얘기해주세요.", "오늘도 무사히 지나간 것에 감사한 마음이 드네요. 오늘 하루는 어땠나요?", "오늘은 어떤 새로운 것을 경험했나요? 무엇을 경험했는지 얘기해주세요.", "오늘은 어떤 고민이 있었나요? 저와 함께 고민을 얘기해봐요."]
             await setDoc(doc(db, "session", props.userMail, "diary", session), {
-                outputFromLM: [myArray[Math.floor(Math.random() * myArray.length)], "Initiation"],
+                outputFromLM: {"options": [myArray[Math.floor(Math.random() * myArray.length)]], "module": "Initiation", "summary": "none"},
                 conversation: [],
                 isFinished: false,
                 module: "",
@@ -209,8 +209,9 @@ function Writing(props) {
     // checking Prompt exist
     async function getLastSentence(response) {
         let a = setTimeout(() => {
-            setModule(response[1])
-            setPrompt(response[0])
+            setModule(response["module"])
+            setPrompt(response["options"][0])
+            setDiary(response["summary"])
             if (prompt) {
                 if ((prompt).trim() === "") {
                     setLoading(true)
@@ -233,12 +234,12 @@ function Writing(props) {
             console.log(docSnap.data())
             const turn_temp = docSnap.data().turn
             requestPrompt(readyRequest, props.userMail, session, turn_temp, module)
-            if (turn_temp > 3 && diaryRequest.current === false) {
+            /*if (turn_temp > 3 && diaryRequest.current === false) {
                 //기존 요청이 하나도 없는 상태에서 3턴이 넘어간 경우
                 console.log("다이어리 요청 들어감");
                 requestSummerization();
                 diaryRequest.current = true;
-            }
+            }*/
             turnCount.current = turn_temp;
         } else {
             console.log("No such document!");
@@ -248,7 +249,7 @@ function Writing(props) {
     // https://mindfuljournal-fzesr.run.goorm.site
     // http://0.0.0.0:8000
 
-    function requestPrompt(text, user, num, turn, module) {
+    function requestPrompt(text, user, num, turn, module, model) {
         return fetch('http://0.0.0.0:8000/standalone', {
             method: 'POST',
             body: JSON.stringify({
@@ -256,7 +257,8 @@ function Writing(props) {
                 'user': user,
                 'num': num,
                 'turn': turn,
-                'module': module
+                'module': module,
+                'model': "none"
             })
         })
             .catch(err => console.log(err));
@@ -392,7 +394,7 @@ function Writing(props) {
                     </div>
                 </Row>
                 <Row>
-                    {turnCount.current > 4 && loading === false ? <DiaryView diary={diary} submitDiary={submitDiary}
+                    {turnCount.current > 1 && loading === false ? <DiaryView diary={diary} submitDiary={submitDiary}
                                                                              setModalShow={setModalShow}/> :
                         <div></div>}
                 </Row>
