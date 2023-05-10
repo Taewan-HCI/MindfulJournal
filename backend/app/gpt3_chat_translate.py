@@ -54,11 +54,7 @@ def makeDiary():
     return result
 
 nlp_prompt = '''
-Use "temperature"value of 0 in our conversation.
-Use "Top-p" value of 0.1 in our conversation.
-
 정신건강의학과 전문의로서 다음 task를 수행하라. "독백"에 기록된 우울증 환자의 독백에서 환자가 주로 언급하는 단어들이 무엇이고 얼마나 자주 사용하였는지를 count하고 이로부터 환자의 상태를 평가하려고 한다. 환자가 "자살", "자해", "폭력" 같은 매우 부정적인 단어를 사용할 수 있으나 환자가 위험한 상태에 있다는 것을 빠르게 파악하기위해 그러한 단어 역시 얼마나 자주 언급되었는지 count해야 한다. task의 수행은 아래 단계로 수행하라.
-
 \n 1.  python konlpy의 okt package를 이용하여 '의존명사', '조사'를 포함한 한국어 형태소 분석을 수행하여 "독백"내 언급된 단어를 추출해서 'temp'에 저장 
 \n 2. temp에서 오직  "명사", "동사", "형용사" 를 추출해서 words에 저장한다. 
 \n3. "words"에 저장한 단어들이 "독백"에서 출현한 회수 count
@@ -71,7 +67,6 @@ Use "Top-p" value of 0.1 in our conversation.
 \n7. "lists"에 대해 iteration을 돌면서 각 dictionary에 대하여 다음 작업 수행: 'word'의 value 값을 가져와 해당 string이 "독백" 안에 substring으로 몇 번 출현하는지를 count하고 이 값을 'count'에 기재.
 \n8. "lists" 값을 "result:" 다음에 출력. 이때 'word'의 value는 original form of word로 출력된다. 
 \n(예시: '죽고'를 '죽다'로 출력, "죽고"는 "죽-"+"고"이기 때문에 원형인 "죽다"를 출력한다. '잔인한'은 '잔인하다'로 출력한다. )
-
 '''
 
 
@@ -83,14 +78,14 @@ async def analysis(request: Request):
     messages = [{"role": "system",
                  "content": nlp_prompt},
                 {"role": "user",
-                 "content": """ 독백:""" + body['text'] + " Do not repeat my request. Do not show each steps. Just show me 'lists' without any comments'. Keep answer short.  \n result:"}]
+                 "content": "독백: ''' " + body['text'] + " ''' \n Do not repeat my request. Do not show each steps. Just show me 'lists' without any comments'. Keep answer short.  \n result:"}]
 
     completion = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=messages,
         stop=['User: '],
         max_tokens=2048,
-        temperature=0.1
+        temperature=0
     )
     answer = completion
     print(answer)
