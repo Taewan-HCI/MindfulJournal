@@ -35,6 +35,7 @@ openai.api_key = My_OpenAI_key
 
 print("연결 시작")
 
+#테스트용 api
 @app.get("/")
 def makeDiary():
     messages = [{"role": "system",
@@ -65,20 +66,27 @@ nlp_prompt = '''
 \n5. "filtered_words"에서 "독백"에 출현한 빈도가 가장 많은 20개를 선택하여 "top-20"에 저장. 출현한 빈도가 같다면 '우울증 환자'와 연관된 단어를 우선으로 저장. 
 \n6. "top-20"에 저장된 단어들을 대상으로 "독백"에 출현한 빈도를 기준으로 list of dictionary 형태의 결과물을 "lists"에 저장. The dictionary는 각 단어의 출현 빈도와 단어의 sentiment를 표현하며 key로는 'word', 'count', 'sentiment'를 가짐. word의 type은 string, count의 type은 integer, sentiment의 type은 string이며 sentiment는 '긍정', '부정', '중립', '위험' 네 가지 중 하나의 string을 가짐. lists는 count에 따라 descending order로 sorting할 것.
 \n7. "lists"에 대해 iteration을 돌면서 각 dictionary에 대하여 다음 작업 수행: 'word'의 value 값을 가져와 해당 string이 "독백" 안에 substring으로 몇 번 출현하는지를 count하고 이 값을 'count'에 기재.
-\n8. "lists" 값을 "result:" 다음에 출력. 이때 'word'의 value는 original form of word로 출력된다. 
-\n(예시: '죽고'를 '죽다'로 출력, "죽고"는 "죽-"+"고"이기 때문에 원형인 "죽다"를 출력한다. '잔인한'은 '잔인하다'로 출력한다. )
+\n8. "lists" 값만을 "result:" 다음에 출력. 이때 'word'의 value는 original form of word로 출력된다. 
+\n(예시: '죽고'를 '죽다'로 출력, "죽고"는 "죽-"+"고"이기 때문에 원형인 "죽다"를 출력한다. '잔인한'은 '잔인하다'로 출력한다. 
+\n Do not repeat my request. Do not show each steps. Just show me value of 'lists' without any comments'. Keep answer short. 
+)
 '''
 
+주요품사 = ['NNG', 'NNP', 'VV', 'VA', 'XR', 'SL']
+용언품사 = ['VV', 'VA']
+stopwords = ['삭제할', '어휘', '모음', '리스트']
 
 
+#nlp 분석 API 
 @app.post("/gpt")
 async def analysis(request: Request):
     start_time = time.time()
     body = await request.json()
+    diary = body['text']
     messages = [{"role": "system",
                  "content": nlp_prompt},
                 {"role": "user",
-                 "content": "독백: ''' " + body['text'] + " ''' \n Do not repeat my request. Do not show each steps. Just show me 'lists' without any comments'. Keep answer short.  \n result:"}]
+                 "content": "독백: ''' " + diary + " '''  \n result:"}]
 
     completion = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
@@ -88,31 +96,34 @@ async def analysis(request: Request):
         temperature=0
     )
     answer = completion
-    print(answer)
     result = answer["choices"][0]["message"]['content']
     end_time = time.time()
     print(f"{end_time - start_time:.5f} sec")
-    print(result)
-    return result
+    
+    json_data = json.loads(result.replace("'", "\""))
+    print(json_data)
+    return_json = []
+    
+    for j in json_data : 
+        t = kiwi.tokenize(j['word'])
+        if t[0].tag in 주요품사:
+            #꼭 0번이 아닐수도 있음...!!
+            return_json.append(j)
 
+    return return_json
 
-주요품사 = ['NNG', 'NNP', 'VV', 'VA', 'XR', 'SL']
-용언품사 = ['VV', 'VA']
-stopwords = ['삭제할', '어휘', '모음', '리스트']
-
-
-'''주요품사의 형태소만 리스트 형식으로 수집한다.'''
+#형태소 분석 결과를 정리해서 리턴하는 함수
 def read_documents(result):
     # 등장하는 형태소를 list 형식으로 수집
-    문서 = []
+    doc = []
     for token in result: 
         if token.tag in 주요품사: 
-            필터링결과 = [(token.form, token.tag)]
-            필터링결과2 = [form+"다" if tag in 용언품사 else form for (form, tag) in 필터링결과]
-            문서.extend(필터링결과2)
-    return 문서
+            filtered_result = [(token.form, token.tag)]
+            revised_filtered_result = [form+"다" if tag in 용언품사 else form for (form, tag) in filtered_result]
+            doc.extend(revised_filtered_result)
+    return doc
 
-    
+#kiwi 형태소분석기를 통해 형태소 분석 후 빈도를 json array로 리턴하는 Api
 @app.post("/kiwi")
 async def kiwi_nalysis(request: Request):
     start_time = time.time()
@@ -131,46 +142,7 @@ async def kiwi_nalysis(request: Request):
     return result
 
     
-
-
-@app.post("/summary")
-async def analysis(request: Request):
-    start_time = time.time()
-    body = await request.json()
-    messages = [{"role": "system",
-                 "content": 
-'''I'm acting as a Wikipedia page. I will provide a summary of a topic based on a user's diary entry. The summary will be informative and factual, encompassing the most crucial elements of the topic. It will consist of two parts: a description of the event that happened to the user, and an overview of the user's emotions, ideas, feelings, reactions, and thoughts related to the event. Each part should not exceed 30 words. after making the answer, providing translated in Korean version. (only translated one) Do not to repeat user's words, any do NOT provide any comments without answer.
-
-here is an example.
-diary: 오늘 나는 날씨가 우중충해서 기분이 나빴어. 그런데 그만 지하철을 타러 가다 돌부리에 걸려 넘어졌어. 무릎이 까지고 발목을 접질린 것 같아 제대로 걷지를 못하겠더라. 그 와중에 나를 보고 수군대는 할아버지가 너무 야속했어. 그래서 자리에 엎어져서 대성통곡했는데, 길 건너편에서 나를 물끄러미 보던 아주머니가 달려와서 나를 부축해줬어. 고마웠지만 너무 부끄럽더라.
-
-my output:
-Event
-날씨가 좋지 않았다. 지하철을 타러 가다 돌부리에 걸려 넘어졌다. 자리에 엎어져서 울었다. 그리고 건너편에 있던 아주머니가 와서 유저를 부축했다.
-
-Emotion/Thought
-사용자는 날씨가 좋지 않아서 슬펐다. 할아버지가 야속했다. 아주머니에게 고마움을 느꼈다.
-'''
-                },
-                {"role": "user",
-                 "content": "here is a diary" + body['text']}]
-
-    completion = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=messages,
-        stop=['User: '],
-        max_tokens=245,
-    )
-    answer = completion
-    print(answer)
-    result = answer["choices"][0]["message"]['content']
-    
-    end_time = time.time()
-    print(f"{end_time - start_time:.5f} sec")
-    print(result)
-    return result
-
-
+#konlpy의 okt 형태소분석기를 통해 형태소 분석 후 빈도를 json array로 리턴하는 Api
 @app.post("/konlpy")
 async def okt_analysis(request: Request):
     start_time = time.time()
@@ -207,6 +179,46 @@ async def okt_analysis(request: Request):
 
     # Print the JSON output
     return json_output
+
+
+
+#넣은 글을 Event, emotion/thought로 분리해서 요약해주는 API
+@app.post("/summary")
+async def analysis(request: Request):
+    start_time = time.time()
+    body = await request.json()
+    messages = [{"role": "system",
+                 "content": 
+'''I'm acting as a Wikipedia page. I will provide a summary of a topic based on a user's diary entry. The summary will be informative and factual, encompassing the most crucial elements of the topic. It will consist of two parts: a description of the event that happened to the user, and an overview of the user's emotions, ideas, feelings, reactions, and thoughts related to the event. Each part should not exceed 30 words. after making the answer, providing translated in Korean version. (only translated one) Do not to repeat user's words, any do NOT provide any comments without answer.
+
+here is an example.
+diary: 오늘 나는 날씨가 우중충해서 기분이 나빴어. 그런데 그만 지하철을 타러 가다 돌부리에 걸려 넘어졌어. 무릎이 까지고 발목을 접질린 것 같아 제대로 걷지를 못하겠더라. 그 와중에 나를 보고 수군대는 할아버지가 너무 야속했어. 그래서 자리에 엎어져서 대성통곡했는데, 길 건너편에서 나를 물끄러미 보던 아주머니가 달려와서 나를 부축해줬어. 고마웠지만 너무 부끄럽더라.
+
+my output:
+Event
+날씨가 좋지 않았다. 지하철을 타러 가다 돌부리에 걸려 넘어졌다. 자리에 엎어져서 울었다. 그리고 건너편에 있던 아주머니가 와서 유저를 부축했다.
+
+Emotion/Thought
+사용자는 날씨가 좋지 않아서 슬펐다. 할아버지가 야속했다. 아주머니에게 고마움을 느꼈다.
+'''
+                },
+                {"role": "user",
+                 "content": "here is a diary" + body['text']}]
+
+    completion = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=messages,
+        stop=['User: '],
+        max_tokens=245,
+    )
+    answer = completion
+    print(answer)
+    result = answer["choices"][0]["message"]['content']
+    
+    end_time = time.time()
+    print(f"{end_time - start_time:.5f} sec")
+    print(result)
+    return result
 
 
 
