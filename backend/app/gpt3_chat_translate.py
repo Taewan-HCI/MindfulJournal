@@ -25,7 +25,7 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
-print("연결시작_번역버전")
+print("코드 실행 시작")
 
 # 구글 Firebase인증 및 openAI api key 설정
 load_dotenv()
@@ -33,7 +33,7 @@ gptapi = os.getenv("gptkey")
 My_OpenAI_key = gptapi
 openai.api_key = My_OpenAI_key
 
-print("연결시작")
+print("연결 시작")
 
 @app.get("/")
 def makeDiary():
@@ -53,15 +53,37 @@ def makeDiary():
     result = answer["choices"][0]["message"]['content']
     return result
 
+nlp_prompt = '''
+Use "temperature"value of 0 in our conversation.
+Use "Top-p" value of 0.1 in our conversation.
+
+정신건강의학과 전문의로서 다음 task를 수행하라. "독백"에 기록된 우울증 환자의 독백에서 환자가 주로 언급하는 단어들이 무엇이고 얼마나 자주 사용하였는지를 count하고 이로부터 환자의 상태를 평가하려고 한다. 환자가 "자살", "자해", "폭력" 같은 매우 부정적인 단어를 사용할 수 있으나 환자가 위험한 상태에 있다는 것을 빠르게 파악하기위해 그러한 단어 역시 얼마나 자주 언급되었는지 count해야 한다. task의 수행은 아래 단계로 수행하라.
+
+\n 1.  python konlpy의 okt package를 이용하여 '의존명사', '조사'를 포함한 한국어 형태소 분석을 수행하여 "독백"내 언급된 단어를 추출해서 'temp'에 저장 
+\n 2. temp에서 오직  "명사", "동사", "형용사" 를 추출해서 words에 저장한다. 
+\n3. "words"에 저장한 단어들이 "독백"에서 출현한 회수 count
+\n4. "words"에 저장한 단어들 중 다음 a, b, c 규칙에 모두 해당하는 단어를  "filtered_words"에 저장한다.
+  \na.  "나", "것", "뿐", "은" 중 하나가 아니다.
+  \nb. '조사',  '의존명사, "인칭대명사"' 또는 '대명사'가 아니다.
+  \nc.  어떤 것을 지칭하지 않는다. 
+\n5. "filtered_words"에서 "독백"에 출현한 빈도가 가장 많은 20개를 선택하여 "top-20"에 저장. 출현한 빈도가 같다면 '우울증 환자'와 연관된 단어를 우선으로 저장. 
+\n6. "top-20"에 저장된 단어들을 대상으로 "독백"에 출현한 빈도를 기준으로 list of dictionary 형태의 결과물을 "lists"에 저장. The dictionary는 각 단어의 출현 빈도와 단어의 sentiment를 표현하며 key로는 'word', 'count', 'sentiment'를 가짐. word의 type은 string, count의 type은 integer, sentiment의 type은 string이며 sentiment는 '긍정', '부정', '중립', '위험' 네 가지 중 하나의 string을 가짐. lists는 count에 따라 descending order로 sorting할 것.
+\n7. "lists"에 대해 iteration을 돌면서 각 dictionary에 대하여 다음 작업 수행: 'word'의 value 값을 가져와 해당 string이 "독백" 안에 substring으로 몇 번 출현하는지를 count하고 이 값을 'count'에 기재.
+\n8. "lists" 값을 "result:" 다음에 출력. 이때 'word'의 value는 original form of word로 출력된다. 
+\n(예시: '죽고'를 '죽다'로 출력, "죽고"는 "죽-"+"고"이기 때문에 원형인 "죽다"를 출력한다. '잔인한'은 '잔인하다'로 출력한다. )
+
+'''
+
+
 
 @app.post("/gpt")
 async def analysis(request: Request):
     start_time = time.time()
     body = await request.json()
     messages = [{"role": "system",
-                 "content": """You must not repeat my word. Before starting the morphological analysis, please use normalized one.  \n You must contain a 'JOSA' analysis in the Korean morphological analysis. for morphological alaysis, please use okt package.  \n After the analysis, please filter the result only the nouns, verbs, and adjectives, then sort them in decreasing frequency order. \nFinally, provide me the output in a JSON array format that includes the word and its frequency, as '{text: word, value: frequency}'. \n only send me a entire result array without any comments.\n if there are many results, only send me TOP 20. \n Please provide as much information and elaboration as possible, without any truncation or '...' in the response. Be thorough and comprehensive in your answer.  """},
+                 "content": nlp_prompt},
                 {"role": "user",
-                 "content": body['text']}]
+                 "content": """ 독백:""" + body['text'] + " Do not repeat my request. Do not show each steps. Just show me 'lists' without any comments'. Keep answer short.  \n result:"}]
 
     completion = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
