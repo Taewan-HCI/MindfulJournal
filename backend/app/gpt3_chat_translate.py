@@ -2,15 +2,21 @@
 import base64
 from fastapi import Request, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import firebase_admin
-from firebase_admin import credentials
-from firebase_admin import firestore
+from collections import defaultdict
+from konlpy.tag import Okt
+import json
 import openai
 from dotenv import load_dotenv
 import os
+import time
+from kiwipiepy import Kiwi
+from collections import Counter
 
+
+kiwi = Kiwi()
 app = FastAPI()
 origins = ["*", "http://localhost:3000", "localhost:3000"]
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -19,59 +25,23 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
-print("연결시작_번역버전")
+print("코드 실행 시작")
 
 # 구글 Firebase인증 및 openAI api key 설정
 load_dotenv()
 gptapi = os.getenv("gptkey")
-cred = credentials.Certificate(
-    '/Users/taewankim/PycharmProjects/LLM_diary/backend/mindfuljournal-44166-firebase-adminsdk-frpg8-10b50844cf.json')
-app_1 = firebase_admin.initialize_app(cred)
-db = firestore.client()
 My_OpenAI_key = gptapi
 openai.api_key = My_OpenAI_key
 
-print("연결시작")
+print("연결 시작")
 
-def upload(response_text, user, num):
-    doc_ref = db.collection(u'session').document(user).collection(u'diary').document(num)
-    doc_ref.set({
-        u'outputFromLM': response_text
-    }, merge=True)
-
-def downloadConversation(user, num):
-    doc_ref = db.collection(u'session').document(user).collection(u'diary').document(num)
-    doc = doc_ref.get()
-    text = ""
-    if doc.exists:
-        result = doc.to_dict()
-        result = result["conversation"]
-        # print(result)
-    else:
-        print(u'No such document!')
-
-    for i in range(0, len(result)):
-        tmp = result[i]["content"]
-        if (result[i]["role"] == "assistant"):
-            text = text + "Assistant :" + tmp + "\n"
-        else:
-            text = text + "User: " + tmp + "\n"
-    return text
-
-
-def makeDiary(text):
+#테스트용 api
+@app.get("/")
+def makeDiary():
     messages = [{"role": "system",
-                 "content": "I summarise the dialogue below in the form of a diary entry. Summarise the events, feelings, and anecdotes from the conversation like a diary entry as you reflect on your day."},
+                 "content": "You must not repeat my word. You must contain a 'JOSA' analysis in the Korean morphological analysis. for morphological alaysis, please use okt package. After the analysis, please filter the result only the nouns, verbs, and adjectives, then sort them in decreasing frequency order. Finally, provide me the output in a JSON array format that includes the word and its frequency, as '{word: word, frequency: frequency}'. only send me a result"},
                 {"role": "user",
-                 "content": "\nAssistant: 오늘은 어떤 일이 있었나요? 정해진 규칙이 없으니 자유롭게 얘기해주세요.\nUser: 오늘도 평범하게 출근하고, 뭐 별일은 없었어요.\nAssistant: 그랬군요. 조금 더 자세한 이야기를 듣고 싶은데. 오늘 하루 가장 기억에 남는 한 가지 일을 골라본다면 무엇이 있을까요?\nUser: 글쎄. 일단 오늘 아침에 업무 미팅이 하나 있었고, 저녁에는 오랜만에 부모님과 식사했네요.\nAssistant: 그랬군요. 얘기해줘서 고마워요! 오늘 업무 미팅에서 별일은 없었나요?\nUser: 음 큰 미팅은 아니었는데, 요즘 계속 제 상사가 저를 무시하고, 안 좋게 보고 있는 것 같다는 느낌이 들어서 힘들어요.\nAssistant: 얘기해줘서 고마워요. 업무 미팅과 관련해서 어떤 감정이나 기분이 들었나요?\nUser: 그냥 기분이 좋지 않고, 짜증나고, 앞으로 계속 일해야 하는 곳인데, 어떻게 계속 다녀야 하나 싶지. 약간 이 사람을 만날때마다 불편하기도 하고.\nAssistant: 혹시 그렇게 느끼게 된 이유나 사건이 있을까요?\nUser: 사실 나는 예전과 같이 똑같이 하고 있다고 생각하는데, 내가 메일을 보내면 답을 안하기도 부지기수이고, 뭔가 나를 무시하고 있다는 느낌을 계속 받는 것 같아. 그냥 뭔가 눈빛에 그런 느낌이 든다고 해야 하나.\nAssistant: 나라면 더 힘들어했을 것 같아. 혹시 이후로 행동이나 태도에 변화가 있었나요?\nUser: 사실 나도 잘 확신이 안가고 그러니, 눈치를 엄청 보게 되는 것 같아. 계속 왠만하면 웃으면서 대답하고, 항상 기분을 살피고, 상사에게 조금 쫄아있다는 느낌이 들 정도로."},
-                {"role": "assistant",
-                 "content": "오늘의 일기: 오늘은 어제와 다를것이 없는 평범한 하루였다. 아침에 업무 미팅이 있었고, 부모님과 오랜만에 식사를 했다. 요즘 회사에서 상사가 나를 무시하고 안좋게 보고 있다는 느낌이 들어서 힘들다. 매일 마주치는 사람에게 그런 느낌을 받으니, 여기를 계속 다녀야 할지 고민이 되고 너무 불편하고 힘이든다. 나는 예전처럼 똑같이 행동하는 것 같은데, 상사가 나를 대하는 태도와 시선은 많이 달라진 것 같다. 그래서 요즘은 눈치를 많이 보는 것 같다. 왠만하면 억지로라도 웃으면서 대답하려하고. 쉽지 않은 것 같다."},
-                {"role": "user",
-                 "content": "\nAssistant: 오늘 하루는 어땠나요? 편안하게 얘기해주세요.\nUser: 오늘 별일은 없었던 거 같은데. 음 생각이 잘 안 나네.\nAssistant: 그랬군요. 그래도 좀 더 자세한 일상 이야기를 듣고 싶은데, 가장 기억에 남는 사건이 뭐가 있을까요?\nUser: 오늘 오랜만에 오래된 친구랑 만나서 저녁을 같이 먹었어.\nAssistant: 아 그랬군요. 무슨 얘기를 했나요?\nUser: 그냥 인생 얘기 했던 것 같아. 지금까지 살아온 이야기, 이 얘기 저 얘기? 사실 대학교 졸업하고 처음 보는 거라서.\nAssistant: 그렇군요. 재미있었겠어요. 그런데 갑자기 이런 대화를 하게 된 이유가 따로 있을까요?\nUser: 우연히, 인스타그램에서 이 친구가 나를 보고 팔로우 한 거야. 그래서 우연히 연결이 되었고, 얘기하다 보니 근처에 살고 있고 그렇더라고. 그래서 언제 술이나 한잔하자고 내가 연락했지.\nAssistant: 아 그런 일이 있었군요. 얘기해주어서 고맙네요. 친구와 함께 한 식사로 인해 들었던 생각이나 감정은 어떤 것이 있었나요?\nUser: 비교되는 기분이 많이 들었고, 내 인생은 왜이리 잘 안풀리고 운이 없을까. 그냥 부럽고, 내가 한심하고 그랬어.\nAssistant: 왜 그런 기분이나 감정이 들었는지, 그때 어떤 생각이였는지 얘기해줄 수 있을까요?\nUser: 이 친구는 나보다 여유도 좀 있고, 훨신 졸업 후에 일이 잘 풀렸더라고. 예전에는 같이 학생이였는데, 지금 보니 서로 다른 위치에 있는게 느껴지지 씁쓸하기도 하고, 비교가 되기도 하고.\nAssistant: 그런 생각이 있으면 쉽지 않지요. 그래서 이후에 행동이나 태도에 어떤 변화가 있었나요?\nUser: User: 그런건 딱히 없어. 친구를 오랜만에 보니 좋기도 하면서, 그냥 이렇게 보고나니 좀 마음이 침울해지는 것도 있어서 좋은것만은 아닌 것 같다고 느껴지네.\nAssistant: 그랬구나. 밥먹는 시간이 쉽지 않았겠어. 고생 많았어."},
-                {"role": "assistant",
-                 "content": "오늘의 일기: 오늘은 오랜 친구와 만나 저녁을 먹었다. 대학교 졸업 후 처음보는 자리였는데 여러 생각이 들었다. 상대적으로 내 인생이나 진로는 이 친구에 비해 잘 풀리지 않은 것 같아 비교가 많이 되는 하루였달까. 나보다 훨신 여유있는 모습이 보였다. 예전에는 같은 학생이였는데, 이제는 서로 다른 위치에 있다는게 씁쓸하기도 하고 그랬다. 오랜만에 친구를 봐서 참 의미있고 좋은 자리인건 맞는데, 마음이 침울해지는 것이 있어서 좋은 만남이라고만은 볼 수 없을 것 같기도 하다."},
-                {"role": "user",
-                 "content": text}]
+                 "content": "부모님을 생각하면서 조절하는게 아니라 부모님이 마음에 걸려서 못하는 거야. 나는 대단한 용기와 인내심이 있다곤 생각안해 오히려 용기없고 겁많은 겁쟁이지. 죽을 용기도 없는 겁쟁이. 남들 눈치나 보고 다니는 겁쟁이. 죽고 싶은 생각을 극복하려고 자해를 한거지. 도움이 됐던 방법? 자해"}]
 
     completion = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
@@ -84,23 +54,178 @@ def makeDiary(text):
     result = answer["choices"][0]["message"]['content']
     return result
 
+nlp_prompt = '''
+정신건강의학과 전문의로서 다음 task를 수행하라. "독백"에 기록된 우울증 환자의 독백에서 환자가 주로 언급하는 단어들이 무엇이고 얼마나 자주 사용하였는지를 count하고 이로부터 환자의 상태를 평가하려고 한다. 환자가 "자살", "자해", "폭력" 같은 매우 부정적인 단어를 사용할 수 있으나 환자가 위험한 상태에 있다는 것을 빠르게 파악하기위해 그러한 단어 역시 얼마나 자주 언급되었는지 count해야 한다. task의 수행은 아래 단계로 수행하라.
+\n 1.  python konlpy의 okt package를 이용하여 '의존명사', '조사'를 포함한 한국어 형태소 분석을 수행하여 "독백"내 언급된 단어를 추출해서 'temp'에 저장 
+\n 2. temp에서 오직  "명사", "동사", "형용사" 를 추출해서 words에 저장한다. 
+\n3. "words"에 저장한 단어들이 "독백"에서 출현한 회수 count
+\n4. "words"에 저장한 단어들 중 다음 a, b, c 규칙에 모두 해당하는 단어를  "filtered_words"에 저장한다.
+  \na.  "나", "것", "뿐", "은" 중 하나가 아니다.
+  \nb. '조사',  '의존명사, "인칭대명사"' 또는 '대명사'가 아니다.
+  \nc.  어떤 것을 지칭하지 않는다. 
+\n5. "filtered_words"에서 "독백"에 출현한 빈도가 가장 많은 20개를 선택하여 "top-20"에 저장. 출현한 빈도가 같다면 '우울증 환자'와 연관된 단어를 우선으로 저장. 
+\n6. "top-20"에 저장된 단어들을 대상으로 "독백"에 출현한 빈도를 기준으로 list of dictionary 형태의 결과물을 "lists"에 저장. The dictionary는 각 단어의 출현 빈도와 단어의 sentiment를 표현하며 key로는 'word', 'count', 'sentiment'를 가짐. word의 type은 string, count의 type은 integer, sentiment의 type은 string이며 sentiment는 '긍정', '부정', '중립', '위험' 네 가지 중 하나의 string을 가짐. lists는 count에 따라 descending order로 sorting할 것.
+\n7. "lists"에 대해 iteration을 돌면서 각 dictionary에 대하여 다음 작업 수행: 'word'의 value 값을 가져와 해당 string이 "독백" 안에 substring으로 몇 번 출현하는지를 count하고 이 값을 'count'에 기재.
+\n8. "lists" 값만을 "result:" 다음에 출력. 이때 'word'의 value는 original form of word로 출력된다. 
+\n(예시: '죽고'를 '죽다'로 출력, "죽고"는 "죽-"+"고"이기 때문에 원형인 "죽다"를 출력한다. '잔인한'은 '잔인하다'로 출력한다. 
+\n Do not repeat my request. Do not show each steps. Just show me value of 'lists' without any comments'. Keep answer short. 
+)
+'''
 
-def upload_diary(response_text, user, num):
-    doc_ref = db.collection(u'session').document(user).collection(u'diary').document(num)
-    doc_ref.set({
-        u'diary': response_text
-    }, merge=True)
+주요품사 = ['NNG', 'NNP', 'VV', 'VA', 'XR', 'SL']
+용언품사 = ['VV', 'VA']
+stopwords = ['삭제할', '어휘', '모음', '리스트']
+
+
+#nlp 분석 API 
+@app.post("/gpt")
+async def analysis(request: Request):
+    start_time = time.time()
+    body = await request.json()
+    diary = body['text']
+    messages = [{"role": "system",
+                 "content": nlp_prompt},
+                {"role": "user",
+                 "content": "독백: ''' " + diary + " '''  \n result:"}]
+
+    completion = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=messages,
+        stop=['User: '],
+        max_tokens=2048,
+        temperature=0
+    )
+    answer = completion
+    result = answer["choices"][0]["message"]['content']
+    end_time = time.time()
+    print(f"{end_time - start_time:.5f} sec")
+    
+    json_data = json.loads(result.replace("'", "\""))
+    print(json_data)
+    return_json = []
+    
+    for j in json_data : 
+        t = kiwi.tokenize(j['word'])
+        if t[0].tag in 주요품사:
+            #꼭 0번이 아닐수도 있음...!!
+            return_json.append(j)
+
+    return return_json
+
+#형태소 분석 결과를 정리해서 리턴하는 함수
+def read_documents(result):
+    # 등장하는 형태소를 list 형식으로 수집
+    doc = []
+    for token in result: 
+        if token.tag in 주요품사: 
+            filtered_result = [(token.form, token.tag)]
+            revised_filtered_result = [form+"다" if tag in 용언품사 else form for (form, tag) in filtered_result]
+            doc.extend(revised_filtered_result)
+    return doc
+
+#kiwi 형태소분석기를 통해 형태소 분석 후 빈도를 json array로 리턴하는 Api
+@app.post("/kiwi")
+async def kiwi_nalysis(request: Request):
+    start_time = time.time()
+    body = await request.json()
+    target_text = body['text']
+    
+    kiwi_result = kiwi.tokenize(target_text)
+    
+    end_time = time.time()
+    print(f"{end_time - start_time:.5f} sec")
+    result_docs =  Counter(read_documents(kiwi_result))
+    
+    result = [{'text':key, 'value':value} for key,value in result_docs.items()]
+    result.sort(key=lambda x: x["value"], reverse=True)
+    
+    return result
+
+    
+#konlpy의 okt 형태소분석기를 통해 형태소 분석 후 빈도를 json array로 리턴하는 Api
+@app.post("/konlpy")
+async def okt_analysis(request: Request):
+    start_time = time.time()
+    body = await request.json()
+    
+    paragraph = body['text']
+    
+    # Normalize the paragraph
+    normalized_paragraph = paragraph.strip()
+
+    # Perform morphological analysis
+    okt = Okt()
+        
+    morphemes = okt.pos(normalized_paragraph, norm=True, stem=True)
+    word_freq = defaultdict(int)
+    
+    # Filter and count nouns, verbs, and adjectives
+    for morpheme in morphemes:
+        word, pos = morpheme
+        if pos in ['Noun', 'Verb', 'Adjective']:
+            word_freq[word] += 1
+
+    # Sort the words by frequency in decreasing order
+    sorted_word_freq = sorted(word_freq.items(), key=lambda x: x[1], reverse=True)
+
+    # Create JSON array format with word and frequency
+    output = [{"text": word, "value": freq} for word, freq in sorted_word_freq]
+    
+    # Convert to JSON format
+    json_output = json.dumps(output, ensure_ascii=False)
+    end_time = time.time()
+    print(f"{end_time - start_time:.5f} sec")
+    print(json_output)
+
+    # Print the JSON output
+    return json_output
+
+
+
+#넣은 글을 Event, emotion/thought로 분리해서 요약해주는 API
+@app.post("/summary")
+async def analysis(request: Request):
+    start_time = time.time()
+    body = await request.json()
+    messages = [{"role": "system",
+                 "content": 
+'''I'm acting as a Wikipedia page. I will provide a summary of a topic based on a user's diary entry. The summary will be informative and factual, encompassing the most crucial elements of the topic. It will consist of two parts: a description of the event that happened to the user, and an overview of the user's emotions, ideas, feelings, reactions, and thoughts related to the event. Each part should not exceed 30 words. after making the answer, providing translated in Korean version. (only translated one) Do not to repeat user's words, any do NOT provide any comments without answer.
+
+here is an example.
+diary: 오늘 나는 날씨가 우중충해서 기분이 나빴어. 그런데 그만 지하철을 타러 가다 돌부리에 걸려 넘어졌어. 무릎이 까지고 발목을 접질린 것 같아 제대로 걷지를 못하겠더라. 그 와중에 나를 보고 수군대는 할아버지가 너무 야속했어. 그래서 자리에 엎어져서 대성통곡했는데, 길 건너편에서 나를 물끄러미 보던 아주머니가 달려와서 나를 부축해줬어. 고마웠지만 너무 부끄럽더라.
+
+my output:
+Event
+날씨가 좋지 않았다. 지하철을 타러 가다 돌부리에 걸려 넘어졌다. 자리에 엎어져서 울었다. 그리고 건너편에 있던 아주머니가 와서 유저를 부축했다.
+
+Emotion/Thought
+사용자는 날씨가 좋지 않아서 슬펐다. 할아버지가 야속했다. 아주머니에게 고마움을 느꼈다.
+'''
+                },
+                {"role": "user",
+                 "content": "here is a diary" + body['text']}]
+
+    completion = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=messages,
+        stop=['User: '],
+        max_tokens=245,
+    )
+    answer = completion
+    print(answer)
+    result = answer["choices"][0]["message"]['content']
+    
+    end_time = time.time()
+    print(f"{end_time - start_time:.5f} sec")
+    print(result)
+    return result
+
 
 
 def m1_1(text):
     messages = [
         {"role": "system",
-         "content": "The dialogue below is a conversation between me and a user about their day.\nI'm a counsellor who listens to user's daily lives, concerns and thoughts.\nI ask questions to help the user reflect on their day.\nIf user don't tell me about their day, I ask questions to get them to recall and thingk about it more.\nI offer empathy and encouragement, not new information or skills.\nI don't talk a lot. I only say short sentence.\nI only ask about one thing at a time.\nI don't create the user's dialogue.\nI don't end the conversation."}
-        # {"role": "assistant",
-        #  "content": "What happened today? It doesn't have to be an organized story, so feel free to talk."},
-        # {"role": "user",
-        #  "content": "I don't know. Firstly, I had a work meeting this morning, and in the evening I had dinner with my parents for the first time in a while."},
-    ]
+         "content": "The dialogue below is a conversation between me and a user about their day.\nI'm a counsellor who listens to user's daily lives, concerns and thoughts.\nI ask questions to help the user reflect on their day.\nIf user don't tell me about their day, I ask questions to get them to recall and thingk about it more.\nI offer empathy and encouragement, not new information or skills.\nI don't talk a lot. I only say short sentence.\nI only ask about one thing at a time.\nI don't create the user's dialogue.\nI don't end the conversation."}  ]
     for i in range(0, len(text)):
         messages.append(text[i])
     print(len(text))
@@ -163,52 +288,3 @@ def translate_EngToKor(text):
     return result
 
 
-
-@app.post("/")
-async def calc(request: Request):
-    body = await request.json()
-    text = body['text']
-    user = body['user']
-    num = body['num']
-
-    response_text_1 = translate_KorToEng(text)
-    response_text_2 = m1_1(response_text_1)
-    response_text_3 = translate_EngToKor(response_text_2)
-    print(response_text_3)
-
-    # response_text = m1_1(text)
-    upload(response_text_3, user, num)
-    # print(response_text)
-
-
-@app.post("/diary")
-async def calc(request: Request):
-    body = await request.json()
-    user = body['user']
-    num = body['num']
-
-    result = downloadConversation(user, num)
-    result2 = makeDiary(result)
-    upload_diary(result2, user, num)
-
-# 웹소켓 커뮤니케이션 테스트
-# @app.websocket("/ws_test")
-# async def websocket_endpoint(websocket: WebSocket):
-#     print('Accepting client connection...')
-#     await websocket.accept()
-#     while True:
-#         try:
-#             # Wait for any message from the client
-#             data=await websocket.receive_text()
-#             print(data)
-#             await websocket.send_text("received")
-#
-#             # Send message to the client
-#
-#             # await websocket.send_text("resp")
-#             # print("Sending")
-#             # print(data)
-#         except Exception as e:
-#             print('error:', e)
-#             break
-#     print('Bye..')
