@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "@google-cloud/speech": "^5.4.0",
+    "font-awesome": "^4.7.0",
+    "react-mic": "^12.4.6",
+    "react-textarea-autosize": "^8.4.1"
+  }
+}
