@@ -234,12 +234,12 @@ function Writing(props) {
             console.log(docSnap.data())
             const turn_temp = docSnap.data().turn
             requestPrompt(readyRequest, props.userMail, session, turn_temp, module)
-            /*if (turn_temp > 3 && diaryRequest.current === false) {
+            if (turn_temp > 2) {
                 //기존 요청이 하나도 없는 상태에서 3턴이 넘어간 경우
                 console.log("다이어리 요청 들어감");
-                requestSummerization();
+                diaryInit(readyRequest, props.userMail, session);
                 diaryRequest.current = true;
-            }*/
+            }
             turnCount.current = turn_temp;
         } else {
             console.log("No such document!");
@@ -249,8 +249,9 @@ function Writing(props) {
     // https://mindfuljournal-fzesr.run.goorm.site
     // http://0.0.0.0:8000
 
+
     function requestPrompt(text, user, num, turn, module, model) {
-        return fetch('http://0.0.0.0:8000/standalone', {
+        return fetch('https://mindfuljournal-fzesr.run.goorm.site/standalone', {
             method: 'POST',
             body: JSON.stringify({
                 'text': text,
@@ -264,12 +265,13 @@ function Writing(props) {
             .catch(err => console.log(err));
     }
 
-    async function requestSummerization() {
-        return fetch('http://0.0.0.0:8000/diary', {
+    function diaryInit(text, user, num) {
+        return fetch('https://algodiary--xpgmf.run.goorm.site/diary', {
             method: 'POST',
             body: JSON.stringify({
-                'user': props.userMail,
-                'num': session,
+                'text': text,
+                'user': user,
+                'num': num
             })
         })
             .catch(err => console.log(err));
@@ -376,18 +378,12 @@ function Writing(props) {
                         </Badge>{' '}
                         <Badge bg="primary">
                             세션: {session}
-                        </Badge>{' '}
-                        <Badge bg="light" text="dark">
-                            모듈: {module}
-                        </Badge>{' '}
-                        <Badge bg="light" text="dark">
-                            턴: {turnCount.current}
-                        </Badge>{' '}
+                        </Badge>
 
                         {loading === true ? <Loading/> :
                             <Userinput prompt={prompt} setInputUser={setInputUser} inputUser={inputUser}
                                        addConversationFromUser={addConversationFromUser}
-                                       requestSummerization={requestSummerization} setLoading={setLoading}
+                                       setLoading={setLoading}
                                        turnCount={turnCount.current} setDiary={setDiary} textInput={textInput}
                                        setTextInput={setTextInput} toggleListening={toggleListening}
                                        isListening={isListening} setShow={setShow} show={show}/>}
@@ -459,7 +455,7 @@ function Userinput(props) {
                     <Form.Text id="userInput" muted>
                         📝 편안하고 자유롭게 최근에 있었던 일을 작성해주세요.
                     </Form.Text>
-                    <span className="desktop-view">
+                   {/* <span className="desktop-view">
                             <div className="writing_box">
                             <Form.Label htmlFor="commentInput">
                                 <span className="desktop-view">
@@ -479,7 +475,7 @@ function Userinput(props) {
                                 }}
                             />
                         </div>
-                        </span>
+                        </span>*/}
                 </div>
                 <Row className="desktop-view">
                     <Col>
@@ -563,11 +559,10 @@ function DiaryView(props) {
                             />
                         </div>
                         <span className="desktop-view">
-                                <Form.Text id="userInput" muted><div
-                                    style={{fontSize: '20px'}}>일기 작성중입니다. 조금만 기다려주세요</div></Form.Text>
+                                <Form.Text id="userInput" muted><div style={{fontSize: '20px'}}>일기 작성중입니다. 다이어리 작성을 더 진행해주세요</div></Form.Text>
                             </span>
                         <span className="smartphone-view">
-                                <Form.Text id="userInput" muted><div style={{fontSize: '15px'}}>일기 작성중입니다.<br/>조금만 기다려주세요</div></Form.Text>
+                                <Form.Text id="userInput" muted><div style={{fontSize: '15px'}}>일기 작성중입니다.<br/>다이어리 작성을 더 진행해주세요</div></Form.Text>
                             </span>
                     </div>
                 </Row>
