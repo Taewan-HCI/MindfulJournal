@@ -44,7 +44,7 @@ def makeDiary():
                  "content": "부모님을 생각하면서 조절하는게 아니라 부모님이 마음에 걸려서 못하는 거야. 나는 대단한 용기와 인내심이 있다곤 생각안해 오히려 용기없고 겁많은 겁쟁이지. 죽을 용기도 없는 겁쟁이. 남들 눈치나 보고 다니는 겁쟁이. 죽고 싶은 생각을 극복하려고 자해를 한거지. 도움이 됐던 방법? 자해"}]
 
     completion = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
+        model="davinci",
         messages=messages,
         stop=['User: '],
         max_tokens=245,
@@ -69,7 +69,28 @@ nlp_prompt = '''
 \n8. "lists" 값만을 "result:" 다음에 출력. 이때 'word'의 value는 original form of word로 출력된다. 
 \n(예시: '죽고'를 '죽다'로 출력, "죽고"는 "죽-"+"고"이기 때문에 원형인 "죽다"를 출력한다. '잔인한'은 '잔인하다'로 출력한다. 
 \n Do not repeat my request. Do not show each steps. Just show me value of 'lists' without any comments'. Keep answer short. 
-)
+'''
+
+
+nlp_eng_prompt = '''
+As a psychiatrist, your task is to analyze a depressed patient's monologue recorded in "Monologue" and assess their condition. You have to count the occurrence of specific words used by the patient. 
+The patient may use very negative words like "suicide", "self-harm", and "violence",  but you need to count how often they are also mentioned in order to determine well that the patient is in a dangerous state. 
+
+To perform the task, follow these steps:
+
+\n1. Perform Korean morphological analysis on the "monologue," including 'dependent noun' and 'josa,' and save the extracted words in 'temp'.
+\n2. Extract only nouns, verbs, and adjectives from 'temp' and save them in 'words'.
+\n3. Count the number of times the words from 'words' appear in the "monologue".
+\n4. Store in "filtered_words" the words from 'words'  that meet all of the following criteria a, b, c:
+  \na. Exclude "나," "것," "뿐," and "은".
+  \nb. Exclude 'josa,' 'dependent noun,' and 'pronoun'.
+  \nc. Exclude words that refer to anything.
+\n5. Select the 20 most frequently appearing words from "filtered_words" based on their frequency in the "monologue" and save them in "top-20". In case of ties, prioritize words associated with a "depressed patient."
+\n6. Save the results in "lists" as a list of dictionaries. Each dictionary represents a word from "top-20" and includes the word's frequency of appearance and sentiment. The keys are 'word', 'count', and 'sentiment', where the type of word is String, the type of count is Int, the type of sentiment is String, and the sentiment is one of four strings: '긍정', '부정', '중립',  '위험'.  Sort "lists" in descending order based on 'count'.
+\n7. Iterate over "lists" and for each dictionary, count how many times the value of 'word' appears as a substring in the "monologue" and save it to 'count'.
+\n8. Print the value of "lists" after "result:", displaying the original form of each word in the 'word' value (e.g., '죽고' is output as '죽다 because "죽고" is "죽-" + "고"', and '사나' is output as '살다').
+
+\n Do not repeat my request. Do not show each steps. Just show me value of 'lists' without any comments'. Keep answer short. 
 '''
 
 주요품사 = ['NNG', 'NNP', 'VV', 'VA', 'XR', 'SL']
@@ -100,17 +121,75 @@ async def analysis(request: Request):
     end_time = time.time()
     print(f"{end_time - start_time:.5f} sec")
     
-    json_data = json.loads(result.replace("'", "\""))
-    print(json_data)
-    return_json = []
+    # json_data = json.loads(result.replace("'", "\""))
+    # print(json_data)
+    # return_json = []
     
-    for j in json_data : 
-        t = kiwi.tokenize(j['word'])
-        if t[0].tag in 주요품사:
-            #꼭 0번이 아닐수도 있음...!!
-            return_json.append(j)
+    # for j in json_data : 
+    #     t = kiwi.tokenize(j['word'])
+    #     if t[0].tag in 주요품사:
+    #         #꼭 0번이 아닐수도 있음...!!
+    #         return_json.append(j)
 
-    return return_json
+    return result
+
+
+@app.post("/gpt4")
+async def analysis(request: Request):
+    start_time = time.time()
+    body = await request.json()
+    diary = body['text']
+    messages = [{"role": "system",
+                 "content": nlp_prompt},
+                {"role": "user",
+                 "content": "독백: ''' " + diary + " '''  \n result:"}]
+
+    completion = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=messages,
+        stop=['User: '],
+        max_tokens=2048,
+        temperature=0
+    )
+    answer = completion
+    result = answer["choices"][0]["message"]['content']
+    end_time = time.time()
+    print(f"{end_time - start_time:.5f} sec")
+    print(result)
+    
+    # json_data = json.loads(result.replace("'", "\""))
+    # print(json_data)
+    # return_json = []
+    
+    # for j in json_data : 
+    #     t = kiwi.tokenize(j['word'])
+    #     if t[0].tag in 주요품사:
+    #         #꼭 0번이 아닐수도 있음...!!
+    #         return_json.append(j)
+
+    return result
+
+
+
+
+@app.post("/gpt3")
+async def analysis(request: Request):
+    start_time = time.time()
+    body = await request.json()
+    diary = body['text']
+
+    completion = openai.Completion.create(
+        model="text-davinci-003",
+        prompt= nlp_eng_prompt + "독백: ''' " + diary + " '''  \n result:",
+        max_tokens=2048,
+        temperature=0
+    )
+    answer = completion
+    result = answer["choices"][0]["text"]
+    end_time = time.time()
+    print(f"{end_time - start_time:.5f} sec")
+    
+    return result
 
 #형태소 분석 결과를 정리해서 리턴하는 함수
 def read_documents(result):
