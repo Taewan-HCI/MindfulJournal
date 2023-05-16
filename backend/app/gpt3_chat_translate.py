@@ -73,8 +73,8 @@ nlp_prompt = '''
 
 
 nlp_eng_prompt = '''
-As a psychiatrist, your task is to analyze a depressed patient's monologue recorded in "Monologue" and assess their condition. You have to count the occurrence of specific words used by the patient. 
-The patient may use very negative words like "suicide", "self-harm", and "violence",  but you need to count how often they are also mentioned in order to determine well that the patient is in a dangerous state. 
+You are a psychiatrist and your task is to analyze a depressed patient's monologue by counting the occurrence of specific words used by the patient. 
+ You are particularly interested in counting very negative words that the patient uses, like "suicide", "self-harm", 'kill', and "violence". 
 
 To perform the task, follow these steps:
 
@@ -105,9 +105,9 @@ async def analysis(request: Request):
     body = await request.json()
     diary = body['text']
     messages = [{"role": "system",
-                 "content": nlp_prompt},
+                 "content": nlp_eng_prompt},
                 {"role": "user",
-                 "content": "독백: ''' " + diary + " '''  \n result:"}]
+                 "content": "monologue: ''' " + diary + " '''  \n result:"}]
 
     completion = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
@@ -121,15 +121,15 @@ async def analysis(request: Request):
     end_time = time.time()
     print(f"{end_time - start_time:.5f} sec")
     
-    # json_data = json.loads(result.replace("'", "\""))
-    # print(json_data)
-    # return_json = []
+    json_data = json.loads(result.replace("'", "\""))
+    print(json_data)
+    return_json = []
     
-    # for j in json_data : 
-    #     t = kiwi.tokenize(j['word'])
-    #     if t[0].tag in 주요품사:
-    #         #꼭 0번이 아닐수도 있음...!!
-    #         return_json.append(j)
+    for j in json_data : 
+        t = kiwi.tokenize(j['word'])
+        if t[0].tag in 주요품사:
+            #꼭 0번이 아닐수도 있음...!!
+            return_json.append(j)
 
     return result
 
@@ -140,9 +140,9 @@ async def analysis(request: Request):
     body = await request.json()
     diary = body['text']
     messages = [{"role": "system",
-                 "content": nlp_prompt},
+                 "content": nlp_eng_prompt},
                 {"role": "user",
-                 "content": "독백: ''' " + diary + " '''  \n result:"}]
+                 "content": "monologue: ''' " + diary + " '''  \n result:"}]
 
     completion = openai.ChatCompletion.create(
         model="gpt-4",
@@ -180,7 +180,7 @@ async def analysis(request: Request):
 
     completion = openai.Completion.create(
         model="text-davinci-003",
-        prompt= nlp_eng_prompt + "독백: ''' " + diary + " '''  \n result:",
+        prompt= nlp_eng_prompt + "monologue: ''' " + diary + " '''  \n result:",
         max_tokens=2048,
         temperature=0
     )
@@ -188,6 +188,7 @@ async def analysis(request: Request):
     result = answer["choices"][0]["text"]
     end_time = time.time()
     print(f"{end_time - start_time:.5f} sec")
+    print(result)
     
     return result
 
