@@ -33,12 +33,10 @@ function Writing(props) {
     const receivedText4 = useRef(null);
     const receivedText5 = useRef(null);
     const receivedText6 = useRef(null);
-    const receivedText7 = useRef(null);
 
     const selectedOption = useRef(null);
 
-    const prompt = useRef([2]);
-    const prompt_local = useRef([1]);
+    const prompt = useRef([]);
 
 
     const sessionInputRef = useRef(null)
@@ -56,7 +54,6 @@ function Writing(props) {
                     receivedText2.current = doc.data()["conversation"]
                     receivedText3.current = doc.data()["reviewMode"]
                     receivedText5.current = doc.data()["isFinished"]
-                    receivedText7.current = doc.data()["status"]
                     receivedText6.current = doc.data()["outputFromLM"]
                     const response = receivedText.current;
                     const response2 = receivedText2.current;
@@ -67,10 +64,7 @@ function Writing(props) {
                         alert("사용자가 일기 작성을 종료하였습니다")
                         sessionStatus.current = false
                     }
-                    else if (prompt_local.current[0] !== receivedText.current[0]) {
-                        setLoading(false)
-                    }
-                    else if (receivedText7.current == "new") {
+                    else if (prompt.current.length !== 0 && receivedText.current.length !== 0 && selectedOption.current !== "") {
                         setLoading(false)
                     }
                 })
@@ -85,46 +79,25 @@ function Writing(props) {
         const docRef = doc(db, "session", userName, "diary", session);
         const docSnap = await getDoc(docRef);
         let history_temp = receivedText4.current
-        let prompt_temp = receivedText4.current
         history_temp["harmful"] = {list}
         history_temp["selected"] = selectedOption.current
-        prompt_temp["options"] = []
 
         if (docSnap.exists()) {
             const history = docSnap.data().history_operator;
             history[history.length] = history_temp
             const harmful = docSnap.data().HarmfulMsg;
             // harmful[harmful.length] = {list};
-
-            if (prompt_local.current[0] === receivedText.current[0]) {
-                let a = setTimeout(async () => {
-                    await setDoc(docRef, {
-                        history_operator: history,
-                        reviewMode: false,
-                        status: "old"
-                    }, {merge: true});
-                    selectedOption.current = ""
-                    setLoading(true)
-                }, 500)
-                return () => {
-                    clearTimeout(a)
-                }
+            let a = setTimeout(async () => {
+                await setDoc(docRef, {
+                    history_operator: history,
+                    reviewMode: false
+                }, {merge: true});
+                selectedOption.current = ""
+                setLoading(true)
+            }, 500)
+            return () => {
+                clearTimeout(a)
             }
-            else {
-                let a = setTimeout(async () => {
-                    await setDoc(docRef, {
-                        history_operator: history,
-                        reviewMode: false
-                    }, {merge: true});
-                    selectedOption.current = ""
-                    setLoading(true)
-                }, 500)
-                return () => {
-                    clearTimeout(a)
-                }
-
-            }
-
         } else {
             console.log("데이터 없음");
         }
@@ -135,7 +108,6 @@ function Writing(props) {
         const docRef = doc(db, "session", userName, "diary", session);
         optionsforReview.current = receivedText.current
         promptforReview.current = userInput.current["content"]
-        prompt_local.current = prompt.current
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
             const readyRequest = docSnap.data().conversation;
@@ -185,7 +157,8 @@ function Writing(props) {
             }, {merge: true});
             sessionStatus.current = true
             setLoading(true)
-        } else {
+        }
+        else {
             alert("환자가 아직 세션을 시작하지 않았습니다.")
         }
 

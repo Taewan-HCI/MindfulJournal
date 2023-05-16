@@ -8,8 +8,20 @@ import book_blue from "../img/book_blue.jpg";
 import book_purple from "../img/book_purple.jpg";
 import chat from "../img/chat.jpg";
 import lock from "../img/lock.jpg";
-import {collection, getDocs} from "firebase/firestore";
+import {
+    collection,
+    doc,
+    onSnapshot,
+    query,
+    where,
+    orderBy,
+    getDocs,
+    setDoc,
+    updateDoc,
+    increment
+} from "firebase/firestore";
 import {db} from "../firebase-config";
+import Button from "react-bootstrap/Button";
 
 
 function Home(props) {
@@ -54,19 +66,25 @@ function Home(props) {
         var year = date.getFullYear();
         var month = "0" + (date.getMonth() + 1);
         var day = "0" + date.getDate();
-        return year + "년" + month.substr(-2) + "월" + day.substr(-2) + "일 ";
+        return year + "년 " + month.substr(-2) + "월 " + day.substr(-2) + "일 ";
     }
 
     async function receiveDiaryData() {
-        let tempArr = []
-        const querySnapshot = await getDocs(collection(db, "session", props.userName, "diary_complete"));
+        let tempArr = [];
+        const userDocRef = doc(db, 'session', props.userMail);
+        const diaryCompleteCollRef = collection(userDocRef, 'diary');
+        const q = query(diaryCompleteCollRef, where('isFinished', '==', true), orderBy('sessionEnd', 'desc'));
+        const querySnapshot = await getDocs(q);
+
         querySnapshot.forEach((doc) => {
-            tempArr.push(doc.data())
+            // doc.data() is never undefined for query doc snapshots
+            // console.log(doc.id, " => ", doc.data());
+            tempArr.push(doc.data());
         });
         if (tempArr.length === -1) {
             return tempArr
         } else {
-            setLastDate(tempArr[tempArr.length - 1]["createdAt"])
+            setLastDate(tempArr[tempArr.length - 1]["sessionEnd"])
             return tempArr
         }
 
@@ -75,7 +93,9 @@ function Home(props) {
     return (
         <div>
 
-            {lastDate === "" ? <NoDiary userName={props.userName}/> :
+            {lastDate === "" ? <NoDiary userName={props.userName} diaryList={diaryList} lastDate={lastDate}
+                                  navigateToWriting={navigateToWriting}
+                                  navigateToReview={navigateToReview} Unix_timestamp={Unix_timestamp}/> :
                 <Loading_complete userName={props.userName} diaryList={diaryList} lastDate={lastDate}
                                   navigateToWriting={navigateToWriting}
                                   navigateToReview={navigateToReview} Unix_timestamp={Unix_timestamp}/>}
@@ -89,16 +109,29 @@ function NoDiary(props) {
         <Container>
             <Row>
                 <div className="loading_box_home_top">
-                    <div>
+
+                    <span className="desktop-view">
                         <b>안녕하세요 {props.userName}님</b> 😀<br/>마음챙김 다이어리에 오신걸 환영합니다.
-                    </div>
+            </span>
+                    <span className="smartphone-view">
+                        <b>{props.userName}님</b> 😀<br/>오신걸 환영해요
+            </span>
+
+
                 </div>
             </Row>
             <Row>
                 <div className="loading_box_home_bottom">
-                    <div>
+
+                    <span className="desktop-view">
                         🥲 아직 작성한 일기가 없어요. 첫 일기를 작성해볼까요?
-                    </div>
+                    </span>
+                    <span className="smartphone-view-text">
+                        🥲 아직 작성한 일기가 없어요.<br/>첫 일기를 작성해볼까요?</span>
+
+
+
+
                 </div>
                 {/*<Row>
                     <Col>
@@ -121,7 +154,11 @@ function NoDiary(props) {
 
                     </Col>
                 </Row>*/}
+                <span className="center_temp">
+                                                &nbsp;
+
                 <Row xs={1} md={2} className="g-4">
+
                     <Col>
                         <Card>
                             <Card.Img variant="top" src={book_purple}/>
@@ -166,6 +203,8 @@ function NoDiary(props) {
                         </Card>
                     </Col>
                 </Row>
+
+                </span>
             </Row>
             <div className="footer"></div>
         </Container>
@@ -177,18 +216,54 @@ function Loading_complete(props) {
         <Container>
             <Row>
                 <div className="loading_box_home_top">
-                    <div>
+
+                    <span className="desktop-view">
                         <b>안녕하세요 {props.userName}님</b> 😀<br/>마음챙김 다이어리에 오신걸 환영합니다.
-                    </div>
+            </span>
+                    <span className="smartphone-view">
+                        <b>{props.userName}님</b> 😀<br/>오신걸 환영해요
+            </span>
+
+
                 </div>
             </Row>
             <Row>
                 <div className="loading_box_home_bottom">
-                    <div>
-                        📅 마지막으로 작성한 다이어리는 <b>{props.Unix_timestamp(props.lastDate)}</b> 일기에요.
+
+                    <span className="desktop-view">
+<div>
+                        📅 마지막으로 작성한 일기는 <b>{props.Unix_timestamp(props.lastDate)}</b> 일기에요.
                         <br/>
                         📖 지금까지 <b>{props.diaryList.length}</b>개의 일기를 작성하셨네요!
                     </div>
+                    </span>
+                    <span className="smartphone-view-text">
+<div>
+                        📅 마지막 일기는 <b>{props.Unix_timestamp(props.lastDate)}</b> 일기에요.
+                        <br/>
+                        📖 지금까지 <b>{props.diaryList.length}</b>개의 일기를 작성하셨네요!
+
+
+                    </div>
+                        <div className="d-grid gap-2">
+                            &nbsp;
+                        <Button
+                            variant="primary"
+                            style={{backgroundColor: "007AFF", fontWeight: "600"}}
+                            onClick={props.navigateToWriting}>
+                            📝 오늘의 일기 작성하러 가기
+                        </Button>
+
+                        <Button
+                            variant="dark"
+                            style={{backgroundColor: "6c757d", fontWeight: "600"}}
+                            onClick={props.navigateToReview}>
+                            📖 작성한 일기 다시보기
+                        </Button>
+                        </div>
+                            </span>
+
+
                 </div>
                 {/*<Row>
                     <Col>
@@ -211,7 +286,11 @@ function Loading_complete(props) {
 
                     </Col>
                 </Row>*/}
+                <span className="center_temp">
+                                                &nbsp;
+
                 <Row xs={1} md={2} className="g-4">
+
                     <Col>
                         <Card>
                             <Card.Img variant="top" src={book_purple}/>
@@ -256,6 +335,8 @@ function Loading_complete(props) {
                         </Card>
                     </Col>
                 </Row>
+
+                </span>
             </Row>
             <div className="footer"></div>
         </Container>

@@ -421,7 +421,7 @@ function Userinput(props) {
                     <b>💬 다음의 언어모델 출력을 평가해주세요</b>
                 </div>
                 &nbsp;
-            </Col>
+            </Col>델
 
             <Col md={1}>
                 <div className="smalltxt">
