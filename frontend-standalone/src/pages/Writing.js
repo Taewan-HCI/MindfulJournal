@@ -93,16 +93,18 @@ function Writing(props) {
             const unsubscribe = onSnapshot(diaryDocRef, (doc) => {
                 const data = doc.data();
                 // Tracking "outputFromLM" field
-                if (data) {
+                if (data && receivedText.current["options"][0] !== data['outputFromLM']["options"][0]) {
                     receivedText.current = data['outputFromLM'];
                     getLastSentence(receivedText.current);
                     // Tracking "diary" field
                     receivedDiary.current = data['diary'];
                     if (receivedDiary.current !== "") {
+                        setDiary(receivedDiary.current)
+
                         if (receivedDiary.current !== diary) {
-                            setShow(true)
-                            diaryRequest.current = false
-                            setDiary(receivedDiary.current)
+                            // setShow(true)
+                            // diaryRequest.current = false
+                            console.log("change!!")
                         }
                     }
                     // Tracking "turn" field
@@ -114,6 +116,7 @@ function Writing(props) {
             };
         }
     });
+
 
     // create NewDoc
     async function createNewDoc() {
@@ -265,6 +268,7 @@ function Writing(props) {
             .catch(err => console.log(err));
     }
 
+
     function diaryInit(text, user, num) {
         return fetch('https://algodiary--xpgmf.run.goorm.site/diary', {
             method: 'POST',
@@ -391,7 +395,7 @@ function Writing(props) {
                 </Row>
                 <Row>
                     {turnCount.current > 1 && loading === false ? <DiaryView diary={diary} submitDiary={submitDiary}
-                                                                             setModalShow={setModalShow}/> :
+                                                                             setModalShow={setModalShow} turncount={turnCount.current}/> :
                         <div></div>}
                 </Row>
                 <MyVerticallyCenteredModal
@@ -410,7 +414,7 @@ function Userinput(props) {
     return (
         <div>
             <Row>
-                <ToastContainer className="p-3" position={"top-center"}>
+                {/*<ToastContainer className="p-3" position={"top-center"}>
                     <Toast onClose={() => props.setShow(false)} show={props.show} delay={3000} autohide>
                         <Toast.Header>
                             <strong className="me-auto">알림</strong>
@@ -418,7 +422,7 @@ function Userinput(props) {
                         </Toast.Header>
                         <Toast.Body>새로운 다이어리가 작성되었어요. 아래로 스크롤해서 확인해보세요</Toast.Body>
                     </Toast>
-                </ToastContainer>
+                </ToastContainer>*/}
                 <Col>
                     <div className="prompt_box">
                             <span className="desktop-view">
@@ -440,7 +444,7 @@ function Userinput(props) {
                         <span className="desktop-view">
                             ✏️ 나의 일기 입력하기
                         </span>
-                        <span className="smartphone-view-text-tiny" 의>
+                        <span className="smartphone-view-text-tiny">
                             ✏️ 나의 일기 입력하기
                         </span>
                     </Form.Label>
@@ -568,7 +572,7 @@ function DiaryView(props) {
                 </Row>
             </div>
         )
-    } else {
+    } else if (props.turncount) {
         return (
             <div className="inwriting_review_box">
                 &nbsp;
