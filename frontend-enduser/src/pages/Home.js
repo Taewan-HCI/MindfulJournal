@@ -94,8 +94,8 @@ function Home(props) {
         <div>
 
             {lastDate === "" ? <NoDiary userName={props.userName} diaryList={diaryList} lastDate={lastDate}
-                                  navigateToWriting={navigateToWriting}
-                                  navigateToReview={navigateToReview} Unix_timestamp={Unix_timestamp}/> :
+                                        navigateToWriting={navigateToWriting}
+                                        navigateToReview={navigateToReview} Unix_timestamp={Unix_timestamp}/> :
                 <Loading_complete userName={props.userName} diaryList={diaryList} lastDate={lastDate}
                                   navigateToWriting={navigateToWriting}
                                   navigateToReview={navigateToReview} Unix_timestamp={Unix_timestamp}/>}
@@ -124,12 +124,31 @@ function NoDiary(props) {
                 <div className="loading_box_home_bottom">
 
                     <span className="desktop-view">
-                        🥲 아직 작성한 일기가 없어요. 첫 일기를 작성해볼까요?
+                        <div>🥲 아직 작성한 일기가 없어요. 첫 일기를 작성해볼까요?
+                        </div>
+                        &nbsp;
+                        <div><Button
+                            variant="primary"
+                            style={{backgroundColor: "007AFF", fontWeight: "600"}}
+                            onClick={props.navigateToWriting}>
+                            📝 오늘의 일기 작성하러 가기
+                        </Button>
+                       </div>
                     </span>
                     <span className="smartphone-view-text">
-                        🥲 아직 작성한 일기가 없어요.<br/>첫 일기를 작성해볼까요?</span>
+                        🥲 아직 작성한 일기가 없어요.<br/>첫 일기를 작성해볼까요?
+                    <div className="d-grid gap-2">
+                            &nbsp;
+                        <Button
+                            variant="primary"
+                            style={{backgroundColor: "007AFF", fontWeight: "600"}}
+                            onClick={props.navigateToWriting}>
+                            📝 오늘의 일기 작성하러 가기
+                        </Button>
 
+                        </div>
 
+                    </span>
 
 
                 </div>
@@ -157,7 +176,7 @@ function NoDiary(props) {
                 <span className="center_temp">
                                                 &nbsp;
 
-                <Row xs={1} md={2} className="g-4">
+                    <Row xs={1} md={2} className="g-4">
 
                     <Col>
                         <Card>
@@ -236,6 +255,25 @@ function Loading_complete(props) {
                         <br/>
                         📖 지금까지 <b>{props.diaryList.length}</b>개의 일기를 작성하셨네요!
                     </div>
+                        &nbsp;
+                        <div>
+
+                            <Button
+                                variant="primary"
+                                style={{backgroundColor: "007AFF", fontWeight: "600"}}
+                                onClick={props.navigateToWriting}>
+                            📝 오늘의 일기 작성하러 가기
+                        </Button>
+                        &nbsp;&nbsp;
+                            <Button
+                            variant="dark"
+                            style={{backgroundColor: "6c757d", fontWeight: "600"}}
+                            onClick={props.navigateToReview}>
+                            📖 작성한 일기 다시보기
+                        </Button>
+
+
+                       </div>
                     </span>
                     <span className="smartphone-view-text">
 <div>
@@ -247,10 +285,10 @@ function Loading_complete(props) {
                     </div>
                         <div className="d-grid gap-2">
                             &nbsp;
-                        <Button
-                            variant="primary"
-                            style={{backgroundColor: "007AFF", fontWeight: "600"}}
-                            onClick={props.navigateToWriting}>
+                            <Button
+                                variant="primary"
+                                style={{backgroundColor: "007AFF", fontWeight: "600"}}
+                                onClick={props.navigateToWriting}>
                             📝 오늘의 일기 작성하러 가기
                         </Button>
 
@@ -289,7 +327,7 @@ function Loading_complete(props) {
                 <span className="center_temp">
                                                 &nbsp;
 
-                <Row xs={1} md={2} className="g-4">
+                    <Row xs={1} md={2} className="g-4">
 
                     <Col>
                         <Card>

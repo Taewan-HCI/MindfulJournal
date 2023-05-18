@@ -89,7 +89,6 @@ function Writing(props) {
         history_temp["harmful"] = {list}
         history_temp["selected"] = selectedOption.current
         prompt_temp["options"] = []
-
         if (docSnap.exists()) {
             const history = docSnap.data().history_operator;
             history[history.length] = history_temp
@@ -161,7 +160,7 @@ function Writing(props) {
     }
 
     function diaryInit(text, user, num) {
-        return fetch('http://0.0.0.0:8000/diary', {
+        return fetch('https://algodiary--xpgmf.run.goorm.site/diary', {
             method: 'POST',
             body: JSON.stringify({
                 'text': text,

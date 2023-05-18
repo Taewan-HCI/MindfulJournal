@@ -1,4 +1,5 @@
 import {useEffect, useState, useRef, React} from "react";
+
 import {
     doc,
     getDoc,
@@ -99,7 +100,7 @@ function Writing(props) {
                     // Tracking "diary" field
                     receivedDiary.current = data['diary'];
                     if (receivedDiary.current !== "") {
-                        if (receivedDiary.current !== diary) {
+                        if (turnCount.current > 3 && receivedDiary.current !== diary) {
                             setShow(true)
                             diaryRequest.current = false
                             setDiary(receivedDiary.current)
@@ -252,7 +253,7 @@ function Writing(props) {
     // http://0.0.0.0:8000
 
     function requestPrompt(text, user, num, turn, module, model) {
-        return fetch('http://0.0.0.0:8000/operator', {
+        return fetch('https://mindfuljournal-fzesr.run.goorm.site/operator', {
             method: 'POST',
             body: JSON.stringify({
                 'text': text,
@@ -267,7 +268,7 @@ function Writing(props) {
     }
 
     async function requestSummerization() {
-        return fetch('http://0.0.0.0:8000/diary', {
+        return fetch('https://mindfuljournal-fzesr.run.goorm.site/diary', {
             method: 'POST',
             body: JSON.stringify({
                 'user': props.userMail,
@@ -396,8 +397,8 @@ function Writing(props) {
                     </div>
                 </Row>
                 <Row>
-                    {turnCount.current > 1 && loading === false ? <DiaryView diary={diary} submitDiary={submitDiary}
-                                                                             setModalShow={setModalShow}/> :
+                    {turnCount.current > 4 && loading === false ? <DiaryView diary={diary} submitDiary={submitDiary}
+                                                                             setModalShow={setModalShow} turncount={turnCount.current}/> :
                         <div></div>}
                 </Row>
                 <MyVerticallyCenteredModal
@@ -575,7 +576,7 @@ function DiaryView(props) {
                 </Row>
             </div>
         )
-    } else {
+    } else if (props.turncount > 3) {
         return (
             <div className="inwriting_review_box">
                 &nbsp;

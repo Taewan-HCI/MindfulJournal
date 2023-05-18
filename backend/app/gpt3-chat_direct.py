@@ -176,14 +176,15 @@ def m1_1_standalone_review(text, turn, module, model):
 def diary(text):
     print("다이어리 시작")
     conversationString = ""
+    test = ""
     for i in range(0, len(text)):
         if text[i]["role"] == "assistant":
-            conversationString = conversationString + "Psychotherapist: " + text[i]["content"] + "\n"
+            test = test + "Psychotherapist: " + text[i]["content"] + "\n"
         elif text[i]["role"] == "user":
             conversationString = conversationString + "Patient: " + text[i]["content"] + "\n"
     print(conversationString)
     prompt_for_diary = [{"role": "system",
-                         "content": "I summarise the dialogue below in the form of a diary entry from the patient perspective. Summarise the events, feelings, and anecdotes from the conversation like a diary entry as you reflect on your day."},
+                         "content": "I summarise the dialogue below in the form of a diary entry from the patient perspective. Summarise the events, feelings, and anecdotes from the conversation like a diary entry as you reflect on your day. I only organize my diary entries by what the patient mentions. Don't create diary entries for anything the patient didn't say."},
                         {"role": "user",
                          "content": "Psychotherapist: 오늘은 어떤 일이 있었나요? 정해진 규칙이 없으니 자유롭게 얘기해주세요.\nPatient: 오늘도 평범하게 출근하고, 뭐 별일은 없었어요.\nPsychotherapist: 그랬군요. 조금 더 자세한 이야기를 듣고 싶은데. 오늘 하루 가장 기억에 남는 한 가지 일을 골라본다면 무엇이 있을까요?\nPatient: 글쎄. 일단 오늘 아침에 업무 미팅이 하나 있었고, 저녁에는 오랜만에 부모님과 식사했네요.\nPsychotherapist: 그랬군요. 얘기해줘서 고마워요! 오늘 업무 미팅에서 별일은 없었나요?\nPatient: 음 큰 미팅은 아니었는데, 요즘 계속 제 상사가 저를 무시하고, 안 좋게 보고 있는 것 같다는 느낌이 들어서 힘들어요.\nPsychotherapist: 얘기해줘서 고마워요. 업무 미팅과 관련해서 어떤 감정이나 기분이 들었나요?\nPatient: 그냥 기분이 좋지 않고, 짜증나고, 앞으로 계속 일해야 하는 곳인데, 어떻게 계속 다녀야 하나 싶지. 약간 이 사람을 만날때마다 불편하기도 하고.\nPsychotherapist: 혹시 그렇게 느끼게 된 이유나 사건이 있을까요?\nPatient: 사실 나는 예전과 같이 똑같이 하고 있다고 생각하는데, 내가 메일을 보내면 답을 안하기도 부지기수이고, 뭔가 나를 무시하고 있다는 느낌을 계속 받는 것 같아. 그냥 뭔가 눈빛에 그런 느낌이 든다고 해야 하나.\nPsychotherapist: 나라면 더 힘들어했을 것 같아. 혹시 이후로 행동이나 태도에 변화가 있었나요?\nPatient: 사실 나도 잘 확신이 안가고 그러니, 눈치를 엄청 보게 되는 것 같아. 계속 왠만하면 웃으면서 대답하고, 항상 기분을 살피고, 상사에게 조금 쫄아있다는 느낌이 들 정도로."},
                         {"role": "assistant",
@@ -195,7 +196,7 @@ def diary(text):
         model="gpt-3.5-turbo",
         messages=prompt_for_diary,
         stop=['Patient: ', 'Psychotherapist: '],
-        max_tokens=245,
+        max_tokens=2048,
         temperature=0.7,
         presence_penalty=0.5,
         frequency_penalty=0.5
