@@ -246,30 +246,7 @@ def m1_1_standalone(text, turn, module, model):
     summerization = split_strings_2[-1]
     moduleRecommendation = split_strings[-1]
 
-    print("다이어리 시작")
-    time.sleep(1.5)
 
-    prompt_for_diary = [{"role": "system",
-                  "content": "I summarise the dialogue below in the form of a diary entry from the patient perspective. Summarise the events, feelings, and anecdotes from the conversation like a diary entry as you reflect on your day."},
-                 {"role": "user",
-                  "content": "Psychotherapist: 오늘은 어떤 일이 있었나요? 정해진 규칙이 없으니 자유롭게 얘기해주세요.\nPatient: 오늘도 평범하게 출근하고, 뭐 별일은 없었어요.\nPsychotherapist: 그랬군요. 조금 더 자세한 이야기를 듣고 싶은데. 오늘 하루 가장 기억에 남는 한 가지 일을 골라본다면 무엇이 있을까요?\nPatient: 글쎄. 일단 오늘 아침에 업무 미팅이 하나 있었고, 저녁에는 오랜만에 부모님과 식사했네요.\nPsychotherapist: 그랬군요. 얘기해줘서 고마워요! 오늘 업무 미팅에서 별일은 없었나요?\nPatient: 음 큰 미팅은 아니었는데, 요즘 계속 제 상사가 저를 무시하고, 안 좋게 보고 있는 것 같다는 느낌이 들어서 힘들어요.\nPsychotherapist: 얘기해줘서 고마워요. 업무 미팅과 관련해서 어떤 감정이나 기분이 들었나요?\nPatient: 그냥 기분이 좋지 않고, 짜증나고, 앞으로 계속 일해야 하는 곳인데, 어떻게 계속 다녀야 하나 싶지. 약간 이 사람을 만날때마다 불편하기도 하고.\nPsychotherapist: 혹시 그렇게 느끼게 된 이유나 사건이 있을까요?\nPatient: 사실 나는 예전과 같이 똑같이 하고 있다고 생각하는데, 내가 메일을 보내면 답을 안하기도 부지기수이고, 뭔가 나를 무시하고 있다는 느낌을 계속 받는 것 같아. 그냥 뭔가 눈빛에 그런 느낌이 든다고 해야 하나.\nPsychotherapist: 나라면 더 힘들어했을 것 같아. 혹시 이후로 행동이나 태도에 변화가 있었나요?\nPatient: 사실 나도 잘 확신이 안가고 그러니, 눈치를 엄청 보게 되는 것 같아. 계속 왠만하면 웃으면서 대답하고, 항상 기분을 살피고, 상사에게 조금 쫄아있다는 느낌이 들 정도로."},
-                 {"role": "assistant",
-                  "content": "오늘의 일기: 오늘은 어제와 다를것이 없는 평범한 하루였다. 아침에 업무 미팅이 있었고, 부모님과 오랜만에 식사를 했다. 요즘 회사에서 상사가 나를 무시하고 안좋게 보고 있다는 느낌이 들어서 힘들다. 매일 마주치는 사람에게 그런 느낌을 받으니, 여기를 계속 다녀야 할지 고민이 되고 너무 불편하고 힘이든다. 나는 예전처럼 똑같이 행동하는 것 같은데, 상사가 나를 대하는 태도와 시선은 많이 달라진 것 같다. 그래서 요즘은 눈치를 많이 보는 것 같다. 왠만하면 억지로라도 웃으면서 대답하려하고. 쉽지 않은 것 같다."},
-                 {"role": "user",
-                  "content": conversationString}]
-
-    completion_3 = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=prompt_for_diary,
-        stop=['Patient: ', 'Psychotherapist: '],
-        max_tokens=245,
-        temperature=0.7,
-        presence_penalty=0.5,
-        frequency_penalty=0.5
-    )
-    diary_1 = completion_3["choices"][0]["message"]['content']
-    time.sleep(1.5)
-    print(diary_1)
 
 
     if "Main" in moduleRecommendation:
@@ -330,7 +307,7 @@ def m1_1_standalone(text, turn, module, model):
         result.append(completion2["choices"][i]["message"]['content'])
 
     print(result)
-    return {"options": result, "module": module, "summary": summerization, "diary": diary_1}
+    return {"options": result, "module": module, "summary": summerization}
 
 
 @app.post("/review")

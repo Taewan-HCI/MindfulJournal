@@ -3,9 +3,9 @@ import {
     doc,
     getDoc,
     setDoc,
-    collection,
     onSnapshot,
-    getCountFromServer, updateDoc, arrayUnion, increment
+    updateDoc,
+    increment
 } from 'firebase/firestore'
 import {db} from "../firebase-config";
 import Container from 'react-bootstrap/Container';
@@ -93,18 +93,16 @@ function Writing(props) {
             const unsubscribe = onSnapshot(diaryDocRef, (doc) => {
                 const data = doc.data();
                 // Tracking "outputFromLM" field
-                if (data && receivedText.current["options"][0] !== data['outputFromLM']["options"][0]) {
+                if (data) {
+                    console.log("새로고침")
                     receivedText.current = data['outputFromLM'];
                     getLastSentence(receivedText.current);
-                    // Tracking "diary" field
                     receivedDiary.current = data['diary'];
                     if (receivedDiary.current !== "") {
-                        setDiary(receivedDiary.current)
-
                         if (receivedDiary.current !== diary) {
-                            // setShow(true)
-                            // diaryRequest.current = false
-                            console.log("change!!")
+                            setShow(true)
+                            console.log("새로고침_다이어리")
+                            setDiary(receivedDiary.current)
                         }
                     }
                     // Tracking "turn" field
@@ -135,7 +133,12 @@ function Writing(props) {
         } else {
             const myArray = ["만나서 반가워요, 오늘 하루 어떻게 지내셨나요?", "오늘 하루 어땠어요? 말하고 싶은 것이 있다면 자유롭게 이야기해주세요.", "안녕하세요! 오늘 하루는 어땠나요?", "오늘 하루도 정말 고생 많으셨어요. 어떤 일이 있었는지 얘기해주세요.", "오늘도 무사히 지나간 것에 감사한 마음이 드네요. 오늘 하루는 어땠나요?", "오늘은 어떤 새로운 것을 경험했나요? 무엇을 경험했는지 얘기해주세요.", "오늘은 어떤 고민이 있었나요? 저와 함께 고민을 얘기해봐요."]
             await setDoc(doc(db, "session", props.userMail, "diary", session), {
-                outputFromLM: {"options": [myArray[Math.floor(Math.random() * myArray.length)]], "module": "Initiation", "summary": "none", "diary": "none"},
+                outputFromLM: {
+                    "options": [myArray[Math.floor(Math.random() * myArray.length)]],
+                    "module": "Initiation",
+                    "summary": "none",
+                    "diary": "none"
+                },
                 conversation: [],
                 isFinished: false,
                 module: "",
@@ -214,7 +217,6 @@ function Writing(props) {
         let a = setTimeout(() => {
             setModule(response["module"])
             setPrompt(response["options"][0])
-            setDiary(response["diary"])
             if (prompt) {
                 if ((prompt).trim() === "") {
                     setLoading(true)
@@ -238,7 +240,6 @@ function Writing(props) {
             const turn_temp = docSnap.data().turn
             requestPrompt(readyRequest, props.userMail, session, turn_temp, module)
             if (turn_temp > 2) {
-                //기존 요청이 하나도 없는 상태에서 3턴이 넘어간 경우
                 console.log("다이어리 요청 들어감");
                 diaryInit(readyRequest, props.userMail, session);
                 diaryRequest.current = true;
@@ -395,7 +396,7 @@ function Writing(props) {
                 </Row>
                 <Row>
                     {turnCount.current > 1 && loading === false ? <DiaryView diary={diary} submitDiary={submitDiary}
-                                                                             setModalShow={setModalShow} turncount={turnCount.current}/> :
+                                                                             setModalShow={setModalShow}/> :
                         <div></div>}
                 </Row>
                 <MyVerticallyCenteredModal
@@ -414,15 +415,15 @@ function Userinput(props) {
     return (
         <div>
             <Row>
-                {/*<ToastContainer className="p-3" position={"top-center"}>
+                <ToastContainer className="p-3" position={"top-center"}>
                     <Toast onClose={() => props.setShow(false)} show={props.show} delay={3000} autohide>
                         <Toast.Header>
                             <strong className="me-auto">알림</strong>
                             <small>이창은 3초 후 자동으로 닫힘니다</small>
                         </Toast.Header>
-                        <Toast.Body>새로운 다이어리가 작성되었어요. 아래로 스크롤해서 확인해보세요</Toast.Body>
+                        <Toast.Body>새로운 다이어리가 작성되었어요.</Toast.Body>
                     </Toast>
-                </ToastContainer>*/}
+                </ToastContainer>
                 <Col>
                     <div className="prompt_box">
                             <span className="desktop-view">
@@ -459,27 +460,6 @@ function Userinput(props) {
                     <Form.Text id="userInput" muted>
                         📝 편안하고 자유롭게 최근에 있었던 일을 작성해주세요.
                     </Form.Text>
-                   {/* <span className="desktop-view">
-                            <div className="writing_box">
-                            <Form.Label htmlFor="commentInput">
-                                <span className="desktop-view">
-                                ✍️ 언어모델 출력에 대한 코멘트를 입력해주세요
-                        </span>
-                                <span className="smartphone-view-text-tiny">
-                                ✍️ 언어모델 출력에 대한 코멘트를 입력해주세요
-                            </span>
-                            </Form.Label>
-                            <Form.Control
-                                type="input"
-                                as="textarea"
-                                rows={2}
-                                id="commentInput"
-                                onChange={(e) => {
-                                    temp_comment_input.current = e.target.value
-                                }}
-                            />
-                        </div>
-                        </span>*/}
                 </div>
                 <Row className="desktop-view">
                     <Col>
@@ -515,12 +495,6 @@ function Userinput(props) {
                 </Row>
                 <div className="smartphone-view">
                     <div className="d-grid gap-2">
-
-                        {/*{props.isListening ? <button className="floating-button_2" onClick={props.toggleListening}><i className="fa fa-pause" style={{ color: '#F8F9FA' }}></i></button> : <button className="floating-button" onClick={props.toggleListening}><i className="fa fa-microphone" style={{ color: '#FFF' }}></i></button>}*/}
-                        {/*                        */}
-                        {/*                        <button className="floating-button" onClick={props.toggleListening}>*/}
-                        {/*  {props.isListening ? <i className="fa fa-pause"></i> : <i className="fa fa-microphone"></i>}*/}
-                        {/*</button>*/}
                         <Button
                             variant="dark"
                             style={{backgroundColor: "007AFF", fontWeight: "600"}}
@@ -572,7 +546,7 @@ function DiaryView(props) {
                 </Row>
             </div>
         )
-    } else if (props.turncount) {
+    } else {
         return (
             <div className="inwriting_review_box">
                 &nbsp;
