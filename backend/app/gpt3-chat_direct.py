@@ -60,13 +60,12 @@ def upload_operator(response, user, num, topic):
         doc_ref.update({
             u'outputForReview': response,
             u'history_serverside': firestore.ArrayUnion([{'response': response}]),
-            # This will add the new data to the existing list
             u'status': "new",
         })
     else:
         doc_ref.set({
             u'outputForReview': response,
-            u'history_serverside': [{'response': response}],  # This will create a list with your new data
+            u'history_serverside': [{'response': response}],
             u'status': "new",
         })
 
