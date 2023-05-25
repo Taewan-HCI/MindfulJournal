@@ -54,6 +54,22 @@ def upload(response, user, num, topic):
 
 def upload_operator(response, user, num, topic):
     doc_ref = db.collection(u'session').document(user).collection(u'diary').document(num)
+
+    doc = doc_ref.get()
+    if doc.exists:
+        doc_ref.update({
+            u'outputForReview': response,
+            u'history_serverside': firestore.ArrayUnion([{'response': response}]),
+            # This will add the new data to the existing list
+            u'status': "new",
+        })
+    else:
+        doc_ref.set({
+            u'outputForReview': response,
+            u'history_serverside': [{'response': response}],  # This will create a list with your new data
+            u'status': "new",
+        })
+
     doc_ref.set({
         u'outputForReview': response,
         u'status': "new",
