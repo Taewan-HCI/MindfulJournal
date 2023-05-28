@@ -52,6 +52,16 @@ def upload(response, user, num, topic):
     }, merge=True)
 
 
+def download():
+    doc_ref = db.collection(u'session').document("ut01@test.com").collection(u'diary').document("G02")
+    doc = doc_ref.get()
+    if doc.exists:
+        print(f'Document data: {doc.to_dict()}')
+        return doc.to_dict()
+    else:
+        print(u'No such document!')
+
+
 def upload_operator(response, user, num, topic):
     doc_ref = db.collection(u'session').document(user).collection(u'diary').document(num)
 
@@ -183,7 +193,6 @@ def m1_1_standalone_review(text, turn, module, model):
     print(completion2)
     for i in range(0, 4):
         result.append(completion2["choices"][i]["message"]['content'])
-
     print(result)
     return {"options": result, "module": module, "summary": summerization}
 
@@ -323,6 +332,13 @@ def m1_1_standalone(text, turn, module, model):
 
     print(result)
     return {"options": result, "module": module, "summary": summerization}
+
+
+@app.get("/test", tags=["root"])
+async def read_root() -> dict:
+    response = download()
+    return response
+    # return {"message": "서버연결됨"}
 
 
 @app.post("/review")

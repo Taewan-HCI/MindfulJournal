@@ -42,9 +42,14 @@ function Writing(props) {
     const [modalShow, setModalShow] = useState(false);
     const [isListening, setIsListening] = useState(false);
     const [textInput, setTextInput] = useState('');
+    const notSpoken = useRef(true)
     const navigate = useNavigate()
     const current = new Date();
     const date = `${current.getFullYear()}년 ${current.getMonth() + 1}월 ${current.getDate()}일`;
+
+
+    const synth = window.speechSynthesis;
+    const dummy = new Audio();
 
 
     // voice input feature
@@ -105,8 +110,9 @@ function Writing(props) {
                             setDiary(receivedDiary.current)
                         }
                     }
-                    // Tracking "turn" field
                     turnCount.current = data['turn'];
+                    console.log(notSpoken.current)
+                    speak()
                 }
             });
             return () => {
@@ -114,6 +120,24 @@ function Writing(props) {
             };
         }
     });
+
+
+
+    function speak() {
+        if (synth.speaking) {
+            synth.cancel();
+        }
+
+        else if (notSpoken.current === true && prompt !== '' && loading === false) {
+            const utterThis = new SpeechSynthesisUtterance(prompt);
+            utterThis.addEventListener("error", () => {
+                console.error("SpeechSynthesisUtterance error");
+            });
+            utterThis.rate = 0.8;
+            synth.speak(utterThis);
+            notSpoken.current = false
+        }
+    }
 
 
     // create NewDoc
@@ -156,7 +180,6 @@ function Writing(props) {
         setLoading(true)
     }
 
-    // submit diary
     async function submitDiary() {
         await setDoc(doc(db, "session", props.userMail, "diary", session), {
             sessionEnd: Math.floor(Date.now() / 1000),
@@ -166,6 +189,24 @@ function Writing(props) {
             diary: diary
         }, {merge: true});
         navigateToReview()
+    }
+
+    async function submitDiary2() {
+        await setDoc(doc(db, "session", props.userMail, "diary", session), {
+            sessionEnd: Math.floor(Date.now() / 1000),
+            isFinished: true,
+            like: 0,
+            muscle: 0,
+            diary: "오늘 작성한 다이어리는 숨기고 싶어요",
+            diary_hidden: diary
+        }, {merge: true});
+        navigateToReview()
+    }
+
+    async function editDiary(diary_edit) {
+        await setDoc(doc(db, "session", props.userMail, "diary", session), {
+            diary: diary_edit
+        }, {merge: true});
     }
 
     const toggleListening = () => {
@@ -184,6 +225,14 @@ function Writing(props) {
             submitDiary();
         }, 500);
     }
+
+    function handleClick2() {
+        setModalShow(false);
+        setTimeout(() => {
+            submitDiary2();
+        }, 500);
+    }
+
 
     function MyVerticallyCenteredModal(props) {
         return (
@@ -205,11 +254,17 @@ function Writing(props) {
                     </p>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button onClick={props.onHide}>더 작성하기</Button>
-                    <Button onClick={handleClick}>저장하고 종료하기</Button>
+                    <Button onClick={handleClick2}>🌧️ 일기 숨기고 종료하기</Button>
+                    <Button onClick={handleClick}>🌤️ 일기 저장하고 종료하기</Button>
                 </Modal.Footer>
             </Modal>
         );
+    }
+
+    function readText(text) {
+        const synth = window.speechSynthesis;
+        const utterance = new SpeechSynthesisUtterance(text);
+        synth.speak(utterance);
     }
 
     // checking Prompt exist
@@ -282,13 +337,6 @@ function Writing(props) {
             .catch(err => console.log(err));
     }
 
-    const FloatingButton = ({onClick, children}) => {
-        return (
-            <button className="floating-button" onClick={onClick}>
-                {children}
-            </button>
-        );
-    };
 
     async function addConversationFromUser(input, comment) {
         let system_temp = {"role": "assistant", "content": prompt}
@@ -319,6 +367,7 @@ function Writing(props) {
                 })
                 assemblePrompt();
                 setLoading(true);
+                notSpoken.current = true
                 setTextInput("");
             }, 500)
             return () => {
@@ -395,8 +444,9 @@ function Writing(props) {
                     </div>
                 </Row>
                 <Row>
-                    {turnCount.current > 1 && loading === false ? <DiaryView diary={diary} submitDiary={submitDiary}
-                                                                             setModalShow={setModalShow}/> :
+                    {turnCount.current > 2 && loading === false ?
+                        <DiaryView diary={diary} submitDiary={submitDiary} editDiary={editDiary}
+                                   setModalShow={setModalShow}/> :
                         <div></div>}
                 </Row>
                 <MyVerticallyCenteredModal
@@ -525,6 +575,9 @@ function Userinput(props) {
 }
 
 function DiaryView(props) {
+    const [editMode, setEditMode] = useState(false);
+    const [diaryedit, setDiaryedit] = useState("");
+
     if (props.diary === "") {
         return (
             <div className="inwriting_review_box">
@@ -546,7 +599,7 @@ function DiaryView(props) {
                 </Row>
             </div>
         )
-    } else {
+    } else if (editMode === false) {
         return (
             <div className="inwriting_review_box">
                 &nbsp;
@@ -556,14 +609,26 @@ function DiaryView(props) {
                             width: '100%',
                         }}>
                             <Card.Body>
-                                <Card.Title>오늘의 마음챙김 다이어리</Card.Title>
-                                <Card.Subtitle className="mb-2 text-muted">
-                                </Card.Subtitle>
+                                <Card.Title>
+                                    오늘의 마음챙김 다이어리
+                                </Card.Title>
+
                                 <Card.Text>
                                     <div>{props.diary}</div>
                                 </Card.Text>
+                                &nbsp;
+                                <Card.Subtitle className="mb-2 text">
+                                    <span className="likebutton"
+                                          onClick={() => {
+                                              setEditMode(true)
+                                              setDiaryedit(props.diary)
+                                          }}
+                                    >✍️ 내용 ️수정하기️</span>
+                                </Card.Subtitle>
                             </Card.Body>
+
                         </Card>
+
 
                         <Col>
                             <div className="submission"></div>
@@ -581,6 +646,43 @@ function DiaryView(props) {
                         </Col>
                     </Col>
                 </Row>
+            </div>
+        )
+    }
+    else if (editMode)
+    {
+        return (
+             <div className="inwriting_review_box">
+                       <Form.Label htmlFor="userInput">
+                        <span className="desktop-view">
+                            📝️ 내용을 수정해주세요
+                        </span>
+                            <span className="smartphone-view-text-tiny">
+                            📝️ 내용을 수정해주세요
+                        </span>
+                        </Form.Label>
+                        <Form.Control
+                            type="text"
+                            as="textarea"
+                            rows={5}
+                            id="userInput"
+                            value={diaryedit}
+                            onChange={(e) => setDiaryedit(e.target.value)}
+                        />
+
+                            <div className="submission"></div>
+                            <div className="d-grid gap-2">
+                                <Button
+                                    variant="dark"
+                                    style={{backgroundColor: "007AFF", fontWeight: "600"}}
+                                    onClick={() => {
+                                        props.editDiary(diaryedit)
+                                        setEditMode(false)
+                                    }}
+                                >📝 일기 수정완료</Button>
+                            </div>
+                            <div className="footer"></div>
+
             </div>
         )
     }

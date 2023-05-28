@@ -5,7 +5,7 @@ import {
     setDoc,
     collection,
     onSnapshot,
-    getCountFromServer,
+    getCountFromServer, updateDoc, arrayUnion, increment, query, where, orderBy, getDocs
 } from 'firebase/firestore'
 import {db} from "../firebase-config";
 import Container from 'react-bootstrap/Container';
@@ -22,6 +22,7 @@ function Writing(props) {
     const [session, setSession] = useState("")
     const [userName, setUserName] = useState("")
     const [reviewMode, setReviewMode] = useState(false)
+    const [tempText, setTempText] = useState("")
 
     const optionsforReview = useRef([])
     const promptforReview = useRef("")
@@ -45,10 +46,22 @@ function Writing(props) {
     const userNameRef = useRef(null)
     const userInput = useRef(null)
     const directMsg = useRef(null)
+    let [existing, setExisting] = useState([{"sessionStart": "데이터 불러오기"}])
+    const updateProgress = useRef(true)
 
 
     useEffect(() => {
-        if (sessionStatus) {
+
+        async function renewList() {
+            const existingSession = await receiveSessionData()
+            setExisting(existingSession)
+            updateProgress.current = false
+            console.log(existing)
+        }
+
+        if (userName !== "" && session === "" && updateProgress.current === true) {
+            renewList()
+        } else if (sessionStatus) {
             if (loading) {
                 const unsuscribe = onSnapshot(doc(db, "session", userName, "diary", session), doc => {
                     receivedText.current = doc.data()["outputForReview"]["options"]
@@ -66,11 +79,9 @@ function Writing(props) {
                     if (receivedText5.current == true) {
                         alert("사용자가 일기 작성을 종료하였습니다")
                         sessionStatus.current = false
-                    }
-                    else if (prompt_local.current[0] !== receivedText.current[0]) {
+                    } else if (prompt_local.current[0] !== receivedText.current[0]) {
                         setLoading(false)
-                    }
-                    else if (receivedText7.current == "new") {
+                    } else if (receivedText7.current == "new") {
                         setLoading(false)
                     }
                 })
@@ -80,6 +91,22 @@ function Writing(props) {
             }
         }
     })
+
+
+    async function receiveSessionData() {
+        let tempArr = [];
+        const userDocRef = doc(db, 'session', userName);
+        const diaryCompleteCollRef = collection(userDocRef, 'diary');
+        const q = query(diaryCompleteCollRef, where('isFinished', '==', false), orderBy('sessionStart', 'desc'));
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach((doc) => {
+            // doc.data() is never undefined for query doc snapshots
+            // console.log(doc.id, " => ", doc.data());
+            tempArr.push(doc.data());
+        });
+        let resultArr = tempArr.slice(0, 4);
+        return resultArr;
+    }
 
     async function reviewSubmit(list) {
         const docRef = doc(db, "session", userName, "diary", session);
@@ -108,8 +135,7 @@ function Writing(props) {
                 return () => {
                     clearTimeout(a)
                 }
-            }
-            else {
+            } else {
                 let a = setTimeout(async () => {
                     await setDoc(docRef, {
                         history_operator: history,
@@ -159,6 +185,17 @@ function Writing(props) {
 
     }
 
+    function Unix_timestamp(t) {
+        var date = new Date(t * 1000);
+        var year = date.getFullYear();
+        var month = "0" + (date.getMonth() + 1);
+        var day = "0" + date.getDate();
+        var hour = "0" + date.getHours();
+        var minute = "0" + date.getMinutes();
+        var second = "0" + date.getSeconds();
+        return month.substr(-2) + "월 " + day.substr(-2) + "일, " + hour.substr(-2) + ":" + minute.substr(-2) + ":" + second.substr(-2);
+    }
+
     function diaryInit(text, user, num) {
         return fetch('https://algodiary--xpgmf.run.goorm.site/diary', {
             method: 'POST',
@@ -172,21 +209,41 @@ function Writing(props) {
     }
 
 
-    async function createNewDoc() {
-        const doc_1 = doc(db, "session", userName, "diary", session);
-        const existingSession = await getDoc(doc_1)
-        if (existingSession.exists()) {
-            diaryNumber.current = String(session)
-            await setDoc(doc(db, "session", userName, "diary", session), {
-                module: "",
-                operator: props.userName,
-                reviewMode: false
-            }, {merge: true});
-            sessionStatus.current = true
-            setLoading(true)
-        } else {
-            alert("환자가 아직 세션을 시작하지 않았습니다.")
+    async function createNewDoc(newSession) {
+        if (session === "") {
+            const doc_1 = doc(db, "session", userName, "diary", newSession);
+            const existingSession = await getDoc(doc_1)
+            if (existingSession.exists()) {
+                // diaryNumber.current = String(newSession)
+                await setDoc(doc(db, "session", userName, "diary", newSession), {
+                    module: "",
+                    operator: props.userName,
+                    reviewMode: false
+                }, {merge: true});
+                sessionStatus.current = true
+                setLoading(true)
+            } else {
+                alert("환자가 아직 세션을 시작하지 않았습니다.")
+            }
         }
+        else {
+            const doc_1 = doc(db, "session", userName, "diary", session);
+            const existingSession = await getDoc(doc_1)
+            if (existingSession.exists()) {
+                diaryNumber.current = String(session)
+                await setDoc(doc(db, "session", userName, "diary", session), {
+                    module: "",
+                    operator: props.userName,
+                    reviewMode: false
+                }, {merge: true});
+                sessionStatus.current = true
+                setLoading(true)
+            } else {
+                alert("환자가 아직 세션을 시작하지 않았습니다.")
+            }
+
+        }
+
 
     }
 
@@ -194,34 +251,36 @@ function Writing(props) {
     //사용자-sessionID의 doc을 계속 관찰하고 있다가 업데이트가 발생하면 prompt를 업데이트 하는 useEffect 함수
 
 
-    if (sessionStatus.current === false) {
+    if (sessionStatus.current === false && userName === "") {
+
         return (
             <Container>
                 <Row>
                     <div className="loading_box">
                         <div>
-                            <b>사용자 이름과 세션 번호를 입력해주세요</b>
+                            <b>환자 아이디를 입력해주세요</b>
                         </div>
                     </div>
                 </Row>
                 <Row>
                     <Col>
                         <div className="d-grid gap-2">
-                            <input placeholder="사용자 이름을 입력해주세요" ref={userNameRef} onChange={() => {
-                                setUserName(userNameRef.current.value)
-                            }}></input>
-                            <input placeholder="세션 번호를 입력해주세요" ref={sessionInputRef} onChange={() => {
-                                setSession(sessionInputRef.current.value)
-                            }}></input>
+
+                            <Form.Group className="mb-3" controlId="formSessionNumber">
+                                <Form.Control type="text" placeholder="환자 아이디를 입력해주세요" ref={userNameRef}
+                                              onChange={() => {
+                                                  setTempText(userNameRef.current.value)
+                                              }}/>
+                                <Form.Text className="text-muted">
+                                </Form.Text>
+                            </Form.Group>
                             <Button
                                 variant="primary"
                                 style={{backgroundColor: "007AFF", fontWeight: "600"}}
                                 onClick={() => {
-                                    setSession(sessionInputRef.current.value)
                                     setUserName(userNameRef.current.value)
-                                    createNewDoc()
                                 }}
-                            >📝 세션 시작하기
+                            >🔎 세션 검색
                             </Button>
                         </div>
                     </Col>
@@ -230,6 +289,50 @@ function Writing(props) {
                 </Row>
             </Container>
 
+        )
+    } else if (sessionStatus.current === false) {
+        return (
+            <Container>
+                <Row>
+                    <div className="loading_box">
+                        <span className="desktop-view">
+                            <b>진행하고자 하는 세션을 선택해주세요</b>
+                        </span>
+                        <span className="smartphone-view">
+                            <b>진행하고자 하는 세션을 선택해주세요</b>
+                        </span>
+                    </div>
+                </Row>
+                <Row>
+                    <Col>
+                        <div className="d-grid gap-2">
+                            <Form.Text className="text-muted">
+                                {userName} 환자의 <br/>종료되지 않은 최근 5개의 세션입니다.
+                            </Form.Text>
+                        </div>
+                    </Col>
+                    <Col></Col>
+                </Row>
+                &nbsp;
+                <Row xs={'auto'} md={1} className="g-4">
+                    {existing.map((_, idx) => (
+                        <Col>
+                            <Button
+                                variant="dark"
+                                style={{backgroundColor: "007AFF", fontWeight: "400"}}
+                                onClick={() => {
+                                    const newSession = String(existing[idx]["sessionStart"]);
+                                    setSession(newSession)
+                                    createNewDoc(newSession)
+                                }}>
+                                {Unix_timestamp(existing[idx]["sessionStart"])}
+                            </Button>
+                        </Col>
+                    ))}
+
+
+                </Row>
+            </Container>
         )
     } else {
         return (

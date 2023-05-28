@@ -6,7 +6,7 @@ import {
     setDoc,
     collection,
     onSnapshot,
-    getCountFromServer, updateDoc, arrayUnion, increment
+    getCountFromServer, updateDoc, arrayUnion, increment, query, where, orderBy, getDocs
 } from 'firebase/firestore'
 import {db} from "../firebase-config";
 import Container from 'react-bootstrap/Container';
@@ -22,6 +22,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import {useNavigate} from "react-router-dom";
 import Modal from 'react-bootstrap/Modal';
 import {ToastContainer} from "react-bootstrap";
+import Likert from 'react-likert-scale';
 
 
 function Writing(props) {
@@ -37,8 +38,11 @@ function Writing(props) {
     let [prompt, setPrompt] = useState('')
     let [module, setModule] = useState('')
     let [diary, setDiary] = useState("")
+    let [existing, setExisting] = useState([{"sessionStart": "데이터 불러오기"}])
+    let [surveyReady, setSurveyReady] = useState(false)
 
     const diaryRequest = useRef(false)
+    const updateProgress = useRef(true)
 
     const [modalShow, setModalShow] = useState(false);
     const [isListening, setIsListening] = useState(false);
@@ -46,6 +50,16 @@ function Writing(props) {
     const navigate = useNavigate()
     const current = new Date();
     const date = `${current.getFullYear()}년 ${current.getMonth() + 1}월 ${current.getDate()}일`;
+
+    const phq1 = useRef(null)
+    const phq2 = useRef(null)
+    const phq3 = useRef(null)
+    const phq4 = useRef(null)
+    const phq5 = useRef(null)
+    const phq6 = useRef(null)
+    const phq7 = useRef(null)
+    const phq8 = useRef(null)
+    const phq9 = useRef(null)
 
 
     // voice input feature
@@ -89,7 +103,17 @@ function Writing(props) {
 
     // monitoring firebase data
     useEffect(() => {
-        if (sessionStatus && session !== '') {
+
+        async function renewList() {
+            const existingSession = await receiveSessionData()
+            setExisting(existingSession)
+            updateProgress.current = false
+            console.log(existing)
+        }
+
+        if (sessionStatus === false && updateProgress.current === true) {
+            renewList()
+        } else if (sessionStatus && session !== '') {
             const diaryDocRef = doc(db, 'session', props.userMail, 'diary', session);
             const unsubscribe = onSnapshot(diaryDocRef, (doc) => {
                 const data = doc.data();
@@ -101,7 +125,7 @@ function Writing(props) {
                     receivedDiary.current = data['diary'];
                     if (receivedDiary.current !== "") {
                         if (turnCount.current > 3 && receivedDiary.current !== diary) {
-                            setShow(true)
+                            // setShow(true)
                             diaryRequest.current = false
                             setDiary(receivedDiary.current)
                         }
@@ -116,43 +140,100 @@ function Writing(props) {
         }
     });
 
+    async function receiveSessionData() {
+        let tempArr = [];
+        const userDocRef = doc(db, 'session', props.userMail);
+        const diaryCompleteCollRef = collection(userDocRef, 'diary');
+        const q = query(diaryCompleteCollRef, where('isFinished', '==', false), orderBy('sessionStart', 'desc'));
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach((doc) => {
+            // doc.data() is never undefined for query doc snapshots
+            // console.log(doc.id, " => ", doc.data());
+            tempArr.push(doc.data());
+        });
+        let resultArr = tempArr.slice(0, 4);
+        return resultArr;
+    }
+
+
     // create NewDoc
-    async function createNewDoc() {
-        const docRef = doc(db, "session", props.userMail, "diary", session);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-            const message = docSnap.data().outputFromLM;
-            console.log("진행중인 세션이 있습니다");
-            if (message.length === 0) {
-                assemblePrompt()
+    async function createNewDoc(newSession) {
+        if (session === "") {
+            const docRef = doc(db, "session", props.userMail, "diary", newSession);
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                const message = docSnap.data().outputFromLM;
+                console.log("진행중인 세션이 있습니다");
+                if (message.length === 0) {
+                    assemblePrompt()
+                } else {
+                    console.log("기존에 언어모델 문장 존재");
+                    setSessionStatus(true)
+                    setLoading(true)
+                }
             } else {
-                console.log("기존에 언어모델 문장 존재");
+                const myArray = ["만나서 반가워요, 오늘 하루 어떻게 지내셨나요?", "오늘 하루 어땠어요? 말하고 싶은 것이 있다면 자유롭게 이야기해주세요.", "안녕하세요! 오늘 하루는 어땠나요?", "오늘 하루도 정말 고생 많으셨어요. 어떤 일이 있었는지 얘기해주세요.", "오늘도 무사히 지나간 것에 감사한 마음이 드네요. 오늘 하루는 어땠나요?", "오늘은 어떤 새로운 것을 경험했나요? 무엇을 경험했는지 얘기해주세요.", "오늘은 어떤 고민이 있었나요? 저와 함께 고민을 얘기해봐요."]
+                let randomIndex = Math.floor(Math.random() * myArray.length);
+                let randomString = myArray[randomIndex];
+                await setDoc(doc(db, "session", props.userMail, "diary", newSession), {
+                    outputFromLM: randomString,
+                    conversation: [],
+                    isFinished: false,
+                    module: "",
+                    fiveOptionFromLLM: [],
+                    diary: "",
+                    topic: "",
+                    sessionStart: newSession,
+                    summary: "",
+                    history: [],
+                    turn: 0,
+                    history_operator: [],
+                    reviewMode: "W",
+                    sessionNumber: session
+                });
+            }
+            setSessionStatus(true)
+            setLoading(true)
+        } else {
+            {
+                const docRef = doc(db, "session", props.userMail, "diary", session);
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    const message = docSnap.data().outputFromLM;
+                    console.log("진행중인 세션이 있습니다");
+                    if (message.length === 0) {
+                        assemblePrompt()
+                    } else {
+                        console.log("기존에 언어모델 문장 존재");
+                        setSessionStatus(true)
+                        setLoading(true)
+                    }
+                } else {
+                    const myArray = ["만나서 반가워요, 오늘 하루 어떻게 지내셨나요?", "오늘 하루 어땠어요? 말하고 싶은 것이 있다면 자유롭게 이야기해주세요.", "안녕하세요! 오늘 하루는 어땠나요?", "오늘 하루도 정말 고생 많으셨어요. 어떤 일이 있었는지 얘기해주세요.", "오늘도 무사히 지나간 것에 감사한 마음이 드네요. 오늘 하루는 어땠나요?", "오늘은 어떤 새로운 것을 경험했나요? 무엇을 경험했는지 얘기해주세요.", "오늘은 어떤 고민이 있었나요? 저와 함께 고민을 얘기해봐요."]
+                    let randomIndex = Math.floor(Math.random() * myArray.length);
+                    let randomString = myArray[randomIndex];
+                    await setDoc(doc(db, "session", props.userMail, "diary", session), {
+                        outputFromLM: randomString,
+                        conversation: [],
+                        isFinished: false,
+                        module: "",
+                        fiveOptionFromLLM: [],
+                        diary: "",
+                        topic: "",
+                        sessionStart: session,
+                        summary: "",
+                        history: [],
+                        turn: 0,
+                        history_operator: [],
+                        reviewMode: "W",
+                        sessionNumber: session
+                    });
+                }
                 setSessionStatus(true)
                 setLoading(true)
             }
-        } else {
-            const myArray = ["만나서 반가워요, 오늘 하루 어떻게 지내셨나요?", "오늘 하루 어땠어요? 말하고 싶은 것이 있다면 자유롭게 이야기해주세요.", "안녕하세요! 오늘 하루는 어땠나요?", "오늘 하루도 정말 고생 많으셨어요. 어떤 일이 있었는지 얘기해주세요.", "오늘도 무사히 지나간 것에 감사한 마음이 드네요. 오늘 하루는 어땠나요?", "오늘은 어떤 새로운 것을 경험했나요? 무엇을 경험했는지 얘기해주세요.", "오늘은 어떤 고민이 있었나요? 저와 함께 고민을 얘기해봐요."]
-            let randomIndex = Math.floor(Math.random() * myArray.length);
-            let randomString = myArray[randomIndex];
-            await setDoc(doc(db, "session", props.userMail, "diary", session), {
-                outputFromLM: randomString,
-                conversation: [],
-                isFinished: false,
-                module: "",
-                fiveOptionFromLLM: [],
-                diary: "",
-                topic: "",
-                sessionStart: Math.floor(Date.now() / 1000),
-                summary: "",
-                history: [],
-                turn: 0,
-                history_operator: [],
-                reviewMode: "W",
-                sessionNumber: session
-            });
         }
-        setSessionStatus(true)
-        setLoading(true)
+
     }
 
     // submit diary
@@ -164,8 +245,146 @@ function Writing(props) {
             muscle: 0,
             diary: diary
         }, {merge: true});
-        navigateToReview()
+        setSurveyReady(true)
+        // navigateToReview()
     }
+
+    function PreviewComponent() {
+        return (
+            <>
+                <p>
+                    각 질문 문항에 대해 체크해주세요
+                </p>
+                <div className="grid">
+                    <p>1. 기분이 가라앉거나, 우울하거나, 희망이 없다고 느꼈다.</p>
+                    <Likert
+                        id="1"
+                        responses={[
+                            {value: 0, text: "전혀 아니다"},
+                            {value: 1, text: "아니다"},
+                            {value: 2, text: "보통이다"},
+                            {value: 3, text: "그렇다"},
+                            {value: 4, text: "매우 그렇다"}
+                        ]}
+                        onChange={(val) => phq1.current = val["value"]}
+                    />
+                    &nbsp;
+                    <p>2. 평소 하던 일에 대한 흥미가 없어지거나 즐거움을 느끼지 못했다.</p>
+                    <Likert
+                        id="2"
+                        responses={[
+                            {value: 0, text: "전혀 아니다"},
+                            {value: 1, text: "아니다"},
+                            {value: 2, text: "보통이다"},
+                            {value: 3, text: "그렇다"},
+                            {value: 4, text: "매우 그렇다"}
+                        ]}
+                        onChange={(val) => phq2.current = val["value"]}
+
+                    />
+                    &nbsp;
+                    <p>3. 잠들기가 어렵거나 자주 깼다/혹은 너무 많이 잤다.</p>
+                    <Likert
+                        id="3"
+                        responses={[
+                            {value: 0, text: "전혀 아니다"},
+                            {value: 1, text: "아니다"},
+                            {value: 2, text: "보통이다"},
+                            {value: 3, text: "그렇다"},
+                            {value: 4, text: "매우 그렇다"}
+                        ]}
+                        onChange={(val) => phq3.current = val["value"]}
+
+                    />
+                    &nbsp;
+                    <p>4. 평소보다 식욕이 줄었다/혹은 평소보다 많이 먹었다.</p>
+                    <Likert
+                        id="4"
+                        responses={[
+                            {value: 0, text: "전혀 아니다"},
+                            {value: 1, text: "아니다"},
+                            {value: 2, text: "보통이다"},
+                            {value: 3, text: "그렇다"},
+                            {value: 4, text: "매우 그렇다"}
+                        ]}
+                        onChange={(val) => phq4.current = val["value"]}
+
+                    />
+                    &nbsp;
+                    <p>5. 다른 사람들이 눈치 챌 정도로 평소보다 말과 행동 이 느려졌다/혹은 너무 안절부절 못해서 가만히 앉아있을 수 없었다.</p>
+                    <Likert
+                        id="5"
+                        responses={[
+                            {value: 0, text: "전혀 아니다"},
+                            {value: 1, text: "아니다"},
+                            {value: 2, text: "보통이다"},
+                            {value: 3, text: "그렇다"},
+                            {value: 4, text: "매우 그렇다"}
+                        ]}
+                        onChange={(val) => phq5.current = val["value"]}
+
+                    />
+                    &nbsp;
+                    <p>6. 피곤하고 기운이 없었다.</p>
+                    <Likert
+                        id="6"
+                        responses={[
+                            {value: 0, text: "전혀 아니다"},
+                            {value: 1, text: "아니다"},
+                            {value: 2, text: "보통이다"},
+                            {value: 3, text: "그렇다"},
+                            {value: 4, text: "매우 그렇다"}
+                        ]}
+                        onChange={(val) => phq6.current = val["value"]}
+
+                    />
+                    &nbsp;
+                    <p>7. 내가 잘못 했거나, 실패했다는 생각이 들었다/혹은 자신과 가족을 실망시켰다고 생각했다.</p>
+                    <Likert
+                        id="7"
+                        responses={[
+                            {value: 0, text: "전혀 아니다"},
+                            {value: 1, text: "아니다"},
+                            {value: 2, text: "보통이다"},
+                            {value: 3, text: "그렇다"},
+                            {value: 4, text: "매우 그렇다"}
+                        ]}
+                        onChange={(val) => phq7.current = val["value"]}
+
+                    />
+                    &nbsp;
+                    <p>8. 신문을 읽거나 TV를 보는 것과 같은 일상적인 일에도 집중할 수가 없었다.</p>
+                    <Likert
+                        id="8"
+                        responses={[
+                            {value: 0, text: "전혀 아니다"},
+                            {value: 1, text: "아니다"},
+                            {value: 2, text: "보통이다"},
+                            {value: 3, text: "그렇다"},
+                            {value: 4, text: "매우 그렇다"}
+                        ]}
+                        onChange={(val) => phq8.current = val["value"]}
+
+                    />
+                    &nbsp;
+                    <p>9. 차라리 죽는 것이 더 낫겠다고 생각했다/혹은 자해할 생각을 했다.</p>
+                    <Likert
+                        id="9"
+                        responses={[
+                            {value: 0, text: "전혀 아니다"},
+                            {value: 1, text: "아니다"},
+                            {value: 2, text: "보통이다"},
+                            {value: 3, text: "그렇다"},
+                            {value: 4, text: "매우 그렇다"}
+                        ]}
+                        onChange={(val) => phq9.current = val["value"]}
+
+                    />
+                </div>
+            </>
+        );
+    }
+
 
     const toggleListening = () => {
         setIsListening((prevState) => !prevState);
@@ -286,16 +505,27 @@ function Writing(props) {
         );
     };
 
+    function Unix_timestamp(t) {
+        var date = new Date(t * 1000);
+        var year = date.getFullYear();
+        var month = "0" + (date.getMonth() + 1);
+        var day = "0" + date.getDate();
+        var hour = "0" + date.getHours();
+        var minute = "0" + date.getMinutes();
+        var second = "0" + date.getSeconds();
+        return month.substr(-2) + "월 " + day.substr(-2) + "일, " + hour.substr(-2) + ":" + minute.substr(-2) + ":" + second.substr(-2);
+    }
+
     async function addConversationFromUser(input, comment) {
         let system_temp = {"role": "assistant", "content": prompt}
         let user_temp = {"role": "user", "content": input};
-       /* let history_temp = {
-            "prompt": prompt,
-            "userInput": input,
-            "module": module,
-            "comment": comment,
-            "turn": turnCount.current
-        }*/
+        /* let history_temp = {
+             "prompt": prompt,
+             "userInput": input,
+             "module": module,
+             "comment": comment,
+             "turn": turnCount.current
+         }*/
         const docRef2 = doc(db, "session", props.userMail, "diary", session);
         const docSnap2 = await getDoc(docRef2);
         if (docSnap2.exists()) {
@@ -326,7 +556,37 @@ function Writing(props) {
     }
 
 
-    if (sessionStatus === false) {
+    if (surveyReady === false) {
+        return (
+            <Container>
+                <Row>
+                    <div className="loading_box">
+                        <span className="desktop-view">
+                            {date}<br/><b>오늘 나의 마음상태를 확인해봐요</b> 😀
+                        </span>
+                        <span className="smartphone-view">
+                            {date}<br/><b>오늘 마음상태를<br/>확인해봐요</b> 😀
+                        </span>
+                    </div>
+                </Row>
+                <Row>
+                    <Col>
+                        {PreviewComponent()}
+                        <Button
+                                variant="primary"
+                                style={{backgroundColor: "007AFF", fontWeight: "600"}}
+                                onClick={() => {
+                                    console.log(phq1.current + phq2.current + phq3.current + phq4.current + phq5.current + phq6.current + phq6.current + phq7.current + phq8.current + phq9.current);
+                                }}
+                            >🌤️오늘의 마음상태 확인하기
+                            </Button>
+                    </Col>
+                </Row>
+                &nbsp;
+
+            </Container>
+        )
+    } else if (sessionStatus === false) {
         return (
             <Container>
                 <Row>
@@ -342,30 +602,42 @@ function Writing(props) {
                 <Row>
                     <Col>
                         <div className="d-grid gap-2">
-                            <Form.Text className="text-muted">
-                                종료되지 않은 세션을 이어 진행하려면<br/>진행중인 세션 번호를 입력해주세요
-                            </Form.Text>
-                            <Form.Group className="mb-3" controlId="formSessionNumber">
-                                <Form.Control type="text" placeholder="세션 번호를 입력해주세요" ref={sessionInputRef}
-                                              onChange={() => {
-                                                  setSession(sessionInputRef.current.value)
-                                              }}/>
-                                <Form.Text className="text-muted">
-                                </Form.Text>
-                            </Form.Group>
                             <Button
                                 variant="primary"
                                 style={{backgroundColor: "007AFF", fontWeight: "600"}}
                                 onClick={() => {
-                                    setSession(sessionInputRef.current.value)
-                                    createNewDoc()
+                                    const newSession = String(Math.floor(Date.now() / 1000));
+                                    setSession(newSession)
+                                    createNewDoc(newSession)
                                 }}
                             >📝 오늘의 일기 작성하기
                             </Button>
+                            &nbsp;
+                            <Form.Text className="text-muted">
+                                종료되지 않은 세션을 이어 진행하려면<br/>아래에서 진행중인 세션을 선택해주세요
+                            </Form.Text>
                         </div>
                     </Col>
-                    <Col className="desktop-view">
-                    </Col>
+                    <Col></Col>
+                </Row>
+                &nbsp;
+                <Row xs={'auto'} md={1} className="g-4">
+                    {existing.map((_, idx) => (
+                        <Col>
+                            <Button
+                                variant="dark"
+                                style={{backgroundColor: "007AFF", fontWeight: "400"}}
+                                onClick={() => {
+                                    const newSession = String(existing[idx]["sessionStart"]);
+                                    setSession(newSession)
+                                    createNewDoc(newSession)
+                                }}>
+                                {Unix_timestamp(existing[idx]["sessionStart"])}
+                            </Button>
+                        </Col>
+                    ))}
+
+
                 </Row>
             </Container>
         )
@@ -397,8 +669,9 @@ function Writing(props) {
                     </div>
                 </Row>
                 <Row>
-                    {turnCount.current > 4 && loading === false ? <DiaryView diary={diary} submitDiary={submitDiary}
-                                                                             setModalShow={setModalShow} turncount={turnCount.current}/> :
+                    {turnCount.current > 3 && loading === false ? <DiaryView diary={diary} submitDiary={submitDiary}
+                                                                             setModalShow={setModalShow}
+                                                                             turncount={turnCount.current}/> :
                         <div></div>}
                 </Row>
                 <MyVerticallyCenteredModal
@@ -417,7 +690,7 @@ function Userinput(props) {
     return (
         <div>
             <Row>
-                <ToastContainer className="p-3" position={"top-center"}>
+                {/*<ToastContainer className="p-3" position={"top-center"}>
                     <Toast onClose={() => props.setShow(false)} show={props.show} delay={3000} autohide>
                         <Toast.Header>
                             <strong className="me-auto">알림</strong>
@@ -425,7 +698,7 @@ function Userinput(props) {
                         </Toast.Header>
                         <Toast.Body>새로운 다이어리가 작성되었어요. 아래로 스크롤해서 확인해보세요</Toast.Body>
                     </Toast>
-                </ToastContainer>
+                </ToastContainer>*/}
                 <Col>
                     <div className="prompt_box">
                             <span className="desktop-view">
