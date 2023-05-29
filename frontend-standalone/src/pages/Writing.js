@@ -408,9 +408,8 @@ function Writing(props) {
                         responses={[
                             {value: 0, text: "전혀 아니다"},
                             {value: 1, text: "아니다"},
-                            {value: 2, text: "보통이다"},
-                            {value: 3, text: "그렇다"},
-                            {value: 4, text: "매우 그렇다"}
+                            {value: 2, text: "그렇다"},
+                            {value: 3, text: "매우 그렇다"}
                         ]}
                         onChange={(val) => phq1.current = val["value"]}
                     />
@@ -421,9 +420,8 @@ function Writing(props) {
                         responses={[
                             {value: 0, text: "전혀 아니다"},
                             {value: 1, text: "아니다"},
-                            {value: 2, text: "보통이다"},
-                            {value: 3, text: "그렇다"},
-                            {value: 4, text: "매우 그렇다"}
+                            {value: 2, text: "그렇다"},
+                            {value: 3, text: "매우 그렇다"}
                         ]}
                         onChange={(val) => phq2.current = val["value"]}
 
@@ -435,9 +433,8 @@ function Writing(props) {
                         responses={[
                             {value: 0, text: "전혀 아니다"},
                             {value: 1, text: "아니다"},
-                            {value: 2, text: "보통이다"},
-                            {value: 3, text: "그렇다"},
-                            {value: 4, text: "매우 그렇다"}
+                            {value: 2, text: "그렇다"},
+                            {value: 3, text: "매우 그렇다"}
                         ]}
                         onChange={(val) => phq3.current = val["value"]}
 
@@ -449,9 +446,8 @@ function Writing(props) {
                         responses={[
                             {value: 0, text: "전혀 아니다"},
                             {value: 1, text: "아니다"},
-                            {value: 2, text: "보통이다"},
-                            {value: 3, text: "그렇다"},
-                            {value: 4, text: "매우 그렇다"}
+                            {value: 2, text: "그렇다"},
+                            {value: 3, text: "매우 그렇다"}
                         ]}
                         onChange={(val) => phq4.current = val["value"]}
 
@@ -463,9 +459,8 @@ function Writing(props) {
                         responses={[
                             {value: 0, text: "전혀 아니다"},
                             {value: 1, text: "아니다"},
-                            {value: 2, text: "보통이다"},
-                            {value: 3, text: "그렇다"},
-                            {value: 4, text: "매우 그렇다"}
+                            {value: 2, text: "그렇다"},
+                            {value: 3, text: "매우 그렇다"}
                         ]}
                         onChange={(val) => phq5.current = val["value"]}
 
@@ -477,9 +472,8 @@ function Writing(props) {
                         responses={[
                             {value: 0, text: "전혀 아니다"},
                             {value: 1, text: "아니다"},
-                            {value: 2, text: "보통이다"},
-                            {value: 3, text: "그렇다"},
-                            {value: 4, text: "매우 그렇다"}
+                            {value: 2, text: "그렇다"},
+                            {value: 3, text: "매우 그렇다"}
                         ]}
                         onChange={(val) => phq6.current = val["value"]}
 
@@ -491,9 +485,8 @@ function Writing(props) {
                         responses={[
                             {value: 0, text: "전혀 아니다"},
                             {value: 1, text: "아니다"},
-                            {value: 2, text: "보통이다"},
-                            {value: 3, text: "그렇다"},
-                            {value: 4, text: "매우 그렇다"}
+                            {value: 2, text: "그렇다"},
+                            {value: 3, text: "매우 그렇다"}
                         ]}
                         onChange={(val) => phq7.current = val["value"]}
 
@@ -505,9 +498,8 @@ function Writing(props) {
                         responses={[
                             {value: 0, text: "전혀 아니다"},
                             {value: 1, text: "아니다"},
-                            {value: 2, text: "보통이다"},
-                            {value: 3, text: "그렇다"},
-                            {value: 4, text: "매우 그렇다"}
+                            {value: 2, text: "그렇다"},
+                            {value: 3, text: "매우 그렇다"}
                         ]}
                         onChange={(val) => phq8.current = val["value"]}
 
@@ -519,9 +511,8 @@ function Writing(props) {
                         responses={[
                             {value: 0, text: "전혀 아니다"},
                             {value: 1, text: "아니다"},
-                            {value: 2, text: "보통이다"},
-                            {value: 3, text: "그렇다"},
-                            {value: 4, text: "매우 그렇다"}
+                            {value: 2, text: "그렇다"},
+                            {value: 3, text: "매우 그렇다"}
                         ]}
                         onChange={(val) => phq9.current = val["value"]}
 
@@ -542,6 +533,20 @@ function Writing(props) {
             })
         })
             .catch(err => console.log(err));
+    }
+
+    function getMentalHealthStatus() {
+        if (phqTotal >= 0 && phqTotal <= 4) {
+            return "건강한 상태에요! 앞으로 이렇게 지켜봐요";
+        } else if (phqTotal >= 5 && phqTotal <= 9) {
+            return "조금 지친거 같아요, 화이팅!";
+        } else if (phqTotal >= 10 && phqTotal <= 19) {
+            return "꽤 힘들어 보이지만, 우리 함께 힘내봐요!";
+        } else if (phqTotal >= 20 && phqTotal <= 27) {
+            return "정말 많이 힘들겠지만, 당신을 응원하고 있어요!";
+        } else {
+            return "오류가 발생했어요";
+        }
     }
 
 
@@ -634,12 +639,12 @@ function Writing(props) {
 
                         <span className="desktop-view">
                             <b>🧠 오늘의 정신건강</b>
-                        <br/>건강한 상태에요! 앞으로 이렇게 지켜봐요
+                        <br/>{getMentalHealthStatus()}
                         </span>
 
                         <span className="smartphone-view-text">
                          <b>🧠 오늘의 정신건강</b>
-                            <br/>건강한 상태에요! 앞으로 이렇게 지켜봐요
+                            <br/>{getMentalHealthStatus()}
                         </span>
                         &nbsp;
 
@@ -647,12 +652,12 @@ function Writing(props) {
                          <b>🗓️ 오늘의 일기<br/></b>
                             {diary}<br/> <br/>
                             <Button
-                        variant="primary"
-                        style={{backgroundColor: "007AFF", fontWeight: "600"}}
-                        onClick={() => {
-                            endSession()
-                        }}
-                    >👍 오늘의 일기쓰기 완료!
+                                variant="primary"
+                                style={{backgroundColor: "007AFF", fontWeight: "600"}}
+                                onClick={() => {
+                                    endSession()
+                                }}
+                            >👍 오늘의 일기쓰기 완료!
                     </Button>
                         </span>
 
@@ -660,17 +665,16 @@ function Writing(props) {
                          <b>🗓️ 오늘의 일기<br/></b>
                             {diary} <br/><br/>
                             <Button
-                        variant="primary"
-                        style={{backgroundColor: "007AFF", fontWeight: "600"}}
-                        onClick={() => {
-                            endSession()
-                        }}
-                    >👍 오늘의 일기쓰기 완료!
+                                variant="primary"
+                                style={{backgroundColor: "007AFF", fontWeight: "600"}}
+                                onClick={() => {
+                                    endSession()
+                                }}
+                            >👍 오늘의 일기쓰기 완료!
                     </Button>
                         </span>
 
                     </Row>
-
 
 
                 </Container>
