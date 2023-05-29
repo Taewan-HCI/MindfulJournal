@@ -55,13 +55,13 @@ function Writing(props) {
         async function renewList() {
             const existingSession = await receiveSessionData()
             setExisting(existingSession)
-            updateProgress.current = false
+            // updateProgress.current = false
             console.log(existing)
         }
-
-        if (userName !== "" && session === "" && updateProgress.current === true) {
+        if (userName !== "" && session === "") {
             renewList()
-        } else if (sessionStatus) {
+        }
+        else if (sessionStatus) {
             if (loading) {
                 const unsuscribe = onSnapshot(doc(db, "session", userName, "diary", session), doc => {
                     receivedText.current = doc.data()["outputForReview"]["options"]

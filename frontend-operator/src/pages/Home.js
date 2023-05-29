@@ -112,51 +112,7 @@ function NoDiary(props) {
 
                     </Col>
                 </Row>*/}
-                <Row xs={1} md={2} className="g-4">
-                    <Col>
-                        <Card>
-                            <Card.Img variant="top" src={book_purple}/>
-                            <Card.Body>
-                                <Card.Title><b>일기쓰기와 정신건강</b></Card.Title>
-                                <Card.Text>
-                                    일기를 작성하는 것이 어떻게 정신건강에 도움이 될까요?
-                                </Card.Text>
-                            </Card.Body>
-                        </Card>
-                    </Col>
-                    <Col>
-                        <Card>
-                            <Card.Img variant="top" src={chat}/>
-                            <Card.Body>
-                                <Card.Title><b>누구와 말하는 건가요?</b></Card.Title>
-                                <Card.Text>
-                                    마음챙김 다이어리가 어떻게 동작 원리에 대해 알아봅니다.
-                                </Card.Text>
-                            </Card.Body>
-                        </Card>
-                    </Col>
-                    <Col>
-                        <Card>
-                            <Card.Img variant="top" src={lock}/>
-                            <Card.Body>
-                                <Card.Title><b>개인정보는 어떻게 관리되나요?</b></Card.Title>
-                                <Card.Text>
-                                    나의 데이터는 어떻게 관리되는지 알아봅니다.</Card.Text>
-                            </Card.Body>
-                        </Card>
-                    </Col>
-                    <Col>
-                        <Card>
-                            <Card.Img variant="top" src={book_blue}/>
-                            <Card.Body>
-                                <Card.Title><b>어떻게 적는건가요?</b></Card.Title>
-                                <Card.Text>
-                                    정신건강에 도움이 되는 일상 기록이란?
-                                </Card.Text>
-                            </Card.Body>
-                        </Card>
-                    </Col>
-                </Row>
+
             </Row>
             <div className="footer"></div>
         </Container>

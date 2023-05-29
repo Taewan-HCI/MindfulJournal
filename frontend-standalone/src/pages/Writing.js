@@ -189,7 +189,9 @@ function Writing(props) {
                     summary: "",
                     history: [],
                     turn: 0,
-                    sessionNumber: session
+                    sessionNumber: session,
+                    history_operator: [],
+                    reviewMode: "W",
                 });
             }
             setSessionStatus(true)
@@ -226,7 +228,9 @@ function Writing(props) {
                     summary: "",
                     history: [],
                     turn: 0,
-                    sessionNumber: newSession
+                    sessionNumber: newSession,
+                    history_operator: [],
+                    reviewMode: "W",
                 });
             }
             setSessionStatus(true)
