@@ -743,12 +743,12 @@ function Writing(props) {
             <Container>
                 <Row>
                     <div>
-                        <Badge bg="primary">
+                        {/*<Badge bg="primary">
                             사용자: {props.userName}
                         </Badge>{' '}
                         <Badge bg="primary">
                             세션: {session}
-                        </Badge>
+                        </Badge>*/}
 
                         {loading === true ? <Loading/> :
                             <Userinput prompt={prompt} setInputUser={setInputUser} inputUser={inputUser}
@@ -845,7 +845,10 @@ function Userinput(props) {
                                 style={{backgroundColor: "007AFF", fontWeight: "600"}}
                                 onClick={() => {
                                     (function () {
-                                        if (props.isListening === true) {
+                                        if (props.textInput.length < 10) {
+                                            alert("입력한 내용이 너무 짧아요. 조금만 더 입력해볼까요?")
+                                        }
+                                        else if (props.isListening === true) {
                                             props.toggleListening()
                                             props.addConversationFromUser(props.textInput, temp_comment_input.current)
                                         } else {
