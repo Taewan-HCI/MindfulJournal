@@ -281,7 +281,6 @@ function Loading_complete(props) {
                         <br/>
                         📖 지금까지 <b>{props.diaryList.length}</b>개의 일기를 작성하셨네요!
 
-
                     </div>
                         <div className="d-grid gap-2">
                             &nbsp;
