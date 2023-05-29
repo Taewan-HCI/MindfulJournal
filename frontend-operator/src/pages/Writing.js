@@ -239,7 +239,7 @@ function Writing(props) {
                 sessionStatus.current = true
                 setLoading(true)
             } else {
-                alert("환자가 아직 세션을 시작하지 않았습니다.")
+                alert("환자가 아직 세션을 시작하지 않았가습니다.")
             }
 
         }
