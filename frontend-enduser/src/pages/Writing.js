@@ -705,7 +705,7 @@ function Writing(props) {
                                     setSession(newSession)
                                     createNewDoc(newSession)
                                 }}
-                            >📝 오늘의 일기 작성하기
+                            >📝일기 작성하기
                             </Button>
                             &nbsp;
                             <Form.Text className="text-muted">
@@ -872,7 +872,9 @@ function Userinput(props) {
                             style={{backgroundColor: "007AFF", fontWeight: "600"}}
                             onClick={() => {
                                 (function () {
-                                    if (props.isListening === true) {
+                                    if (props.textInput.length < 10) {
+                                        alert("입력한 내용이 너무 짧아요. 조금만 더 입력해볼까요?")
+                                    } else if (props.isListening === true) {
                                         props.toggleListening()
                                         props.addConversationFromUser(props.textInput, temp_comment_input.current)
                                     } else {
@@ -939,7 +941,7 @@ function DiaryView(props) {
                                               setEditMode(true)
                                               setDiaryedit(props.diary)
                                           }}
-                                    >✍️ 내용 ️수정하기️</span>
+                                    >✍️수정하기️</span>
                                 </Card.Subtitle>
                             </Card.Body>
 

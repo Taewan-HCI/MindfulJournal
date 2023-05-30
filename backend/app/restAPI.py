@@ -14,10 +14,12 @@ from firebase_admin import firestore
 import openai
 from dotenv import load_dotenv
 import os
+from typing import List
+
 
 SECRET_KEY = "your_secret_key"  # Make sure to use a secure and unpredictable key
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 300
 
 app = FastAPI()
 origins = ["*", "http://localhost:3000", "http://localhost:8000", "https://mindful-journal-frontend-s8zk.vercel.app/"]
@@ -128,14 +130,67 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         raise credentials_exception
     return User(username=token_data.username)
 
-def download():
-    doc_ref = db.collection(u'session').document("ut01@test.com").collection(u'diary').document("G02")
-    doc = doc_ref.get()
+def download_diary(patient_id: str):
+    doc_refs = db.collection(u'session').document(patient_id).collection(u'diary').stream()
+
+    keys_to_keep = ['sessionStart', 'sessionEnd', 'like', 'operator', 'diary', 'sessionNumber']  # the keys you want to keep
+
+    diaries = []
+    for doc in doc_refs:
+        if doc.get('isFinished') == True:  # only add diary to list if 'isFinished' is True
+            diary = doc.to_dict()
+            diary = {key: diary[key] for key in keys_to_keep if key in diary}
+            diaries.append(diary)
+
+    return diaries if diaries else 'No such document!'
+
+
+def download_diary_betweendate(patientID: str, startDate: int, endDate: int):
+    doc_refs = db.collection(u'session').document(patientID).collection(u'diary').stream()
+    keys_to_keep = ['sessionStart', 'sessionEnd', 'like', 'operator', 'diary', 'sessionNumber']  # the keys you want to keep
+    diaries = []
+    for doc in doc_refs:
+        diary = doc.to_dict()
+        if diary.get('isFinished') == True and startDate <= diary.get('sessionEnd', 0) <= endDate:  # only add diary to list if 'isFinished' is True and 'sessionEnd' is within the range
+            diary = {key: diary[key] for key in keys_to_keep if key in diary}
+            diaries.append(diary)
+
+    return diaries if diaries else 'No such document!'
+
+
+
+def download_specific_diary(patient_id: str, diaryID: str):
+    doc = db.collection(u'session').document(patient_id).collection(u'diary').document(diaryID).get()
+
+    keys_to_keep = ['sessionStart', 'sessionEnd', 'operator', 'diary', 'conversation']  # the keys you want to keep
+
     if doc.exists:
-        print(f'Document data: {doc.to_dict()}')
+        diary = doc.to_dict()
+        if diary.get('isFinished') == True:  # only add diary to list if 'isFinished' is True
+            diary = {key: diary[key] for key in keys_to_keep if key in diary}
+            return diary
+        else:
+            return 'Document "isFinished" field is False!'
+    else:
+        return 'No such document!'
+
+
+
+def get_patient(patient_id: str):
+    doc = db.collection(u'patient').document(patient_id).get()
+    if doc.exists:
         return doc.to_dict()
     else:
-        print(u'No such document!')
+        return None
+
+def download_all():
+    docs = db.collection(u'patient').stream()
+
+    all_data = []
+    for doc in docs:
+        all_data.append(doc.to_dict())
+
+    return all_data
 
 
 fake_db = {
@@ -160,11 +215,45 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
-@app.get("/test")
+@app.get("/token_test")
 async def test_endpoint(current_user: User = Depends(get_current_user)):
     return {"message": "authorized"}
 
-@app.get("/test1")
+@app.get("/patient_all")
 async def read_root(current_user: User = Depends(get_current_user)) -> dict:
-    response = download()
+    response = download_all()
     return response
+
+@app.get("/patient/{patient_id}")
+async def read_patient(patient_id: str, current_user: User = Depends(get_current_user)) -> dict:
+    patient_data = get_patient(patient_id)
+    if patient_data is not None:
+        return patient_data
+    else:
+        raise HTTPException(status_code=404, detail="Patient not found")
+
+
+@app.get("/{patient_id}")
+async def read_patient(patient_id: str, current_user: User = Depends(get_current_user)) -> dict:
+    diary_data = download_diary(patient_id)
+    if diary_data is not None:
+        return diary_data
+    else:
+        raise HTTPException(status_code=404, detail="Patient not found")
+
+@app.get("/{patientID}")
+async def read_patient(patientID: str, start: int, end: int, current_user: User = Depends(get_current_user)) -> dict:
+    diary_data2 = download_diary_betweendate(patientID, start, end)
+    if diary_data2 != 'No such document!':
+        return diary_data2
+    else:
+        raise HTTPException(status_code=404, detail="Patient not found")
+
+
+@app.get("/{patient_id}/{diaryID}")
+async def read_patient(patient_id: str, diaryID: str, current_user: User = Depends(get_current_user)) -> dict:
+    diary_data = download_specific_diary(patient_id, diaryID)
+    if diary_data is not None:
+        return diary_data
+    else:
+        raise HTTPException(status_code=404, detail="Patient not found")
