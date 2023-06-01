@@ -130,16 +130,28 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         raise credentials_exception
     return User(username=token_data.username)
 
+
+from datetime import datetime
+
+
 def download_diary(patient_id: str):
     doc_refs = db.collection(u'session').document(patient_id).collection(u'diary').stream()
 
-    keys_to_keep = ['sessionStart', 'sessionEnd', 'like', 'operator', 'diary', 'sessionNumber']  # the keys you want to keep
+    keys_to_keep = ['sessionStart', 'sessionEnd', 'like', 'operator', 'diary',
+                    'sessionNumber']  # the keys you want to keep
 
     diaries = []
     for doc in doc_refs:
         if doc.get('isFinished') == True:  # only add diary to list if 'isFinished' is True
             diary = doc.to_dict()
             diary = {key: diary[key] for key in keys_to_keep if key in diary}
+
+            # calculate duration if both 'sessionStart' and 'sessionEnd' are in the diary
+            if 'sessionStart' in diary and 'sessionEnd' in diary:
+                # assuming that 'sessionStart' and 'sessionEnd' are UNIX timestamps
+                duration = diary['sessionEnd'] - diary['sessionStart']
+                diary['duration'] = duration  # add 'duration' to the diary
+
             diaries.append(diary)
 
     return diaries if diaries else 'No such document!'
@@ -147,12 +159,17 @@ def download_diary(patient_id: str):
 
 def download_diary_betweendate(patientID: str, startDate: int, endDate: int):
     doc_refs = db.collection(u'session').document(patientID).collection(u'diary').stream()
-    keys_to_keep = ['sessionStart', 'sessionEnd', 'like', 'operator', 'diary', 'sessionNumber']  # the keys you want to keep
+    keys_to_keep = ['sessionStart', 'sessionEnd', 'like', 'operator', 'diary',
+                    'sessionNumber']  # the keys you want to keep
     diaries = []
     for doc in doc_refs:
         diary = doc.to_dict()
         if diary.get('isFinished') == True and startDate <= diary.get('sessionEnd', 0) <= endDate:  # only add diary to list if 'isFinished' is True and 'sessionEnd' is within the range
             diary = {key: diary[key] for key in keys_to_keep if key in diary}
+            if 'sessionStart' in diary and 'sessionEnd' in diary:
+                # assuming that 'sessionStart' and 'sessionEnd' are UNIX timestamps
+                duration = diary['sessionEnd'] - diary['sessionStart']
+                diary['duration'] = duration  # add 'duration' to the diary
             diaries.append(diary)
 
     return diaries if diaries else 'No such document!'
@@ -168,6 +185,18 @@ def download_specific_diary(patient_id: str, diaryID: str):
         diary = doc.to_dict()
         if diary.get('isFinished') == True:  # only add diary to list if 'isFinished' is True
             diary = {key: diary[key] for key in keys_to_keep if key in diary}
+            if 'sessionStart' in diary and 'sessionEnd' in diary:
+                # assuming that 'sessionStart' and 'sessionEnd' are UNIX timestamps
+                duration = diary['sessionEnd'] - diary['sessionStart']
+                diary['duration'] = duration  # add 'duration' to the diary
+            if 'conversation' in diary:
+                count = 0
+                for i in range (len(diary['conversation'])):
+                    if diary['conversation'][i]['role'] == "user":
+                        temp = len(diary['conversation'][i]['content'])
+                        count = count + temp
+                diary['length'] = count
+
             return diary
         else:
             return 'Document "isFinished" field is False!'
@@ -233,7 +262,7 @@ async def read_patient(patient_id: str, current_user: User = Depends(get_current
         raise HTTPException(status_code=404, detail="Patient not found")
 
 
-@app.get("/{patient_id}")
+@app.get("/diary/{patient_id}")
 async def read_patient(patient_id: str, current_user: User = Depends(get_current_user)) -> dict:
     diary_data = download_diary(patient_id)
     if diary_data is not None:
