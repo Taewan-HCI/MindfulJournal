@@ -138,7 +138,7 @@ def download_diary(patient_id: str):
     doc_refs = db.collection(u'session').document(patient_id).collection(u'diary').stream()
 
     keys_to_keep = ['sessionStart', 'sessionEnd', 'like', 'operator', 'diary',
-                    'sessionNumber']  # the keys you want to keep
+                    'sessionNumber', 'conversation']  # the keys you want to keep
 
     diaries = []
     for doc in doc_refs:
@@ -151,6 +151,14 @@ def download_diary(patient_id: str):
                 # assuming that 'sessionStart' and 'sessionEnd' are UNIX timestamps
                 duration = diary['sessionEnd'] - diary['sessionStart']
                 diary['duration'] = duration  # add 'duration' to the diary
+            if 'conversation' in diary:
+                count = 0
+                for i in range(len(diary['conversation'])):
+                    if diary['conversation'][i]['role'] == "user":
+                        temp = len(diary['conversation'][i]['content'])
+                        count = count + temp
+                diary['length'] = count
+                del diary['conversation']  # delete 'conversation' from the diary
 
             diaries.append(diary)
 
@@ -160,7 +168,7 @@ def download_diary(patient_id: str):
 def download_diary_betweendate(patientID: str, startDate: int, endDate: int):
     doc_refs = db.collection(u'session').document(patientID).collection(u'diary').stream()
     keys_to_keep = ['sessionStart', 'sessionEnd', 'like', 'operator', 'diary',
-                    'sessionNumber']  # the keys you want to keep
+                    'sessionNumber', 'conversation']  # the keys you want to keep
     diaries = []
     for doc in doc_refs:
         diary = doc.to_dict()
@@ -170,6 +178,65 @@ def download_diary_betweendate(patientID: str, startDate: int, endDate: int):
                 # assuming that 'sessionStart' and 'sessionEnd' are UNIX timestamps
                 duration = diary['sessionEnd'] - diary['sessionStart']
                 diary['duration'] = duration  # add 'duration' to the diary
+            if 'conversation' in diary:
+                count = 0
+                for i in range(len(diary['conversation'])):
+                    if diary['conversation'][i]['role'] == "user":
+                        temp = len(diary['conversation'][i]['content'])
+                        count = count + temp
+                diary['length'] = count
+                del diary['conversation']  # delete 'conversation' from the diary
+
+            diaries.append(diary)
+
+    return diaries if diaries else 'No such document!'
+
+
+def frequency_betweendate(patientID: str, startDate: int, endDate: int):
+    doc_refs = db.collection(u'session').document(patientID).collection(u'diary').stream()
+    keys_to_keep = ['sessionEnd']  # the keys you want to keep
+    diaries = []
+    num = []
+    for doc in doc_refs:
+        diary = doc.to_dict()
+        if diary.get('isFinished') == True and startDate <= diary.get('sessionEnd', 0) <= endDate:  # only add diary to list if 'isFinished' is True and 'sessionEnd' is within the range
+            diary = {key: diary[key] for key in keys_to_keep if key in diary}
+            diaries.append(diary)
+    for i in range (len(diaries)):
+        num.append(diaries[i]['sessionEnd'])
+    return num if diaries else 'No such document!'
+
+
+
+
+def length_betweendate(patientID: str, startDate: int, endDate: int):
+    doc_refs = db.collection(u'session').document(patientID).collection(u'diary').stream()
+    keys_to_keep = ['sessionStart', 'sessionEnd', 'like', 'operator', 'diary',
+                    'sessionNumber', 'conversation']  # the keys you want to keep
+    diaries = []
+    for doc in doc_refs:
+        diary = doc.to_dict()
+        if diary.get('isFinished') == True and startDate <= diary.get('sessionEnd',
+                                                                      0) <= endDate:  # only add diary to list if 'isFinished' is True and 'sessionEnd' is within the range
+            diary = {key: diary[key] for key in keys_to_keep if key in diary}
+            if 'sessionStart' in diary and 'sessionEnd' in diary:
+                # assuming that 'sessionStart' and 'sessionEnd' are UNIX timestamps
+                duration = diary['sessionEnd'] - diary['sessionStart']
+                diary['duration'] = duration  # add 'duration' to the diary
+            if 'conversation' in diary:
+                count = 0
+                for i in range(len(diary['conversation'])):
+                    if diary['conversation'][i]['role'] == "user":
+                        temp = len(diary['conversation'][i]['content'])
+                        count = count + temp
+                diary['length'] = count
+                del diary['conversation']
+                del diary['sessionStart']
+                del diary['like']
+                del diary['diary']
+                del diary['sessionNumber']
+                # delete 'conversation' from the diary
+
             diaries.append(diary)
 
     return diaries if diaries else 'No such document!'
@@ -273,6 +340,22 @@ async def read_patient(patient_id: str, current_user: User = Depends(get_current
 @app.get("/{patientID}")
 async def read_patient(patientID: str, start: int, end: int, current_user: User = Depends(get_current_user)) -> dict:
     diary_data2 = download_diary_betweendate(patientID, start, end)
+    if diary_data2 != 'No such document!':
+        return diary_data2
+    else:
+        raise HTTPException(status_code=404, detail="Patient not found")
+
+@app.get("/frequency/{patientID}")
+async def read_patient(patientID: str, start: int, end: int, current_user: User = Depends(get_current_user)) -> dict:
+    diary_data2 = frequency_betweendate(patientID, start, end)
+    if diary_data2 != 'No such document!':
+        return diary_data2
+    else:
+        raise HTTPException(status_code=404, detail="Patient not found")
+
+@app.get("/length/{patientID}")
+async def read_patient(patientID: str, start: int, end: int, current_user: User = Depends(get_current_user)) -> dict:
+    diary_data2 = length_betweendate(patientID, start, end)
     if diary_data2 != 'No such document!':
         return diary_data2
     else:
