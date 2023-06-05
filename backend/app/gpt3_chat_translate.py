@@ -81,10 +81,11 @@ To perform the task, follow these steps:
 \n1. Perform Korean morphological analysis on the "monologue," including 'dependent noun' and 'josa,' and save the extracted words in 'temp'.
 \n2. Extract only nouns, verbs, and adjectives from 'temp' and save them in 'words'.
 \n3. Count the number of times the words from 'words' appear in the "monologue".
-\n4. Store in "filtered_words" the words from 'words'  that meet all of the following criteria a, b, c:
-  \na. Exclude "나," "것," "뿐," and "은".
-  \nb. Exclude 'josa,' 'dependent noun,' and 'pronoun'.
-  \nc. Exclude words that refer to anything.
+\n4. Store in "filtered_words" the words from 'words'  that meet all of the following criteria a, b, c, d:
+  \n a. Exclude "나," "것," "뿐", and "은".
+  \n b. Exclude "하다", "있다", and "싶다"
+  \n c. Exclude 'josa,' 'dependent noun', 'auxiliary adjective', and 'pronoun'.
+  \n d. Exclude words that refer to anything.
 \n5. Select the 20 most frequently appearing words from "filtered_words" based on their frequency in the "monologue" and save them in "top-20". In case of ties, prioritize words associated with a "depressed patient."
 \n6. Save the results in "lists" as a list of dictionaries. Each dictionary represents a word from "top-20" and includes the word's frequency of appearance and sentiment. The keys are 'word', 'count', and 'sentiment', where the type of word is String, the type of count is Int, the type of sentiment is String, and the sentiment is one of four strings: '긍정', '부정', '중립',  '위험'.  Sort "lists" in descending order based on 'count'.
 \n7. Iterate over "lists" and for each dictionary, count how many times the value of 'word' appears as a substring in the "monologue" and save it to 'count'.
@@ -299,72 +300,3 @@ Emotion/Thought
     print(f"{end_time - start_time:.5f} sec")
     print(result)
     return result
-
-
-
-def m1_1(text):
-    messages = [
-        {"role": "system",
-         "content": "The dialogue below is a conversation between me and a user about their day.\nI'm a counsellor who listens to user's daily lives, concerns and thoughts.\nI ask questions to help the user reflect on their day.\nIf user don't tell me about their day, I ask questions to get them to recall and thingk about it more.\nI offer empathy and encouragement, not new information or skills.\nI don't talk a lot. I only say short sentence.\nI only ask about one thing at a time.\nI don't create the user's dialogue.\nI don't end the conversation."}  ]
-    for i in range(0, len(text)):
-        messages.append(text[i])
-    print(len(text))
-    My_OpenAI_key = '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'
-    openai.api_key = My_OpenAI_key
-    completion = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=messages,
-        stop=['User: '],
-        max_tokens=245,
-    )
-    answer = completion
-    return answer["choices"][0]["message"]['content']
-
-
-def translate_KorToEng(text):
-    output = []
-    for i in range(0, len(text)):
-        temp = text[i]["content"]
-        inputMsg = "Translate the following Korean text to English: {" + temp + "}"
-
-        messages = [{"role": "system", "content": "You are a helpful assistant that translates Korean to English. The following sentence is part of a conversation about reflecting on past thoughts and events. Please translate them into as natural a colloquial language as possible."}, {"role": "user", "content": "오늘은 어떤 일이 있었나요? 정리가 안 되어도 되니 편안하게 얘기해주세요."}, {"role": "assistant", "content": "What happened today? It doesn't have to be organized, so feel free to talk about it."}, {"role": "user", "content": "오늘 있었던 일은. 음 수업은 따로 없었고, 오후에 조모임이 있었어. 그리고, 그 외에 별일은 없었던 것 같아."}, {"role": "assistant", "content": "Today was, um, I didn't have any classes, I had a group meeting in the afternoon, and I don't think anything else happened."}]
-        messages.append({"role": "user", "content": inputMsg})
-
-        My_OpenAI_key = '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'
-        openai.api_key = My_OpenAI_key
-        completion = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=messages,
-            stop=['User: '],
-            max_tokens=245,
-        )
-        answer = completion
-        result = answer["choices"][0]["message"]['content']
-        if (i == 0):
-            output.append({"role": "assistant", "content": result})
-        else:
-            output.append({"role": "user", "content": result})
-    return output
-
-
-def translate_EngToKor(text):
-    inputMsg = "Translate the following Englich text to Korean: {" + text + "}"
-
-    messages = [
-        {"role": "system", "content": "You are a helpful assistant that translates English to Korean. The following sentence is part of a conversation about reflecting on past thoughts and events. Please translate them into as natural a colloquial language as possible."}, {"role": "user", "content": "What happened today? It doesn't have to be organized, so feel free to talk about it."}, {"role": "assistant", "content": "오늘은 어떤 일이 있었나요? 정리가 안 되어도 되니 편안하게 얘기해주세요."}, {"role": "user", "content": "Today was, um, I didn't have any classes, I had a group meeting in the afternoon, and I don't think anything else happened."}, {"role": "assistant", "content": "오늘 있었던 일은. 음 수업은 따로 없었고, 오후에 조모임이 있었어. 그리고, 그 외에 별일은 없었던 것 같아."}]
-    messages.append({"role": "user", "content": inputMsg})
-
-    My_OpenAI_key = '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'
-    openai.api_key = My_OpenAI_key
-    completion = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=messages,
-        stop=['User: '],
-        max_tokens=245,
-    )
-    answer = completion
-    result = answer["choices"][0]["message"]['content']
-    result = result[0:len(result)-0]
-    return result
-
-
