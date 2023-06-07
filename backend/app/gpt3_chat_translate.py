@@ -63,8 +63,8 @@ async def uploadDB(request: Request):
     monologue = get_monologue(user, num)
     print("monologue: ", monologue)
     
-    frequency = body['frequency']
-    summary = body['summary']
+    frequency = get_word_frequency(monologue)
+    summary = get_event_summary(monologue)
     
     upload(user, num, frequency, summary)
     
@@ -131,17 +131,16 @@ def get_word_frequency(text):
     answer = completion
     result = answer["choices"][0]["message"]['content']
 
-    # json_data = json.loads(result.replace("'", "\""))
-    # print(json_data)
-    # return_json = []
+    json_data = json.loads(result.replace("\'", "\""))
+    return_json = []
     
-    # for j in json_data : 
-    #     t = kiwi.tokenize(j['word'])
-    #     if t[0].tag in 주요품사:
-    #         #꼭 0번이 아닐수도 있음...!!
-    #         return_json.append(j)
+    for j in json_data : 
+        t = kiwi.tokenize(j['word'])
+        if t[0].tag in 주요품사:
+            #꼭 0번이 아닐수도 있음...!!
+            return_json.append(j)
 
-    return result
+    return return_json 
 
 @app.post("/gpt")
 async def analysis(request: Request):
@@ -193,10 +192,10 @@ here is an example.
 diary: 오늘 나는 날씨가 우중충해서 기분이 나빴어. 그런데 그만 지하철을 타러 가다 돌부리에 걸려 넘어졌어. 무릎이 까지고 발목을 접질린 것 같아 제대로 걷지를 못하겠더라. 그 와중에 나를 보고 수군대는 할아버지가 너무 야속했어. 그래서 자리에 엎어져서 대성통곡했는데, 길 건너편에서 나를 물끄러미 보던 아주머니가 달려와서 나를 부축해줬어. 고마웠지만 너무 부끄럽더라.
 
 my output:
-Event
+Event:
 날씨가 좋지 않았다. 지하철을 타러 가다 돌부리에 걸려 넘어졌다. 자리에 엎어져서 울었다. 그리고 건너편에 있던 아주머니가 와서 유저를 부축했다.
 
-Emotion/Thought
+Emotion/Thought:
 사용자는 날씨가 좋지 않아서 슬펐다. 할아버지가 야속했다. 아주머니에게 고마움을 느꼈다.
 '''
 
@@ -216,7 +215,15 @@ def get_event_summary(text):
     answer = completion
     result = answer["choices"][0]["message"]['content']
     
-    return result
+    event = result.split('Event:')[1].split('Emotion/Thought:')[0]
+    emotion = result.split('Event:')[1].split('Emotion/Thought:')[1]
+    
+    event_summary = {
+        "event": event,
+        "emotion": emotion
+    }
+    
+    return event_summary
     
 
 #넣은 글을 Event, emotion/thought로 분리해서 요약해주는 API
