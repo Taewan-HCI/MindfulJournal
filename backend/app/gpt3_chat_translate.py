@@ -11,6 +11,9 @@ import os
 import time
 from kiwipiepy import Kiwi
 from collections import Counter
+import firebase_admin
+from firebase_admin import credentials
+from firebase_admin import firestore
 
 
 kiwi = Kiwi()
@@ -25,15 +28,40 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
-print("코드 실행 시작")
-
 # 구글 Firebase인증 및 openAI api key 설정
 load_dotenv()
 gptapi = os.getenv("gptkey")
 My_OpenAI_key = gptapi
 openai.api_key = My_OpenAI_key
 
+firebase_key = os.getenv("dbkey")
+
+cred = credentials.Certificate(firebase_key)
+app_1 = firebase_admin.initialize_app(cred)
+db = firestore.client()
+
+
+
+print("코드 실행 시작")
+
+def upload(user, num, frequency, summary):
+    doc_ref = db.collection(u'session').document(user).collection(u'diary').document(num)
+    doc_ref.set({
+        u'wordFrequency': frequency,
+        u'eventSummary': summary
+    }, merge=True)
+    
 print("연결 시작")
+
+@app.post("/upload")
+async def uploadDB(request: Request):
+    body = await request.json()
+    user = body['user']
+    num = body['num']
+    frequency = body['frequency']
+    summary = body['summary']
+    
+    upload(user, num, frequency, summary)
 
 #테스트용 api
 @app.get("/")
