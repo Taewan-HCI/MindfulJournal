@@ -58,29 +58,36 @@ async def uploadDB(request: Request):
     body = await request.json()
     user = body['user']
     num = body['num']
+    
+    start_time = time.time()
+    
+    monologue = get_monologue(user, num)
+    print("monologue: ", monologue)
+    
     frequency = body['frequency']
     summary = body['summary']
     
     upload(user, num, frequency, summary)
+    
+    end_time = time.time()
+    print(f"{end_time - start_time:.5f} sec")
+    
+def get_monologue(user, num):
+    diary_ref = db.collection(u'session').document(user).collection(u'diary').document(num)
+    diary = diary_ref.get().to_dict()
+    conversation = diary.get('conversation')[1::2]  
+    
+    monologue = ""
+    for c in conversation:
+        monologue += c['content']
+    
+    return monologue
+    
 
 #테스트용 api
-@app.get("/")
-def makeDiary():
-    messages = [{"role": "system",
-                 "content": "You must not repeat my word. You must contain a 'JOSA' analysis in the Korean morphological analysis. for morphological alaysis, please use okt package. After the analysis, please filter the result only the nouns, verbs, and adjectives, then sort them in decreasing frequency order. Finally, provide me the output in a JSON array format that includes the word and its frequency, as '{word: word, frequency: frequency}'. only send me a result"},
-                {"role": "user",
-                 "content": "부모님을 생각하면서 조절하는게 아니라 부모님이 마음에 걸려서 못하는 거야. 나는 대단한 용기와 인내심이 있다곤 생각안해 오히려 용기없고 겁많은 겁쟁이지. 죽을 용기도 없는 겁쟁이. 남들 눈치나 보고 다니는 겁쟁이. 죽고 싶은 생각을 극복하려고 자해를 한거지. 도움이 됐던 방법? 자해"}]
-
-    completion = openai.ChatCompletion.create(
-        model="davinci",
-        messages=messages,
-        stop=['User: '],
-        max_tokens=245,
-    )
-    answer = completion
-    print(answer)
-    result = answer["choices"][0]["message"]['content']
-    return result
+@app.get('/')
+def hello_world():
+    return {'message': 'Hello, World!'}
 
 nlp_prompt = '''
 정신건강의학과 전문의로서 다음 task를 수행하라. "독백"에 기록된 우울증 환자의 독백에서 환자가 주로 언급하는 단어들이 무엇이고 얼마나 자주 사용하였는지를 count하고 이로부터 환자의 상태를 평가하려고 한다. 환자가 "자살", "자해", "폭력" 같은 매우 부정적인 단어를 사용할 수 있으나 환자가 위험한 상태에 있다는 것을 빠르게 파악하기위해 그러한 단어 역시 얼마나 자주 언급되었는지 count해야 한다. task의 수행은 아래 단계로 수행하라.
