@@ -23,6 +23,11 @@ import Modal from 'react-bootstrap/Modal';
 import {ToastContainer} from "react-bootstrap";
 import Likert from 'react-likert-scale';
 
+import book_blue from "../img/book_blue.jpg";
+import book_purple from "../img/book_purple.jpg";
+import chat from "../img/chat.jpg";
+import lock from "../img/lock.jpg";
+
 
 function Writing(props) {
     const [show, setShow] = useState(false);
@@ -154,6 +159,11 @@ function Writing(props) {
         return resultArr;
     }
 
+    const currentTime = new Date();
+    const currentHour = currentTime.getHours();
+
+    const isEvening = currentHour >= 19 && currentHour < 24;
+
 
     // create NewDoc
     async function createNewDoc(newSession) {
@@ -267,7 +277,8 @@ function Writing(props) {
 
     async function endSession() {
         await setDoc(doc(db, "session", props.userMail, "diary", session), {
-            phq9score: phqTotal
+            phq9score: phqTotal,
+            phq_item_score: [phq1, phq2, phq3, phq4, phq5, phq6, phq7, phq8, phq9]
         }, {merge: true});
         navigateToReview()
     }
@@ -410,10 +421,10 @@ function Writing(props) {
                     <Likert
                         id="1"
                         responses={[
-                            {value: 0, text: "전혀 아니다"},
-                            {value: 1, text: "아니다"},
-                            {value: 2, text: "그렇다"},
-                            {value: 3, text: "매우 그렇다"}
+                            {value: 0, text: "전혀 그렇지 않다"},
+                            {value: 1, text: "가끔 그렇다"},
+                            {value: 2, text: "자주 그렇다"},
+                            {value: 3, text: "거의 항상 그렇다"}
                         ]}
                         onChange={(val) => phq1.current = val["value"]}
                     />
@@ -422,10 +433,10 @@ function Writing(props) {
                     <Likert
                         id="2"
                         responses={[
-                            {value: 0, text: "전혀 아니다"},
-                            {value: 1, text: "아니다"},
-                            {value: 2, text: "그렇다"},
-                            {value: 3, text: "매우 그렇다"}
+                            {value: 0, text: "전혀 그렇지 않다"},
+                            {value: 1, text: "가끔 그렇다"},
+                            {value: 2, text: "자주 그렇다"},
+                            {value: 3, text: "거의 항상 그렇다"}
                         ]}
                         onChange={(val) => phq2.current = val["value"]}
 
@@ -435,10 +446,10 @@ function Writing(props) {
                     <Likert
                         id="3"
                         responses={[
-                            {value: 0, text: "전혀 아니다"},
-                            {value: 1, text: "아니다"},
-                            {value: 2, text: "그렇다"},
-                            {value: 3, text: "매우 그렇다"}
+                            {value: 0, text: "전혀 그렇지 않다"},
+                            {value: 1, text: "가끔 그렇다"},
+                            {value: 2, text: "자주 그렇다"},
+                            {value: 3, text: "거의 항상 그렇다"}
                         ]}
                         onChange={(val) => phq3.current = val["value"]}
 
@@ -448,10 +459,10 @@ function Writing(props) {
                     <Likert
                         id="4"
                         responses={[
-                            {value: 0, text: "전혀 아니다"},
-                            {value: 1, text: "아니다"},
-                            {value: 2, text: "그렇다"},
-                            {value: 3, text: "매우 그렇다"}
+                            {value: 0, text: "전혀 그렇지 않다"},
+                            {value: 1, text: "가끔 그렇다"},
+                            {value: 2, text: "자주 그렇다"},
+                            {value: 3, text: "거의 항상 그렇다"}
                         ]}
                         onChange={(val) => phq4.current = val["value"]}
 
@@ -461,10 +472,10 @@ function Writing(props) {
                     <Likert
                         id="5"
                         responses={[
-                            {value: 0, text: "전혀 아니다"},
-                            {value: 1, text: "아니다"},
-                            {value: 2, text: "그렇다"},
-                            {value: 3, text: "매우 그렇다"}
+                            {value: 0, text: "전혀 그렇지 않다"},
+                            {value: 1, text: "가끔 그렇다"},
+                            {value: 2, text: "자주 그렇다"},
+                            {value: 3, text: "거의 항상 그렇다"}
                         ]}
                         onChange={(val) => phq5.current = val["value"]}
 
@@ -474,10 +485,10 @@ function Writing(props) {
                     <Likert
                         id="6"
                         responses={[
-                            {value: 0, text: "전혀 아니다"},
-                            {value: 1, text: "아니다"},
-                            {value: 2, text: "그렇다"},
-                            {value: 3, text: "매우 그렇다"}
+                            {value: 0, text: "전혀 그렇지 않다"},
+                            {value: 1, text: "가끔 그렇다"},
+                            {value: 2, text: "자주 그렇다"},
+                            {value: 3, text: "거의 항상 그렇다"}
                         ]}
                         onChange={(val) => phq6.current = val["value"]}
 
@@ -487,10 +498,10 @@ function Writing(props) {
                     <Likert
                         id="7"
                         responses={[
-                            {value: 0, text: "전혀 아니다"},
-                            {value: 1, text: "아니다"},
-                            {value: 2, text: "그렇다"},
-                            {value: 3, text: "매우 그렇다"}
+                            {value: 0, text: "전혀 그렇지 않다"},
+                            {value: 1, text: "가끔 그렇다"},
+                            {value: 2, text: "자주 그렇다"},
+                            {value: 3, text: "거의 항상 그렇다"}
                         ]}
                         onChange={(val) => phq7.current = val["value"]}
 
@@ -500,10 +511,10 @@ function Writing(props) {
                     <Likert
                         id="8"
                         responses={[
-                            {value: 0, text: "전혀 아니다"},
-                            {value: 1, text: "아니다"},
-                            {value: 2, text: "그렇다"},
-                            {value: 3, text: "매우 그렇다"}
+                            {value: 0, text: "전혀 그렇지 않다"},
+                            {value: 1, text: "가끔 그렇다"},
+                            {value: 2, text: "자주 그렇다"},
+                            {value: 3, text: "거의 항상 그렇다"}
                         ]}
                         onChange={(val) => phq8.current = val["value"]}
 
@@ -513,10 +524,10 @@ function Writing(props) {
                     <Likert
                         id="9"
                         responses={[
-                            {value: 0, text: "전혀 아니다"},
-                            {value: 1, text: "아니다"},
-                            {value: 2, text: "그렇다"},
-                            {value: 3, text: "매우 그렇다"}
+                            {value: 0, text: "전혀 그렇지 않다"},
+                            {value: 1, text: "가끔 그렇다"},
+                            {value: 2, text: "자주 그렇다"},
+                            {value: 3, text: "거의 항상 그렇다"}
                         ]}
                         onChange={(val) => phq9.current = val["value"]}
 
@@ -524,6 +535,19 @@ function Writing(props) {
                 </div>
             </>
         );
+    }
+
+    function navigateToGuide() {
+        navigate("/guide")
+    }
+    function navigateToGuide2() {
+        navigate("/guide2")
+    }
+    function navigateToGuide3() {
+        navigate("/guide3")
+    }
+    function navigateToGuide4() {
+        navigate("/guide4")
     }
 
 
@@ -540,14 +564,16 @@ function Writing(props) {
     }
 
     function getMentalHealthStatus() {
-        if (phqTotal >= 0 && phqTotal <= 4) {
-            return "건강한 상태에요! 앞으로 이렇게 지켜봐요";
+        if (phq9 > 1) {
+            return "정말 힘드신 것 같습니다. 전문가의 도움이 꼭 필요합니다. 1588-9191에서도 도움을 받으실 수 있습니다.";
+        } else if (phqTotal >= 0 && phqTotal <= 4) {
+            return "안정적인 상태에요! 앞으로 계속 만나요!";
         } else if (phqTotal >= 5 && phqTotal <= 9) {
-            return "조금 지친거 같아요, 화이팅!";
+            return "조금 지친거 같아요. 도움이 필요할 수 있습니다.";
         } else if (phqTotal >= 10 && phqTotal <= 19) {
-            return "꽤 힘들어 보이지만, 우리 함께 힘내봐요!";
+            return "정말 많이 힘들어보여요. 전문적인 상담이나 치료가 필요할 것 같아요. 우리 함께 힘내보아요";
         } else if (phqTotal >= 20 && phqTotal <= 27) {
-            return "정말 많이 힘들겠지만, 당신을 응원하고 있어요!";
+            return "정말 힘드신 것 같습니다. 전문가의 도움이 꼭 필요합니다. 1588-9191에서도 도움을 받으실 수 있습니다.";
         } else {
             return "오류가 발생했어요";
         }
@@ -689,59 +715,163 @@ function Writing(props) {
     } else if (sessionStatus === false) {
 
         return (
-            <Container>
-                <Row>
-                    <div className="loading_box">
+
+            <div>
+                {isEvening ? (
+                    <Container>
+            <Row>
+                <div className="loading_box">
                         <span className="desktop-view">
                             {date}<br/><b>마음챙김 다이어리를 시작합니다</b> 😀
                         </span>
-                        <span className="smartphone-view">
+                    <span className="smartphone-view">
                             {date}<br/><b>마음챙김 다이어리를<br/>시작합니다</b> 😀
                         </span>
+                </div>
+            </Row>
+            <Row>
+                <Col>
+                    <div className="d-grid gap-2">
+                        <Button
+                            variant="primary"
+                            style={{backgroundColor: "007AFF", fontWeight: "600"}}
+                            onClick={() => {
+                                const newSession = String(Math.floor(Date.now() / 1000));
+                                setSession(newSession)
+                                createNewDoc(newSession)
+                            }}
+                        >📝 일기 작성하기
+                        </Button>
+                        &nbsp;
+                        <Form.Text className="text-muted">
+                            종료되지 않은 세션을 이어 진행하려면<br/>아래에서 진행중인 세션을 선택해주세요
+                        </Form.Text>
                     </div>
-                </Row>
-                <Row>
+                </Col>
+                <Col></Col>
+            </Row>
+            &nbsp;
+            <Row xs={'auto'} md={1} className="g-4">
+                {existing.map((_, idx) => (
                     <Col>
-                        <div className="d-grid gap-2">
-                            <Button
-                                variant="primary"
-                                style={{backgroundColor: "007AFF", fontWeight: "600"}}
-                                onClick={() => {
-                                    const newSession = String(Math.floor(Date.now() / 1000));
-                                    setSession(newSession)
-                                    createNewDoc(newSession)
-                                }}
-                            >📝 일기 작성하기
-                            </Button>
-                            &nbsp;
-                            <Form.Text className="text-muted">
-                                종료되지 않은 세션을 이어 진행하려면<br/>아래에서 진행중인 세션을 선택해주세요
-                            </Form.Text>
-                        </div>
+                        <Button
+                            variant="dark"
+                            style={{backgroundColor: "007AFF", fontWeight: "400"}}
+                            onClick={() => {
+                                const newSession = String(existing[idx]["sessionStart"]);
+                                setSession(newSession)
+                                createNewDoc(newSession)
+                            }}>
+                            {Unix_timestamp(existing[idx]["sessionStart"])}
+                        </Button>
                     </Col>
-                    <Col></Col>
-                </Row>
-                &nbsp;
-                <Row xs={'auto'} md={1} className="g-4">
-                    {existing.map((_, idx) => (
-                        <Col>
-                            <Button
-                                variant="dark"
-                                style={{backgroundColor: "007AFF", fontWeight: "400"}}
-                                onClick={() => {
-                                    const newSession = String(existing[idx]["sessionStart"]);
-                                    setSession(newSession)
-                                    createNewDoc(newSession)
-                                }}>
-                                {Unix_timestamp(existing[idx]["sessionStart"])}
-                            </Button>
-                        </Col>
-                    ))}
+                ))}
 
 
+            </Row>
+        </Container>
+                ) : (
+                    <Container>
+            <Row>
+                <div className="loading_box">
+                        <span className="desktop-view">
+                          <br/>마음챙김 다이어리는<br/><b>저녁 6시부터 밤12시 사이에 작성할 수 있어요.</b><br/>저녁에 다시만나요 🕰️
+                        </span>
+                    <span className="smartphone-view">
+                            <br/>마음챙김 다이어리는<br/><b>저녁 6시부터 밤12시 사이에<br/>작성할 수 있어요.</b><br/>저녁에 다시만나요 🕰️
+                        </span>
+                </div>
+            </Row>
+                        <Row>
+                <Col>
+                    <div className="d-grid gap-2">
+                        <Button
+                            variant="primary"
+                            style={{backgroundColor: "007AFF", fontWeight: "600"}}
+                            onClick={() => {
+                                navigateToReview()
+                            }}
+                        >📖 일기 다시보기
+                        </Button>
+                        <Form.Text className="text-muted">
+                            내가 썼던 일기를 돌아보거나, 마음챙김 다이어리에 대해 더 알아보세요.
+                        </Form.Text>
+                    </div>
+                </Col>
+                <Col></Col>
+            </Row>
+                        <span className="center_temp">
+                                                &nbsp;
+
+                    <Row xs={1} md={2} className="g-4">
+
+                    <Col>
+                        <Card onClick={()=>{
+                            navigateToGuide()
+                        }}
+                        style={{ cursor: 'pointer' }}>
+                            <Card.Img variant="top" src={book_purple}/>
+                            <Card.Body>
+                                <Card.Title><b>일기쓰기와 정신건강</b></Card.Title>
+                                <Card.Text>
+                                    일기를 작성하는 것이 어떻게 정신건강에 도움이 될까요?
+                                </Card.Text>
+                            </Card.Body>
+                        </Card>
+                    </Col>
+                    <Col>
+                        <Card onClick={()=>{
+                            navigateToGuide2()
+                        }}
+                        style={{ cursor: 'pointer' }}>
+                            <Card.Img variant="top" src={chat}/>
+                            <Card.Body>
+                                <Card.Title><b>누구와 말하는 건가요?</b></Card.Title>
+                                <Card.Text>
+                                    마음챙김 다이어리가 어떻게 동작 원리에 대해 알아봅니다.
+                                </Card.Text>
+                            </Card.Body>
+                        </Card>
+                    </Col>
+                    <Col>
+                        <Card onClick={()=>{
+                           navigateToGuide3()
+                        }}
+                        style={{ cursor: 'pointer' }}>
+                            <Card.Img variant="top" src={lock}/>
+                            <Card.Body>
+                                <Card.Title><b>개인정보는 어떻게 관리되나요?</b></Card.Title>
+                                <Card.Text>
+                                    나의 데이터는 어떻게 관리되는지 알아봅니다.</Card.Text>
+                            </Card.Body>
+                        </Card>
+                    </Col>
+                    <Col>
+                        <Card onClick={()=>{
+                            navigateToGuide4()
+                        }}
+                        style={{ cursor: 'pointer' }}>
+                            <Card.Img variant="top" src={book_blue}/>
+                            <Card.Body>
+                                <Card.Title><b>어떻게 적는건가요?</b></Card.Title>
+                                <Card.Text>
+                                    정신건강에 도움이 되는 일상 기록이란?
+                                </Card.Text>
+                            </Card.Body>
+                        </Card>
+                    </Col>
                 </Row>
-            </Container>
-        )
+
+                </span>
+            &nbsp;
+
+        </Container>
+                )}
+            </div>
+
+
+
+    )
     } else {
         return (
             <Container>
@@ -947,7 +1077,7 @@ function DiaryView(props) {
                                               setEditMode(true)
                                               setDiaryedit(props.diary)
                                           }}
-                                    >✍️ 내용 ️수정하기️</span>
+                                    >✍️수정하기️</span>
                                 </Card.Subtitle>
                             </Card.Body>
 

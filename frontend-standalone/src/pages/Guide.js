@@ -126,7 +126,7 @@ function Guide(props) {
                     <Row>
                         <Col>
                             <div className="diarylist_box">
-                                <div>일기 돌아보기</div>
+                                <div>일기쓰기가</div>
                             </div>
                             <div className="loading_box_home_bottom">
                                 <span className="desktop-view">

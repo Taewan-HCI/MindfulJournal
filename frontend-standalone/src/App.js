@@ -14,6 +14,10 @@ import {auth, db} from './firebase-config';
 import Writing from "./pages/Writing";
 import Loading from "./pages/Loading";
 import DiaryList from "./pages/DiaryList";
+import DiaryGuide from "./pages/DiaryGuide";
+import DiaryGuide2 from "./pages/DiaryGuide2";
+import DiaryGuide3 from "./pages/DiaryGuide3";
+import DiaryGuide4 from "./pages/DiaryGuide4";
 import Home from "./pages/Home";
 import {collection, doc, getDoc} from "firebase/firestore";
 
@@ -137,6 +141,23 @@ function App() {
                     <Route path="/list"
                            element={isAuth ? (<div><DiaryList userName={userName} userMail={userMail}/></div>) : (
                                <Auth setIsAuth={setIsAuth} setUserName={setUserName} setUserMail={setUserMail}/>)}/>
+
+                    <Route path="/guide"
+                           element={isAuth ? (<div><DiaryGuide userName={userName} userMail={userMail}/></div>) : (
+                               <Auth setIsAuth={setIsAuth} setUserName={setUserName} setUserMail={setUserMail}/>)}/>
+
+                    <Route path="/guide2"
+                           element={isAuth ? (<div><DiaryGuide2 userName={userName} userMail={userMail}/></div>) : (
+                               <Auth setIsAuth={setIsAuth} setUserName={setUserName} setUserMail={setUserMail}/>)}/>
+
+                    <Route path="/guide3"
+                           element={isAuth ? (<div><DiaryGuide3 userName={userName} userMail={userMail}/></div>) : (
+                               <Auth setIsAuth={setIsAuth} setUserName={setUserName} setUserMail={setUserMail}/>)}/>
+
+                    <Route path="/guide4"
+                           element={isAuth ? (<div><DiaryGuide4 userName={userName} userMail={userMail}/></div>) : (
+                               <Auth setIsAuth={setIsAuth} setUserName={setUserName} setUserMail={setUserMail}/>)}/>
+
                     <Route path="/loading" element={<div><Loading/></div>}/>
                     <Route path="*" element={<div>404~ 없는페이지임</div>}/>
                 </Routes>

@@ -60,6 +60,19 @@ function Home(props) {
         }
     })
 
+    function navigateToGuide() {
+        navigate("/guide")
+    }
+    function navigateToGuide2() {
+        navigate("/guide2")
+    }
+    function navigateToGuide3() {
+        navigate("/guide3")
+    }
+    function navigateToGuide4() {
+        navigate("/guide4")
+    }
+
 
     function Unix_timestamp(t) {
         var date = new Date(t * 1000);
@@ -95,10 +108,10 @@ function Home(props) {
 
             {lastDate === "" ? <NoDiary userName={props.userName} diaryList={diaryList} lastDate={lastDate}
                                         navigateToWriting={navigateToWriting}
-                                        navigateToReview={navigateToReview} Unix_timestamp={Unix_timestamp}/> :
+                                        navigateToReview={navigateToReview} navigateToGuide={navigateToGuide} navigateToGuide2={navigateToGuide2} navigateToGuide3={navigateToGuide3} navigateToGuide4={navigateToGuide4} Unix_timestamp={Unix_timestamp}/> :
                 <Loading_complete userName={props.userName} diaryList={diaryList} lastDate={lastDate}
                                   navigateToWriting={navigateToWriting}
-                                  navigateToReview={navigateToReview} Unix_timestamp={Unix_timestamp}/>}
+                                  navigateToReview={navigateToReview} navigateToGuide={navigateToGuide} navigateToGuide2={navigateToGuide2} navigateToGuide3={navigateToGuide3} navigateToGuide4={navigateToGuide4} Unix_timestamp={Unix_timestamp}/>}
 
         </div>
     )
@@ -179,7 +192,10 @@ function NoDiary(props) {
                     <Row xs={1} md={2} className="g-4">
 
                     <Col>
-                        <Card>
+                        <Card onClick={()=>{
+                            props.navigateToGuide()
+                        }}
+                        style={{ cursor: 'pointer' }}>
                             <Card.Img variant="top" src={book_purple}/>
                             <Card.Body>
                                 <Card.Title><b>일기쓰기와 정신건강</b></Card.Title>
@@ -190,7 +206,10 @@ function NoDiary(props) {
                         </Card>
                     </Col>
                     <Col>
-                        <Card>
+                        <Card onClick={()=>{
+                            props.navigateToGuide2()
+                        }}
+                        style={{ cursor: 'pointer' }}>
                             <Card.Img variant="top" src={chat}/>
                             <Card.Body>
                                 <Card.Title><b>누구와 말하는 건가요?</b></Card.Title>
@@ -201,7 +220,10 @@ function NoDiary(props) {
                         </Card>
                     </Col>
                     <Col>
-                        <Card>
+                        <Card onClick={()=>{
+                            props.navigateToGuide3()
+                        }}
+                        style={{ cursor: 'pointer' }}>
                             <Card.Img variant="top" src={lock}/>
                             <Card.Body>
                                 <Card.Title><b>개인정보는 어떻게 관리되나요?</b></Card.Title>
@@ -211,7 +233,10 @@ function NoDiary(props) {
                         </Card>
                     </Col>
                     <Col>
-                        <Card>
+                        <Card onClick={()=>{
+                            props.navigateToGuide4()
+                        }}
+                        style={{ cursor: 'pointer' }}>
                             <Card.Img variant="top" src={book_blue}/>
                             <Card.Body>
                                 <Card.Title><b>어떻게 적는건가요?</b></Card.Title>
@@ -329,7 +354,10 @@ function Loading_complete(props) {
                     <Row xs={1} md={2} className="g-4">
 
                     <Col>
-                        <Card>
+                        <Card onClick={()=>{
+                            props.navigateToGuide()
+                        }}
+                        style={{ cursor: 'pointer' }}>
                             <Card.Img variant="top" src={book_purple}/>
                             <Card.Body>
                                 <Card.Title><b>일기쓰기와 정신건강</b></Card.Title>
@@ -340,7 +368,10 @@ function Loading_complete(props) {
                         </Card>
                     </Col>
                     <Col>
-                        <Card>
+                        <Card onClick={()=>{
+                            props.navigateToGuide2()
+                        }}
+                        style={{ cursor: 'pointer' }}>
                             <Card.Img variant="top" src={chat}/>
                             <Card.Body>
                                 <Card.Title><b>누구와 말하는 건가요?</b></Card.Title>
@@ -351,7 +382,10 @@ function Loading_complete(props) {
                         </Card>
                     </Col>
                     <Col>
-                        <Card>
+                        <Card onClick={()=>{
+                            props.navigateToGuide3()
+                        }}
+                        style={{ cursor: 'pointer' }}>
                             <Card.Img variant="top" src={lock}/>
                             <Card.Body>
                                 <Card.Title><b>개인정보는 어떻게 관리되나요?</b></Card.Title>
@@ -361,7 +395,10 @@ function Loading_complete(props) {
                         </Card>
                     </Col>
                     <Col>
-                        <Card>
+                        <Card onClick={()=>{
+                            props.navigateToGuide4()
+                        }}
+                        style={{ cursor: 'pointer' }}>
                             <Card.Img variant="top" src={book_blue}/>
                             <Card.Body>
                                 <Card.Title><b>어떻게 적는건가요?</b></Card.Title>
