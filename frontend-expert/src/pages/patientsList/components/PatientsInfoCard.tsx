@@ -3,6 +3,7 @@ import React from 'react';
 import { Card } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { PatientInfo } from '../../../types/patient';
+import { toStringDateByFormatting } from '../../../utils/date';
 import './style.css';
 
 export default function PatientsInfoCard({
@@ -10,6 +11,9 @@ export default function PatientsInfoCard({
 }: {
   patient: PatientInfo;
 }) {
+  // eslint-disable-next-line operator-linebreak
+  const lastVisitedDate =
+    patient.recentVisitedDay[patient.recentVisitedDay.length - 1];
   return (
     <Link
       to={`/dashboard/${patient.patientID}`}
@@ -26,7 +30,7 @@ export default function PatientsInfoCard({
           <div className="d-flex align-items-center py-2">
             <div className="text-secondary">최근 진료일: </div>
             <div className="fs-6 me-2 text-secondary ms-1">
-              {patient.recentVisitedDay[0]}
+              {toStringDateByFormatting(lastVisitedDate)}
             </div>
           </div>
         </Card.Body>
