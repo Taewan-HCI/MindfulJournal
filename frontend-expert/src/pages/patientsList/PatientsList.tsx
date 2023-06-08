@@ -6,7 +6,7 @@ import { Container } from 'react-bootstrap';
 import { getPatientsList } from 'apis/patients';
 import ContentWithTitle from 'components/ContentWithTitle';
 import Skeleton from 'components/Skeleton';
-import { PatientInfo } from 'types/patient';
+import { Patient } from 'types/patient';
 import PatientsInfoCard from './components/PatientsInfoCard';
 
 function CardSkeleton() {
@@ -21,7 +21,7 @@ function CardSkeleton() {
 }
 
 function PatientsList() {
-  const [patients, setPatients] = useState<PatientInfo[]>([]);
+  const [patients, setPatients] = useState<Patient[]>([]);
 
   const fetch = async () => {
     try {
