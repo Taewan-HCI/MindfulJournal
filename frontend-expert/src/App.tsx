@@ -4,7 +4,7 @@ import { ToastContainer } from 'react-toastify';
 import Header from './components/Header';
 import Dashboard from './pages/dashboard/Dashboard';
 import Main from './pages/Main';
-import PatientsList from './pages/PatientsList';
+import PatientsList from './pages/patientsList/PatientsList';
 
 function App() {
   return (
