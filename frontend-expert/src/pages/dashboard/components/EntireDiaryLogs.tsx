@@ -2,8 +2,8 @@
 import React from 'react';
 import { Card } from 'react-bootstrap';
 import { Journals } from 'react-bootstrap-icons';
-import assistant from '../../../assets/image/assistant.png';
-import user from '../../../assets/image/user.png';
+import assistant from 'assets/image/assistant.png';
+import user from 'assets/image/user.png';
 
 function ChatLog({ type, contents }: { type: string; contents: string }) {
   const logoImage = type === 'user' ? user : assistant;

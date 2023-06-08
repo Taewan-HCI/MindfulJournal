@@ -13,10 +13,11 @@ import {
   ToggleButton,
 } from 'react-bootstrap';
 import { ArrowClockwise } from 'react-bootstrap-icons';
-import ContentWithTitle from '../../components/ContentWithTitle';
+
+import ContentWithTitle from 'components/ContentWithTitle';
+import mockDiary from 'mocks/diaryData';
 import DateRangePicker from './components/datePicker/DateRangePicker';
 import Diary from './components/Diary/Diary';
-import mockDiary from '../../mocks/diaryData';
 import Tabs from './components/Tabs';
 import TimeLine from './components/timeLine/TimeLine';
 import CustomWordCloud from './components/CustomWordCloud';

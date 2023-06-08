@@ -2,8 +2,8 @@
 import React from 'react';
 import { Card } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { PatientInfo } from '../../../types/patient';
-import { toStringDateByFormatting } from '../../../utils/date';
+import { PatientInfo } from 'types/patient';
+import { toStringDateByFormatting } from 'utils/date';
 import './style.css';
 
 export default function PatientsInfoCard({

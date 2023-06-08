@@ -3,8 +3,8 @@ import { Button, Container, Form } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import signIn from '../apis/auth';
-import diary from '../assets/image/diary.png';
+import signIn from 'apis/auth';
+import diary from 'assets/image/diary.png';
 
 type SignInType = {
   username: string;

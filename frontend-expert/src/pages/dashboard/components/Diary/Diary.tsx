@@ -1,10 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { useState } from 'react';
 import { Badge, Button, Card, Modal } from 'react-bootstrap';
-import {
-  toStringDateByFormatting,
-  toStringTimeByFormatting,
-} from '../../../../utils/date';
+import { toStringDateByFormatting, toStringTimeByFormatting } from 'utils/date';
 import EntireDiaryLogs from '../EntireDiaryLogs';
 import './diary.css';
 

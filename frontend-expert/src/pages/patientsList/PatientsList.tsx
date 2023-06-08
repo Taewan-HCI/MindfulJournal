@@ -3,10 +3,10 @@
 import React, { useEffect, useState } from 'react';
 import { Container } from 'react-bootstrap';
 
-import { getPatientsList } from '../../apis/patients';
-import ContentWithTitle from '../../components/ContentWithTitle';
-import Skeleton from '../../components/Skeleton';
-import { PatientInfo } from '../../types/patient';
+import { getPatientsList } from 'apis/patients';
+import ContentWithTitle from 'components/ContentWithTitle';
+import Skeleton from 'components/Skeleton';
+import { PatientInfo } from 'types/patient';
 import PatientsInfoCard from './components/PatientsInfoCard';
 
 function CardSkeleton() {
