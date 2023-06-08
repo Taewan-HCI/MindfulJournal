@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Button, Container, Form } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import signIn from '../apis/auth';
 import diary from '../assets/image/diary.png';
 
@@ -27,6 +29,7 @@ function Main() {
     try {
       const data = await signIn({ ...values });
       localStorage.setItem('accessToken', data.access_token);
+      toast.success('로그인에 성공했습니다.');
       navigate('/patients');
     } catch (error) {
       console.error(error);
