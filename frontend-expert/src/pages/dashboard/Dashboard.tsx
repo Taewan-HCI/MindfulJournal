@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-indent */
 /* eslint-disable @typescript-eslint/indent */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -19,9 +20,11 @@ import { useLocation } from 'react-router-dom';
 
 import ContentWithTitle from 'components/ContentWithTitle';
 import { getPatientInfo } from 'apis/patients';
+import { getDiaryList } from 'apis/diary';
 import mockDiary from 'mocks/diaryData';
 import { toStringDateByFormatting } from 'utils/date';
 import { PatientInfo } from 'types/patient';
+import { DiaryInfo } from 'types/diary';
 import {
   DateRangePicker,
   Diary,
@@ -44,14 +47,18 @@ function Dashboard() {
   const [countedNum, setCountedNum] = useState<number>(0);
   const [patientInfo, setPatientInfo] = useState<PatientInfo>();
   const target = useRef<HTMLDivElement | null>(null);
+  const [diaryList, setdiaryList] = useState<DiaryInfo[]>();
 
   const location = useLocation();
   const userId = location.pathname.split('/')[2];
 
   const fetch = async () => {
     try {
-      const data = await getPatientInfo(userId);
-      setPatientInfo(() => data);
+      const userData = await getPatientInfo(userId);
+      setPatientInfo(() => userData);
+
+      const diaryData = await getDiaryList(userId);
+      setdiaryList(() => diaryData.diary);
     } catch (error) {
       console.error(error);
     }
@@ -180,9 +187,11 @@ function Dashboard() {
               </Card>
             </ContentWithTitle>
             <ContentWithTitle title="작성 일기 보기">
-              {mockDiary.map((diary) => (
-                <Diary key={diary.diaryNum} {...diary} />
-              ))}
+              {diaryList
+                ? diaryList.map((diary) => (
+                    <Diary key={diary.sessionNumber} diary={diary} />
+                  ))
+                : null}
             </ContentWithTitle>
           </Col>
 

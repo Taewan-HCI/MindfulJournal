@@ -1,6 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { useState } from 'react';
 import { Badge, Button, Card, Modal } from 'react-bootstrap';
+import { DiaryInfo } from 'types/diary';
 import { toStringDateByFormatting, toStringTimeByFormatting } from 'utils/date';
 import EntireDiaryLogs from '../EntireDiaryLogs';
 import './diary.css';
@@ -31,15 +32,7 @@ function DiaryContentsModal(modalProps: ModalProps) {
   );
 }
 
-function Diary({
-  createdAt,
-  content,
-  like,
-}: {
-  createdAt: number;
-  content: string;
-  like: number;
-}) {
+function Diary({ diary }: { diary: DiaryInfo }) {
   const [modalShow, setModalShow] = useState(false);
 
   return (
@@ -55,9 +48,11 @@ function Diary({
         <Card.Body>
           <Card.Title className="d-flex align-items-center justify-content-between">
             <div className="d-flex align-items-center">
-              <div className="me-2">{toStringDateByFormatting(createdAt)}</div>
+              <div className="me-2">
+                {toStringDateByFormatting(diary.sessionStart)}
+              </div>
               <div className="fs-6 me-2">
-                {toStringTimeByFormatting(createdAt)}
+                {toStringTimeByFormatting(diary.sessionStart)}
               </div>
             </div>
             <Badge bg="primary">홍길동 상담사 </Badge>
@@ -66,11 +61,11 @@ function Diary({
           <Card.Subtitle className="mb-2 text-muted">
             <div className="text-primary">8분 30초 참여 · 3032자 작성</div>
           </Card.Subtitle>
-          <Card.Text>{content}</Card.Text>
+          <Card.Text>{diary.diary}</Card.Text>
           <div className="d-flex align-items-center justify-content-between">
             <div>
               ❤️
-              <b>{like}</b>
+              <b>{diary.like}</b>
             </div>
           </div>
         </Card.Body>
