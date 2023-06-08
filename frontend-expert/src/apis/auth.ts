@@ -7,10 +7,15 @@ export default async function signIn({
   username: string;
   password: string;
 }) {
-  const { data } = await axios.post(`${process.env.REACT_APP_API_URL}/token`, {
-    username,
-    password,
-  });
+  const formData = new FormData();
+
+  formData.append('username', username);
+  formData.append('password', password);
+
+  const { data } = await axios.post(
+    `${process.env.REACT_APP_API_URL}/token`,
+    formData,
+  );
 
   return data;
 }

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Button, Container, Form } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 import signIn from '../apis/auth';
 import diary from '../assets/image/diary.png';
 
@@ -14,6 +15,7 @@ function Main() {
     password: '',
   });
   const [isErrorOccured, setError] = useState<boolean>(false);
+  const navigate = useNavigate();
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -25,6 +27,7 @@ function Main() {
     try {
       const data = await signIn({ ...values });
       localStorage.setItem('accessToken', data.access_token);
+      navigate('/patients');
     } catch (error) {
       console.error(error);
       setError(() => true);
