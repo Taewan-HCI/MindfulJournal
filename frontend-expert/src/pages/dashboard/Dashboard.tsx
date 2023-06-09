@@ -1,8 +1,11 @@
+/* eslint-disable react/jsx-indent */
+/* eslint-disable @typescript-eslint/indent */
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react/jsx-wrap-multilines */
 /* eslint-disable operator-linebreak */
 /* eslint-disable react/jsx-props-no-spreading */
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Button,
   ButtonGroup,
@@ -13,27 +16,57 @@ import {
   ToggleButton,
 } from 'react-bootstrap';
 import { ArrowClockwise } from 'react-bootstrap-icons';
-import ContentWithTitle from '../../components/ContentWithTitle';
-import DateRangePicker from './components/datePicker/DateRangePicker';
-import Diary from './components/Diary/Diary';
-import mockDiary from '../../mocks/diaryData';
-import Tabs from './components/Tabs';
-import TimeLine from './components/timeLine/TimeLine';
-import CustomWordCloud from './components/CustomWordCloud';
-import DisplayTooltip from './components/DisplayTooltip';
+import { useLocation } from 'react-router-dom';
+
+import ContentWithTitle from 'components/ContentWithTitle';
+import { getPatientInfo } from 'apis/patients';
+import { getDiaryList } from 'apis/diary';
+import mockDiary from 'mocks/diaryData';
+import { toStringDateByFormatting } from 'utils/date';
+import { PatientInfo } from 'types/patient';
+import { DiaryInfo } from 'types/diary';
+import {
+  DateRangePicker,
+  Diary,
+  Tabs,
+  TimeLine,
+  CustomWordCloud,
+  DisplayTooltip,
+} from './components';
+
+const radios = [
+  { name: '3일 전', value: '1', id: 1 },
+  { name: '7일 전', value: '2', id: 2 },
+  { name: '14일 전', value: '3', id: 3 },
+];
 
 function Dashboard() {
   const [radioValue, setRadioValue] = useState<string | null>(null);
   const [dateRange, setDateRange] = useState<(null | Date)[]>([null, null]);
   const [show, setShow] = useState(true);
   const [countedNum, setCountedNum] = useState<number>(0);
+  const [patientInfo, setPatientInfo] = useState<PatientInfo>();
   const target = useRef<HTMLDivElement | null>(null);
+  const [diaryList, setdiaryList] = useState<DiaryInfo[]>();
 
-  const radios = [
-    { name: '3일 전', value: '1', id: 1 },
-    { name: '7일 전', value: '2', id: 2 },
-    { name: '14일 전', value: '3', id: 3 },
-  ];
+  const location = useLocation();
+  const userId = location.pathname.split('/')[2];
+
+  const fetch = async () => {
+    try {
+      const userData = await getPatientInfo(userId);
+      setPatientInfo(() => userData);
+
+      const diaryData = await getDiaryList(userId);
+      setdiaryList(() => diaryData.diary);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    fetch();
+  }, []);
 
   const data = useMemo(
     () => [
@@ -74,7 +107,7 @@ function Dashboard() {
           <Col xs={4}>
             <div className="d-flex justify-content-between align-items-end mb-4">
               <div className="fs-2 mt-2">
-                나극복 환자의
+                {`${patientInfo?.name ?? ''} 환자의`}
                 <br />
                 <b>마음챙김 다이어리</b>
               </div>
@@ -134,19 +167,31 @@ function Dashboard() {
                 <Card.Body>
                   <div className="d-flex align-items-center justify-content-between py-2">
                     <div className="text-secondary">성별/나이</div>
-                    <div className="fs-6 me-2">남/28</div>
+                    <div className="fs-6 me-2">
+                      {`${patientInfo?.gender ?? ''}/${patientInfo?.age ?? ''}`}
+                    </div>
                   </div>
                   <div className="d-flex align-items-center justify-content-between py-2">
                     <div className="text-secondary">최근 진료일</div>
-                    <div className="fs-6 me-2"> 2023.04.03</div>
+                    <div className="fs-6 me-2">
+                      {toStringDateByFormatting(
+                        patientInfo?.recentVisitedDay
+                          ? patientInfo.recentVisitedDay[
+                              patientInfo.recentVisitedDay.length - 1
+                            ]
+                          : 0,
+                      )}
+                    </div>
                   </div>
                 </Card.Body>
               </Card>
             </ContentWithTitle>
             <ContentWithTitle title="작성 일기 보기">
-              {mockDiary.map((diary) => (
-                <Diary key={diary.diaryNum} {...diary} />
-              ))}
+              {diaryList
+                ? diaryList.map((diary) => (
+                    <Diary key={diary.sessionNumber} diary={diary} />
+                  ))
+                : null}
             </ContentWithTitle>
           </Col>
 

@@ -1,17 +1,51 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react/jsx-one-expression-per-line */
 /* eslint-disable react/jsx-props-no-spreading */
-import React, { useState } from 'react';
+import { getDiary } from 'apis/diary';
+import React, { useEffect, useState } from 'react';
 import { Badge, Button, Card, Modal } from 'react-bootstrap';
+import { useLocation } from 'react-router-dom';
+import { Diary as DiaryTepe, DiaryInfo } from 'types/diary';
+import {
+  secondsToTimeFormatting,
+  toStringDateByFormatting,
+  toStringTimeByFormatting,
+} from 'utils/date';
 import EntireDiaryLogs from '../EntireDiaryLogs';
 import './diary.css';
 
 interface ModalProps {
   onHide: () => void;
+  diaryId: string;
   show: boolean;
 }
+
 function DiaryContentsModal(modalProps: ModalProps) {
+  const [diary, setdiary] = useState<DiaryTepe>();
+  const { diaryId, show, onHide } = modalProps;
+
+  const location = useLocation();
+  const userId = location.pathname.split('/')[2];
+
+  const fetch = async () => {
+    try {
+      const diaryData = await getDiary(userId, diaryId);
+      setdiary(() => diaryData);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    if (show) {
+      fetch();
+    }
+  }, [show]);
+
   return (
     <Modal
-      {...modalProps}
+      onHide={onHide}
+      show={show}
       size="lg"
       aria-labelledby="contained-modal-title-vcenter"
     >
@@ -21,49 +55,17 @@ function DiaryContentsModal(modalProps: ModalProps) {
         </Modal.Title>
       </Modal.Header>
       <Modal.Body className="mx-4">
-        <EntireDiaryLogs />
+        <EntireDiaryLogs diary={diary} />
       </Modal.Body>
       <Modal.Footer>
-        <Button onClick={{ ...modalProps }.onHide}>Close</Button>
+        <Button onClick={onHide}>Close</Button>
       </Modal.Footer>
     </Modal>
   );
 }
 
-function Diary({
-  createdAt,
-  content,
-  like,
-}: {
-  createdAt: number;
-  content: string;
-  like: number;
-}) {
+function Diary({ diary }: { diary: DiaryInfo }) {
   const [modalShow, setModalShow] = useState(false);
-
-  function leftPad(value: number) {
-    if (value >= 10) {
-      return value;
-    }
-    return `0${value}`;
-  }
-
-  function toStringDateByFormatting(timeStamp: number) {
-    const source = new Date(timeStamp * 1000);
-    const year = source.getFullYear();
-    const month = leftPad(source.getMonth() + 1);
-    const day = leftPad(source.getDate());
-    return `${year}년 ${month}월 ${day}일`;
-  }
-
-  function toStringTimeByFormatting(timeStamp: number) {
-    const source = new Date(timeStamp * 1000);
-    return source.toLocaleString('en-US', {
-      hour: 'numeric',
-      minute: 'numeric',
-      hour12: true,
-    });
-  }
 
   return (
     <>
@@ -78,27 +80,36 @@ function Diary({
         <Card.Body>
           <Card.Title className="d-flex align-items-center justify-content-between">
             <div className="d-flex align-items-center">
-              <div className="me-2">{toStringDateByFormatting(createdAt)}</div>
+              <div className="me-2">
+                {toStringDateByFormatting(diary.sessionStart)}
+              </div>
               <div className="fs-6 me-2">
-                {toStringTimeByFormatting(createdAt)}
+                {toStringTimeByFormatting(diary.sessionStart)}
               </div>
             </div>
-            <Badge bg="primary">홍길동 상담사 </Badge>
+            <Badge bg="primary">{diary.operator}</Badge>
           </Card.Title>
 
           <Card.Subtitle className="mb-2 text-muted">
-            <div className="text-primary">8분 30초 참여 · 3032자 작성</div>
+            <div className="text-primary">
+              {secondsToTimeFormatting(diary.duration)} 참여 · {diary.length}자
+              작성
+            </div>
           </Card.Subtitle>
-          <Card.Text>{content}</Card.Text>
+          <Card.Text>{diary.diary}</Card.Text>
           <div className="d-flex align-items-center justify-content-between">
             <div>
               ❤️
-              <b>{like}</b>
+              <b>{diary.like}</b>
             </div>
           </div>
         </Card.Body>
       </Card>
-      <DiaryContentsModal show={modalShow} onHide={() => setModalShow(false)} />
+      <DiaryContentsModal
+        show={modalShow}
+        onHide={() => setModalShow(false)}
+        diaryId={diary.sessionNumber}
+      />
     </>
   );
 }
