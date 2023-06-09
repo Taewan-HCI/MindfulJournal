@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { useState } from 'react';
 import { Button, Container, Form } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
@@ -43,6 +44,15 @@ function Main() {
 
   return (
     <Container className="d-flex align-items-center py-2 flex-column">
+=======
+import React from 'react';
+import { Button, Container, Form } from 'react-bootstrap';
+import diary from '../assets/image/diary.png';
+
+function Main() {
+  return (
+    <Container className="d-flex align-items-center py-2  flex-column">
+>>>>>>> 7c25c1d04730ed9e085883186fdfeeff96e4e455
       <div className="d-flex align-items-center pt-5 flex-column">
         <img src={diary} alt="diray img" width="60" height="60" />
         <div className="fs-2 text-primary mt-2">
@@ -53,6 +63,7 @@ function Main() {
           </b>
         </div>
       </div>
+<<<<<<< HEAD
 
       <Form onSubmit={onSubmit} className="mt-5 w-50">
         <Form.Group className="mb-3" controlId="formBasicEmail">
@@ -64,10 +75,18 @@ function Main() {
             onChange={handleChange}
             value={values.username}
           />
+=======
+      <Form className="mt-5 w-25">
+        <span className="text-primary mx-auto"> 로그인이 필요합니다. </span>
+        <Form.Group className="mb-3" controlId="formBasicEmail">
+          <Form.Label>ID</Form.Label>
+          <Form.Control type="email" placeholder="Enter ID" />
+>>>>>>> 7c25c1d04730ed9e085883186fdfeeff96e4e455
         </Form.Group>
 
         <Form.Group className="mb-3" controlId="formBasicPassword">
           <Form.Label>Password</Form.Label>
+<<<<<<< HEAD
           <Form.Control
             type="password"
             placeholder="password"
@@ -86,6 +105,13 @@ function Main() {
         )}
         <div className="d-grid gap-1">
           <Button variant="primary" type="submit" disabled={!isFormFilled}>
+=======
+          <Form.Control type="password" placeholder="Password" />
+        </Form.Group>
+
+        <div className="d-grid gap-1">
+          <Button variant="primary" type="submit">
+>>>>>>> 7c25c1d04730ed9e085883186fdfeeff96e4e455
             Sign In
           </Button>
         </div>

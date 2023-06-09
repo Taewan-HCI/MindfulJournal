@@ -16,14 +16,20 @@
     "@types/react-dom": "^18.0.11",
     "@types/react-router-dom": "^5.3.3",
     "@types/recharts": "^1.8.24",
+<<<<<<< HEAD
     "axios": "^1.4.0",
+=======
+>>>>>>> 7c25c1d04730ed9e085883186fdfeeff96e4e455
     "bootstrap": "^5.2.3",
     "d3": "^7.8.4",
     "d3-cloud": "^1.2.5",
     "d3-scale": "^4.0.2",
     "d3-scale-chromatic": "^3.0.0",
+<<<<<<< HEAD
     "date-fns": "^2.30.0",
     "dayjs": "^1.11.8",
+=======
+>>>>>>> 7c25c1d04730ed9e085883186fdfeeff96e4e455
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-jsx-a11y": "^6.7.1",
     "eslint-plugin-react-hooks": "^4.6.0",
@@ -38,7 +44,10 @@
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.9.0",
     "react-scripts": "5.0.1",
+<<<<<<< HEAD
     "react-toastify": "^9.1.3",
+=======
+>>>>>>> 7c25c1d04730ed9e085883186fdfeeff96e4e455
     "recharts": "^2.5.0",
     "typescript": "^4.9.5",
     "web-vitals": "^2.1.4"
