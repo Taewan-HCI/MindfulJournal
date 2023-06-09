@@ -6,6 +6,6 @@ export async function getDiaryList(patientId: string) {
 }
 
 export async function getDiary(patientId: string, diaryId: string) {
-  const { data } = await axiosInstance.get(`/diary/${patientId}/${diaryId}`);
+  const { data } = await axiosInstance.get(`/${patientId}/${diaryId}`);
   return data;
 }

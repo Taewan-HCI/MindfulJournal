@@ -1,19 +1,51 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react/jsx-one-expression-per-line */
 /* eslint-disable react/jsx-props-no-spreading */
-import React, { useState } from 'react';
+import { getDiary } from 'apis/diary';
+import React, { useEffect, useState } from 'react';
 import { Badge, Button, Card, Modal } from 'react-bootstrap';
-import { DiaryInfo } from 'types/diary';
-import { toStringDateByFormatting, toStringTimeByFormatting } from 'utils/date';
+import { useLocation } from 'react-router-dom';
+import { Diary as DiaryTepe, DiaryInfo } from 'types/diary';
+import {
+  secondsToTimeFormatting,
+  toStringDateByFormatting,
+  toStringTimeByFormatting,
+} from 'utils/date';
 import EntireDiaryLogs from '../EntireDiaryLogs';
 import './diary.css';
 
 interface ModalProps {
   onHide: () => void;
+  diaryId: string;
   show: boolean;
 }
+
 function DiaryContentsModal(modalProps: ModalProps) {
+  const [diary, setdiary] = useState<DiaryTepe>();
+  const { diaryId, show, onHide } = modalProps;
+
+  const location = useLocation();
+  const userId = location.pathname.split('/')[2];
+
+  const fetch = async () => {
+    try {
+      const diaryData = await getDiary(userId, diaryId);
+      setdiary(() => diaryData);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    if (show) {
+      fetch();
+    }
+  }, [show]);
+
   return (
     <Modal
-      {...modalProps}
+      onHide={onHide}
+      show={show}
       size="lg"
       aria-labelledby="contained-modal-title-vcenter"
     >
@@ -23,10 +55,10 @@ function DiaryContentsModal(modalProps: ModalProps) {
         </Modal.Title>
       </Modal.Header>
       <Modal.Body className="mx-4">
-        <EntireDiaryLogs />
+        <EntireDiaryLogs diary={diary} />
       </Modal.Body>
       <Modal.Footer>
-        <Button onClick={{ ...modalProps }.onHide}>Close</Button>
+        <Button onClick={onHide}>Close</Button>
       </Modal.Footer>
     </Modal>
   );
@@ -55,11 +87,14 @@ function Diary({ diary }: { diary: DiaryInfo }) {
                 {toStringTimeByFormatting(diary.sessionStart)}
               </div>
             </div>
-            <Badge bg="primary">홍길동 상담사 </Badge>
+            <Badge bg="primary">{diary.operator}</Badge>
           </Card.Title>
 
           <Card.Subtitle className="mb-2 text-muted">
-            <div className="text-primary">8분 30초 참여 · 3032자 작성</div>
+            <div className="text-primary">
+              {secondsToTimeFormatting(diary.duration)} 참여 · {diary.length}자
+              작성
+            </div>
           </Card.Subtitle>
           <Card.Text>{diary.diary}</Card.Text>
           <div className="d-flex align-items-center justify-content-between">
@@ -70,7 +105,11 @@ function Diary({ diary }: { diary: DiaryInfo }) {
           </div>
         </Card.Body>
       </Card>
-      <DiaryContentsModal show={modalShow} onHide={() => setModalShow(false)} />
+      <DiaryContentsModal
+        show={modalShow}
+        onHide={() => setModalShow(false)}
+        diaryId={diary.sessionNumber}
+      />
     </>
   );
 }

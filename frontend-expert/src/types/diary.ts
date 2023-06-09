@@ -1,6 +1,6 @@
 export interface Dialog {
   role: string;
-  contents: string;
+  content: string;
   id: string;
 }
 
