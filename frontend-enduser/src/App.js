@@ -26,6 +26,7 @@ function App() {
     //firebase setting
     const [isAuth, setIsAuth] = useState(cookies.get("auth-token"))
     const [userName, setUserName] = useState('')
+    const [userMail, setUserMail] = useState('')
     const [diaryCount, setDiaryCount] = useState(null)
     const current = new Date();
     const date = `${current.getFullYear()}년 ${current.getMonth() + 1}월 ${current.getDate()}일`;
@@ -34,7 +35,9 @@ function App() {
         const docRef = doc(db, 'prompt', 'module1_1');
         const docSnap = await getDoc(docRef);
         var user = await (auth.currentUser.displayName)
+        var mail = await (auth.currentUser.email)
         setUserName(user)
+        setUserMail(mail)
     }
 
     useEffect(() => {
@@ -47,55 +50,93 @@ function App() {
         setIsAuth(false)
     }
 
+    const [expanded, setExpanded] = useState(false);
+
 
     return (
+
+
         <div className="App">
             <div>
                 <div>
-                    <Navbar bg="light" variant="light">
+                    <Navbar collapseOnSelect expand="sm" bg="light" variant="light" expanded={expanded}>
                         <Container>
-                            <Navbar.Brand onClick={() => {
-                                navigate('/')
-                            }}>
+                            <Navbar.Brand
+                                onClick={() => {
+                                    navigate('/');
+                                    setExpanded(false);
+                                }}
+                            >
                                 <Stack gap={0}>
                                     <div className="nav_title_black">마음챙김</div>
                                     <div className="nav_title_blue">다이어리</div>
                                 </Stack>
                             </Navbar.Brand>
-                            <Nav className="me-auto">
-                                <Nav.Link onClick={() => {
-                                    navigate('/')
-                                }}><div className="nav_title_black">홈</div></Nav.Link>
-                                <Nav.Link onClick={() => {
-                                    navigate('/writing')
-                                }}><div className="nav_title_black">일기 작성하기</div></Nav.Link>
-                                <Nav.Link onClick={() => {
-                                    navigate('/list')
-                                }}><div className="nav_title_black">일기 돌아보기</div></Nav.Link>
-                                {isAuth ? (<Nav.Link onClick={signUserOut}><div className="nav_title_black">로그아웃</div></Nav.Link>) : (null)}
-                            </Nav>
-                            <Nav>
-                                <Stack gap={0}>
-                                    <div className="nav_title_blue"><b>사용자용 화면입니다</b></div>
-                                    <div className="nav_title_black">{date}</div>
-                                </Stack>
-                            </Nav>
+                            <Navbar.Toggle aria-controls="responsive-navbar-nav"
+                                           onClick={() => setExpanded(!expanded)}/>
+                            <Navbar.Collapse id="responsive-navbar-nav">
+                                <Nav className="me-auto">
+                                    <Nav.Link
+                                        onClick={() => {
+                                            navigate('/');
+                                            setExpanded(false);
+                                        }}
+                                    >
+                                        <div className="nav_title_black">홈</div>
+                                    </Nav.Link>
+                                    <Nav.Link
+                                        onClick={() => {
+                                            navigate('/writing');
+                                            setExpanded(false);
+                                        }}
+                                    >
+                                        <div className="nav_title_black">작성하기</div>
+                                    </Nav.Link>
+                                    <Nav.Link
+                                        onClick={() => {
+                                            navigate('/list');
+                                            setExpanded(false);
+                                        }}
+                                    >
+                                        <div className="nav_title_black">돌아보기</div>
+                                    </Nav.Link>
+                                    {isAuth ? (
+                                        <Nav.Link
+                                            onClick={() => {
+                                                signUserOut();
+                                                setExpanded(false);
+                                            }}
+                                        >
+                                            <div className="nav_title_black">로그아웃</div>
+                                        </Nav.Link>
+                                    ) : null}
+                                </Nav>
+                                <Nav>
+                                    <Stack gap={0}>
+                                        <div className="nav_title_blue">
+                                            <b>Pilot Test</b>
+                                        </div>
+                                        <div className="nav_title_black">{date}</div>
+                                    </Stack>
+                                </Nav>
+                            </Navbar.Collapse>
                         </Container>
                     </Navbar>
                 </div>
                 <Routes>
                     <Route path="/" element={
                         <div>
-                            {isAuth ? (<Home userName={userName} diaryCount={diaryCount}/>) : (
+                            {isAuth ? (<Home userName={userName} userMail={userMail} diaryCount={diaryCount}/>) : (
                                 <Auth setIsAuth={setIsAuth} setUserName={setUserName}/>)}
                         </div>
                     }/>
                     <Route path="/writing"
-                           element={isAuth ? (<div><Writing userName={userName}/></div>) : (
-                               <Auth setIsAuth={setIsAuth} setUserName={setUserName}/>)
+                           element={isAuth ? (<div><Writing userName={userName} userMail={userMail}/></div>) : (
+                               <Auth setIsAuth={setIsAuth} setUserName={setUserName} setUserMail={setUserMail}/>)
                            }/>
-                    <Route path="/list" element={isAuth ? (<div><DiaryList userName={userName}/></div>) : (
-                        <Auth setIsAuth={setIsAuth} setUserName={setUserName}/>)}/>
+                    <Route path="/list"
+                           element={isAuth ? (<div><DiaryList userName={userName} userMail={userMail}/></div>) : (
+                               <Auth setIsAuth={setIsAuth} setUserName={setUserName} setUserMail={setUserMail}/>)}/>
                     <Route path="/loading" element={<div><Loading/></div>}/>
                     <Route path="*" element={<div>404~ 없는페이지임</div>}/>
                 </Routes>

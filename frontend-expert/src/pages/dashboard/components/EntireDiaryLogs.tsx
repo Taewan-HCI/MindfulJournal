@@ -114,11 +114,9 @@ function EntireDiaryLogs() {
     <div className="mb-4">
       <div className="border-bottom mb-4 py-2">
         <div className="fs-2">
-          <b> 불편함, 불안, 두려움</b>
+          <b> 2023년 3월 10일 18:44 </b>
         </div>
-        <div className="text-secondary">
-          2023년 3월 10일 18:44 , 8분 44초 소요
-        </div>
+        <div className="text-secondary">8분 30초 참여 · 3032자 작성</div>
         <div className="text-primary"> 상담사명: 홍길동</div>
       </div>
       <Card bg="light" border="light">
