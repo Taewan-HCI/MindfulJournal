@@ -38,11 +38,4 @@ firebase-config.js
 
 npm-debug.log*
 yarn-debug.log*
-<<<<<<< HEAD
 yarn-error.log*
-
-#db key
-/backend/app/secrets/
-=======
-yarn-error.log*
->>>>>>> 7c25c1d04730ed9e085883186fdfeeff96e4e455
