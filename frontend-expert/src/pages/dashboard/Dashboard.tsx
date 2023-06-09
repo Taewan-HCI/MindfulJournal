@@ -17,11 +17,11 @@ import {
 } from 'react-bootstrap';
 import { ArrowClockwise } from 'react-bootstrap-icons';
 import { useLocation } from 'react-router-dom';
+import { endOfDay } from 'date-fns';
 
 import ContentWithTitle from 'components/ContentWithTitle';
 import { getPatientInfo } from 'apis/patients';
-import { getDiaryList } from 'apis/diary';
-import mockDiary from 'mocks/diaryData';
+import { getDiarybyPeriod, getDiaryList } from 'apis/diary';
 import { toStringDateByFormatting } from 'utils/date';
 import { PatientInfo } from 'types/patient';
 import { DiaryInfo } from 'types/diary';
@@ -52,6 +52,15 @@ function Dashboard() {
   const location = useLocation();
   const userId = location.pathname.split('/')[2];
 
+  const fetchByPeriod = async (startDate: number, endDate: number) => {
+    try {
+      const diaryData = await getDiarybyPeriod(userId, startDate, endDate);
+      setdiaryList(() => diaryData.diary);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const fetch = async () => {
     try {
       const userData = await getPatientInfo(userId);
@@ -67,6 +76,16 @@ function Dashboard() {
   useEffect(() => {
     fetch();
   }, []);
+
+  const onClick = () => {
+    if (dateRange[0] === null || dateRange[1] === null) {
+      return;
+    }
+    const startDate = Math.floor(dateRange[0].getTime() / 1000);
+    const endDate = Math.floor(endOfDay(dateRange[1]).getTime() / 1000);
+
+    fetchByPeriod(startDate, endDate);
+  };
 
   const data = useMemo(
     () => [
@@ -153,6 +172,7 @@ function Dashboard() {
                   variant="primary"
                   className="my-auto"
                   disabled={!isDateSelected}
+                  onClick={onClick}
                 >
                   <ArrowClockwise className="ml-4" />
                   <span className="px-2 fw-bold"> 적용 </span>
