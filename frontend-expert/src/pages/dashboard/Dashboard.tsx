@@ -1,18 +1,11 @@
-<<<<<<< HEAD
 /* eslint-disable react/jsx-indent */
 /* eslint-disable @typescript-eslint/indent */
 /* eslint-disable react-hooks/exhaustive-deps */
-=======
->>>>>>> 7c25c1d04730ed9e085883186fdfeeff96e4e455
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react/jsx-wrap-multilines */
 /* eslint-disable operator-linebreak */
 /* eslint-disable react/jsx-props-no-spreading */
-<<<<<<< HEAD
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-=======
-import React, { useMemo, useRef, useState } from 'react';
->>>>>>> 7c25c1d04730ed9e085883186fdfeeff96e4e455
 import {
   Button,
   ButtonGroup,
@@ -23,7 +16,6 @@ import {
   ToggleButton,
 } from 'react-bootstrap';
 import { ArrowClockwise } from 'react-bootstrap-icons';
-<<<<<<< HEAD
 import { useLocation } from 'react-router-dom';
 import { endOfDay } from 'date-fns';
 
@@ -47,23 +39,12 @@ const radios = [
   { name: '7일 전', value: '2', id: 2 },
   { name: '14일 전', value: '3', id: 3 },
 ];
-=======
-import ContentWithTitle from '../../components/ContentWithTitle';
-import DateRangePicker from './components/datePicker/DateRangePicker';
-import Diary from './components/Diary/Diary';
-import mockDiary from '../../mocks/diaryData';
-import Tabs from './components/Tabs';
-import TimeLine from './components/timeLine/TimeLine';
-import CustomWordCloud from './components/CustomWordCloud';
-import DisplayTooltip from './components/DisplayTooltip';
->>>>>>> 7c25c1d04730ed9e085883186fdfeeff96e4e455
 
 function Dashboard() {
   const [radioValue, setRadioValue] = useState<string | null>(null);
   const [dateRange, setDateRange] = useState<(null | Date)[]>([null, null]);
   const [show, setShow] = useState(true);
   const [countedNum, setCountedNum] = useState<number>(0);
-<<<<<<< HEAD
   const [patientInfo, setPatientInfo] = useState<PatientInfo>();
   const target = useRef<HTMLDivElement | null>(null);
   const [diaryList, setdiaryList] = useState<DiaryInfo[]>();
@@ -105,15 +86,6 @@ function Dashboard() {
 
     fetchByPeriod(startDate, endDate);
   };
-=======
-  const target = useRef<HTMLDivElement | null>(null);
-
-  const radios = [
-    { name: '3일 전', value: '1', id: 1 },
-    { name: '7일 전', value: '2', id: 2 },
-    { name: '14일 전', value: '3', id: 3 },
-  ];
->>>>>>> 7c25c1d04730ed9e085883186fdfeeff96e4e455
 
   const data = useMemo(
     () => [
@@ -154,11 +126,7 @@ function Dashboard() {
           <Col xs={4}>
             <div className="d-flex justify-content-between align-items-end mb-4">
               <div className="fs-2 mt-2">
-<<<<<<< HEAD
                 {`${patientInfo?.name ?? ''} 환자의`}
-=======
-                나극복 환자의
->>>>>>> 7c25c1d04730ed9e085883186fdfeeff96e4e455
                 <br />
                 <b>마음챙김 다이어리</b>
               </div>
@@ -204,10 +172,7 @@ function Dashboard() {
                   variant="primary"
                   className="my-auto"
                   disabled={!isDateSelected}
-<<<<<<< HEAD
                   onClick={onClick}
-=======
->>>>>>> 7c25c1d04730ed9e085883186fdfeeff96e4e455
                 >
                   <ArrowClockwise className="ml-4" />
                   <span className="px-2 fw-bold"> 적용 </span>
@@ -222,7 +187,6 @@ function Dashboard() {
                 <Card.Body>
                   <div className="d-flex align-items-center justify-content-between py-2">
                     <div className="text-secondary">성별/나이</div>
-<<<<<<< HEAD
                     <div className="fs-6 me-2">
                       {`${patientInfo?.gender ?? ''}/${patientInfo?.age ?? ''}`}
                     </div>
@@ -238,29 +202,16 @@ function Dashboard() {
                           : 0,
                       )}
                     </div>
-=======
-                    <div className="fs-6 me-2">남/28</div>
-                  </div>
-                  <div className="d-flex align-items-center justify-content-between py-2">
-                    <div className="text-secondary">최근 진료일</div>
-                    <div className="fs-6 me-2"> 2023.04.03</div>
->>>>>>> 7c25c1d04730ed9e085883186fdfeeff96e4e455
                   </div>
                 </Card.Body>
               </Card>
             </ContentWithTitle>
             <ContentWithTitle title="작성 일기 보기">
-<<<<<<< HEAD
               {diaryList
                 ? diaryList.map((diary) => (
                     <Diary key={diary.sessionNumber} diary={diary} />
                   ))
                 : null}
-=======
-              {mockDiary.map((diary) => (
-                <Diary key={diary.diaryNum} {...diary} />
-              ))}
->>>>>>> 7c25c1d04730ed9e085883186fdfeeff96e4e455
             </ContentWithTitle>
           </Col>
 
