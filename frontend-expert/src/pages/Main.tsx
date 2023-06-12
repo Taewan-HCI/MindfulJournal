@@ -5,11 +5,14 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import signIn from 'apis/auth';
 import diary from 'assets/image/diary.png';
+import WithLoading from 'components/Loading';
 
 type SignInType = {
   username: string;
   password: string;
 };
+
+const ButtonWithLoading = WithLoading(Button);
 
 function Main() {
   const [values, setValues] = useState<SignInType>({
@@ -17,6 +20,7 @@ function Main() {
     password: '',
   });
   const [isErrorOccured, setError] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const navigate = useNavigate();
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -25,6 +29,7 @@ function Main() {
   };
 
   const onSubmit = async (e: React.SyntheticEvent) => {
+    setIsLoading(() => true);
     e.preventDefault();
     try {
       const data = await signIn({ ...values });
@@ -35,6 +40,7 @@ function Main() {
       console.error(error);
       setError(() => true);
     }
+    setIsLoading(() => false);
   };
 
   // eslint-disable-next-line operator-linebreak
@@ -85,9 +91,14 @@ function Main() {
           <span className="text-primary mx-auto"> 로그인이 필요합니다. </span>
         )}
         <div className="d-grid gap-1">
-          <Button variant="primary" type="submit" disabled={!isFormFilled}>
-            Sign In
-          </Button>
+          <ButtonWithLoading
+            variant="primary"
+            type="submit"
+            disabled={!isFormFilled || isLoading}
+            isLoading={isLoading}
+          >
+            <div>Sign In</div>
+          </ButtonWithLoading>
         </div>
       </Form>
     </Container>

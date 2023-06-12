@@ -1,3 +1,5 @@
+/* eslint-disable react/jsx-curly-newline */
+/* eslint-disable implicit-arrow-linebreak */
 /* eslint-disable react/jsx-indent */
 /* eslint-disable @typescript-eslint/indent */
 /* eslint-disable react-hooks/exhaustive-deps */
@@ -5,7 +7,7 @@
 /* eslint-disable react/jsx-wrap-multilines */
 /* eslint-disable operator-linebreak */
 /* eslint-disable react/jsx-props-no-spreading */
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Button,
   ButtonGroup,
@@ -21,6 +23,7 @@ import { endOfDay, startOfDay } from 'date-fns';
 import { toast } from 'react-toastify';
 
 import ContentWithTitle from 'components/ContentWithTitle';
+import WithLoading from 'components/Loading';
 import { getPatientInfo } from 'apis/patients';
 import { getFrequencybyPeriod, getLengthbyPeriod } from 'apis/modules';
 import { getDiarybyPeriod, getDiaryList } from 'apis/diary';
@@ -49,9 +52,12 @@ const radios = [
   { name: '14일 전', value: '14', id: 3 },
 ];
 
+const ButtonWithLoading = WithLoading(Button);
+
 function Dashboard() {
   const [radioValue, setRadioValue] = useState<string | null>(null);
   const [dateRange, setDateRange] = useState<(null | Date)[]>([null, null]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const [patientInfo, setPatientInfo] = useState<PatientInfo>();
   const [diaryList, setdiaryList] = useState<DiaryInfo[]>();
@@ -94,6 +100,7 @@ function Dashboard() {
       toast.error('데이터를 불러오는데 실패했습니다.');
       console.error(error);
     }
+    setIsLoading(() => false);
   };
 
   const fetch = async () => {
@@ -113,6 +120,7 @@ function Dashboard() {
   }, []);
 
   const onClick = () => {
+    setIsLoading(() => true);
     if (dateRange[0] === null || dateRange[1] === null) {
       return;
     }
@@ -210,22 +218,27 @@ function Dashboard() {
                 </div>
               </Col>
               <Col xs={9} className="d-flex justify-content-between ">
-                <DateRangePicker
-                  dateRange={dateRange}
-                  setDateRange={(v) => {
-                    setDateRange(v);
-                    setRadioValue(null);
-                  }}
-                />
-                <Button
-                  variant="primary"
-                  className="my-auto"
-                  disabled={!isDateSelected}
-                  onClick={onClick}
-                >
-                  <ArrowClockwise className="ml-4" />
-                  <span className="px-2 fw-bold"> 적용 </span>
-                </Button>
+                <>
+                  <DateRangePicker
+                    dateRange={dateRange}
+                    setDateRange={(v) => {
+                      setDateRange(v);
+                      setRadioValue(null);
+                    }}
+                  />
+                  <ButtonWithLoading
+                    variant="primary"
+                    className="my-auto"
+                    disabled={!isDateSelected || isLoading}
+                    onClick={onClick}
+                    isLoading={isLoading}
+                  >
+                    <>
+                      <ArrowClockwise className="ml-4" />
+                      <span className="px-2 fw-bold"> 적용 </span>
+                    </>
+                  </ButtonWithLoading>
+                </>
               </Col>
             </Row>
           </Col>
