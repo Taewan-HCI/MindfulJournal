@@ -34,7 +34,6 @@ import {
   Tabs,
   TimeLine,
   CustomWordCloud,
-  DisplayTooltip,
 } from './components';
 
 interface Data {
@@ -53,10 +52,8 @@ const radios = [
 function Dashboard() {
   const [radioValue, setRadioValue] = useState<string | null>(null);
   const [dateRange, setDateRange] = useState<(null | Date)[]>([null, null]);
-  const [show, setShow] = useState(true);
-  const [countedNum, setCountedNum] = useState<number>(0);
+
   const [patientInfo, setPatientInfo] = useState<PatientInfo>();
-  const target = useRef<HTMLDivElement | null>(null);
   const [diaryList, setdiaryList] = useState<DiaryInfo[]>();
   const [tabData, setTabData] = useState<ModuleData>();
 
@@ -277,17 +274,7 @@ function Dashboard() {
                 <Tabs tabData={tabData} />
               </ContentWithTitle>
               <ContentWithTitle title="핵심 감정">
-                <CustomWordCloud
-                  data={data}
-                  target={target}
-                  setShow={setShow}
-                  setCountedNum={setCountedNum}
-                />
-                <DisplayTooltip
-                  target={target}
-                  show={show}
-                  countedNum={countedNum}
-                />
+                <CustomWordCloud data={data} />
                 <Card body>핵심 감정의 나열</Card>
               </ContentWithTitle>
               <ContentWithTitle title="주요 사건">
