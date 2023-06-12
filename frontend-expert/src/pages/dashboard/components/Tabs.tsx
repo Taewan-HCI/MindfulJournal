@@ -1,11 +1,13 @@
+/* eslint-disable react/jsx-one-expression-per-line */
 /* eslint-disable implicit-arrow-linebreak */
 import React, { useState } from 'react';
 import { Card, Nav } from 'react-bootstrap';
 import { Calendar3, Stopwatch, TextLeft } from 'react-bootstrap-icons';
+import { ModuleData } from 'types/modules';
 import TimeSeriesChart from './charts/TimeSeriesChart';
 import MarkedCalander from './MarkedCalander/MarkedCalander';
 
-function TabContent({ tab }: { tab: string | null }) {
+function TabContent({ tab, data }: { tab: string | null; data: ModuleData }) {
   if (tab === null) {
     return (
       <>
@@ -18,12 +20,14 @@ function TabContent({ tab }: { tab: string | null }) {
   const sampleDay = new Date('2023-04-01 10:20:30');
   const mark = [today, sampleDay];
 
+  console.log(data);
+
   if (tab === 'frequency') {
     return (
       <>
         <Card.Title>총 참여 횟수</Card.Title>
-        <Card.Text>총 16회 참여했습니다.</Card.Text>
-        <MarkedCalander mark={mark} />
+        <Card.Text>총 {data?.frequency?.length ?? 0}회 참여했습니다.</Card.Text>
+        <MarkedCalander mark={data?.frequency ?? mark} />
       </>
     );
   }
@@ -33,7 +37,7 @@ function TabContent({ tab }: { tab: string | null }) {
       <>
         <Card.Title>평균 참여 시간</Card.Title>
         <Card.Text>평균 8분 소모했습니다.</Card.Text>
-        <TimeSeriesChart />
+        <TimeSeriesChart data={data.duration} xkey="duration" />
       </>
     );
   }
@@ -42,12 +46,12 @@ function TabContent({ tab }: { tab: string | null }) {
     <>
       <Card.Title>평균 작성 일기 길이</Card.Title>
       <Card.Text>평균 823자 작성했습니다.</Card.Text>
-      <TimeSeriesChart />
+      <TimeSeriesChart data={data.length} xkey="length" />
     </>
   );
 }
 
-function Tabs() {
+function Tabs({ tabData }: { tabData: ModuleData }) {
   const [key, setKey] = useState<string | null>('frequency');
 
   return (
@@ -80,7 +84,7 @@ function Tabs() {
         </Nav>
       </Card.Header>
       <Card.Body>
-        <TabContent tab={key} />
+        <TabContent tab={key} data={tabData} />
       </Card.Body>
     </Card>
   );

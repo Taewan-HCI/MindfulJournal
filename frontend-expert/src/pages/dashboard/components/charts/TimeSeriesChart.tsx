@@ -11,7 +11,7 @@ import {
   BarChart,
 } from 'recharts';
 
-function TimeSeriesChart() {
+function TimeSeriesChart({ data, xkey }: any) {
   const chartData = [
     { value: 14, time: 1503617297689 },
     { value: 15, time: 1503616962277 },
@@ -20,7 +20,7 @@ function TimeSeriesChart() {
     { value: 15, time: 1503611308914 },
   ];
 
-  const data = chartData.map((c) => {
+  const mockData = chartData.map((c) => {
     const t = new Date(c.time);
     const stampedTime = {
       ...c,
@@ -35,7 +35,7 @@ function TimeSeriesChart() {
       <BarChart
         width={500}
         height={300}
-        data={data}
+        data={data ?? mockData}
         margin={{
           top: 5,
           right: 30,
@@ -44,11 +44,11 @@ function TimeSeriesChart() {
         }}
       >
         <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="date" tickFormatter={formatXAxis} />
+        <XAxis dataKey="sesssionEnd" tickFormatter={formatXAxis} />
         <YAxis />
         <Tooltip />
         <Legend />
-        <Bar dataKey="value" fill="#8884d8" />
+        <Bar dataKey={xkey} fill="#8884d8" />
       </BarChart>
     </ResponsiveContainer>
   );

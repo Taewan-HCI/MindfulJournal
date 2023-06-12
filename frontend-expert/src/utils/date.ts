@@ -57,3 +57,7 @@ export function secondsToTimeFormatting(seconds: number | undefined) {
     '분',
   )} ${returnWithUnit(second, '초')}`;
 }
+
+export function DatetoUnixTimeStamp(d: Date) {
+  return Math.floor(d.getTime() / 1000);
+}

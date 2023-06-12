@@ -17,14 +17,17 @@ import {
 } from 'react-bootstrap';
 import { ArrowClockwise } from 'react-bootstrap-icons';
 import { useLocation } from 'react-router-dom';
-import { endOfDay } from 'date-fns';
+import { endOfDay, startOfDay } from 'date-fns';
+import { toast } from 'react-toastify';
 
 import ContentWithTitle from 'components/ContentWithTitle';
 import { getPatientInfo } from 'apis/patients';
+import { getFrequencybyPeriod, getLengthbyPeriod } from 'apis/modules';
 import { getDiarybyPeriod, getDiaryList } from 'apis/diary';
-import { toStringDateByFormatting } from 'utils/date';
+import { DatetoUnixTimeStamp, toStringDateByFormatting } from 'utils/date';
 import { PatientInfo } from 'types/patient';
 import { DiaryInfo } from 'types/diary';
+import { ModuleData } from 'types/modules';
 import {
   DateRangePicker,
   Diary,
@@ -34,10 +37,17 @@ import {
   DisplayTooltip,
 } from './components';
 
+interface Data {
+  sesssionEnd: number;
+  operator: string;
+  duration: number;
+  length: number;
+}
+
 const radios = [
-  { name: '3일 전', value: '1', id: 1 },
-  { name: '7일 전', value: '2', id: 2 },
-  { name: '14일 전', value: '3', id: 3 },
+  { name: '3일 전', value: '3', id: 1 },
+  { name: '7일 전', value: '7', id: 2 },
+  { name: '14일 전', value: '14', id: 3 },
 ];
 
 function Dashboard() {
@@ -48,6 +58,7 @@ function Dashboard() {
   const [patientInfo, setPatientInfo] = useState<PatientInfo>();
   const target = useRef<HTMLDivElement | null>(null);
   const [diaryList, setdiaryList] = useState<DiaryInfo[]>();
+  const [tabData, setTabData] = useState<ModuleData>();
 
   const location = useLocation();
   const userId = location.pathname.split('/')[2];
@@ -55,8 +66,35 @@ function Dashboard() {
   const fetchByPeriod = async (startDate: number, endDate: number) => {
     try {
       const diaryData = await getDiarybyPeriod(userId, startDate, endDate);
+      const modulesData = await getLengthbyPeriod(userId, startDate, endDate);
+      const frequencyData = await getFrequencybyPeriod(
+        userId,
+        startDate,
+        endDate,
+      ).then((data) => data.num.map((date: number) => new Date(date * 1000)));
+
+      const lengthData = modulesData.diary.map((d: Data) => {
+        const { operator, duration, ...data } = d;
+        return data;
+      });
+
+      const durationdata = modulesData.diary.map((d: Data) => {
+        const { operator, length, ...data } = d;
+        return data;
+      });
+
+      const tab = {
+        frequency: frequencyData,
+        duration: durationdata,
+        length: lengthData,
+      };
+
+      toast.success('데이터를 불러왔습니다.');
+
+      setTabData(() => tab);
       setdiaryList(() => diaryData.diary);
     } catch (error) {
+      toast.error('데이터를 불러오는데 실패했습니다.');
       console.error(error);
     }
   };
@@ -64,9 +102,9 @@ function Dashboard() {
   const fetch = async () => {
     try {
       const userData = await getPatientInfo(userId);
-      setPatientInfo(() => userData);
-
       const diaryData = await getDiaryList(userId);
+
+      setPatientInfo(() => userData);
       setdiaryList(() => diaryData.diary);
     } catch (error) {
       console.error(error);
@@ -81,10 +119,24 @@ function Dashboard() {
     if (dateRange[0] === null || dateRange[1] === null) {
       return;
     }
-    const startDate = Math.floor(dateRange[0].getTime() / 1000);
-    const endDate = Math.floor(endOfDay(dateRange[1]).getTime() / 1000);
+    const startDate = DatetoUnixTimeStamp(dateRange[0]);
+    const endDate = DatetoUnixTimeStamp(endOfDay(dateRange[1]));
 
     fetchByPeriod(startDate, endDate);
+  };
+
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const today = new Date();
+    const tartgetDay = startOfDay(
+      new Date(
+        today.setDate(
+          today.getDate() - parseInt(e.currentTarget.value, 10) + 1,
+        ),
+      ),
+    );
+
+    setDateRange(() => [tartgetDay, endOfDay(new Date())]);
+    setRadioValue(e.currentTarget.value);
   };
 
   const data = useMemo(
@@ -148,7 +200,7 @@ function Dashboard() {
                       name="radio"
                       value={radio.value}
                       checked={radioValue === radio.value}
-                      onChange={(e) => setRadioValue(e.currentTarget.value)}
+                      onChange={onChange}
                     >
                       {radio.name}
                     </ToggleButton>
@@ -215,30 +267,36 @@ function Dashboard() {
             </ContentWithTitle>
           </Col>
 
-          <Col xs={8}>
-            <ContentWithTitle title="참여 수준">
-              <Tabs />
-            </ContentWithTitle>
-            <ContentWithTitle title="핵심 감정">
-              <CustomWordCloud
-                data={data}
-                target={target}
-                setShow={setShow}
-                setCountedNum={setCountedNum}
-              />
-              <DisplayTooltip
-                target={target}
-                show={show}
-                countedNum={countedNum}
-              />
-              <Card body>핵심 감정의 나열</Card>
-            </ContentWithTitle>
-            <ContentWithTitle title="주요 사건">
-              <Card body>
-                <TimeLine />
-              </Card>
-            </ContentWithTitle>
-          </Col>
+          {tabData === undefined ? (
+            <Col xs={8}>
+              <div> 기간을 선택해 주세요 </div>
+            </Col>
+          ) : (
+            <Col xs={8}>
+              <ContentWithTitle title="참여 수준">
+                <Tabs tabData={tabData} />
+              </ContentWithTitle>
+              <ContentWithTitle title="핵심 감정">
+                <CustomWordCloud
+                  data={data}
+                  target={target}
+                  setShow={setShow}
+                  setCountedNum={setCountedNum}
+                />
+                <DisplayTooltip
+                  target={target}
+                  show={show}
+                  countedNum={countedNum}
+                />
+                <Card body>핵심 감정의 나열</Card>
+              </ContentWithTitle>
+              <ContentWithTitle title="주요 사건">
+                <Card body>
+                  <TimeLine />
+                </Card>
+              </ContentWithTitle>
+            </Col>
+          )}
         </Row>
       </Container>
     </div>
