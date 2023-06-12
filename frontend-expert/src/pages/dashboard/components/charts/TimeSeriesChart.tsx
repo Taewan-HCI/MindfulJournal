@@ -10,15 +10,16 @@ import {
   Bar,
   BarChart,
 } from 'recharts';
+import { DurationData, LengthData } from 'types/modules';
+import { toStringDateByFormatting } from 'utils/date';
 
-function TimeSeriesChart({ data, xkey }: any) {
-  const chartData = [
-    { value: 14, time: 1503617297689 },
-    { value: 15, time: 1503616962277 },
-    { value: 0, time: 1503616882654 },
-    { value: 20, time: 1503613184594 },
-    { value: 15, time: 1503611308914 },
-  ];
+interface ChartProps {
+  data: DurationData[] | LengthData[];
+  xkey: string;
+}
+
+function TimeSeriesChart({ data, xkey }: ChartProps) {
+  const chartData = [{ value: 14, time: 1503617297689 }];
 
   const mockData = chartData.map((c) => {
     const t = new Date(c.time);
@@ -29,7 +30,7 @@ function TimeSeriesChart({ data, xkey }: any) {
     return stampedTime;
   });
 
-  const formatXAxis = (t: string) => t.substring(0, 10);
+  const formatXAxis = (t: number) => toStringDateByFormatting(t * 10000);
   return (
     <ResponsiveContainer width="95%" aspect={4}>
       <BarChart

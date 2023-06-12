@@ -1,15 +1,15 @@
-interface DurationData {
+export interface DurationData {
   sessionEnd: number;
   duration: number;
 }
 
-interface LengthData {
+export interface LengthData {
   frequency: number;
   sessionEnd: number;
 }
 
 export interface ModuleData {
   frequency: Date[];
-  duration: DurationData;
-  length: LengthData;
+  duration: DurationData[];
+  length: LengthData[];
 }
