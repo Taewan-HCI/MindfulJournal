@@ -17,6 +17,7 @@ mindfuljournal-44166-firebase-adminsdk-frpg8-10b50844cf.json
 
 node_modules/
 frontend-enduser/node_modules/
+frontend-expert/node_modules/
 frontend-operator/node_modules/
 frontend-standalone/node_modules/
 /.pnp
