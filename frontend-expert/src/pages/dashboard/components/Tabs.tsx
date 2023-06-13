@@ -1,3 +1,4 @@
+/* eslint-disable operator-linebreak */
 /* eslint-disable react/jsx-curly-newline */
 /* eslint-disable react/jsx-one-expression-per-line */
 /* eslint-disable implicit-arrow-linebreak */
@@ -18,24 +19,29 @@ function TabContent({ tab, data }: { tab: string | null; data: ModuleData }) {
       </>
     );
   }
-  const today = new Date();
-  const mark = [today];
 
   if (tab === 'frequency') {
     return (
       <>
         <Card.Title>총 참여 횟수</Card.Title>
-        <Card.Text>총 {data?.frequency?.length ?? 0}회 참여했습니다.</Card.Text>
-        <MarkedCalander mark={data?.frequency ?? mark} />
+        <Card.Text>총 {data.frequency.length}회 참여했습니다.</Card.Text>
+        <MarkedCalander mark={data.frequency} />
       </>
     );
   }
 
   if (tab === 'avgtime') {
+    const averageTime = Math.ceil(
+      data.duration.reduce((sum, currValue) => sum + currValue.duration, 0) /
+        data.duration.length,
+    );
+
     return (
       <>
         <Card.Title>평균 참여 시간</Card.Title>
-        <Card.Text>평균 8분 소모했습니다.</Card.Text>
+        <Card.Text>
+          평균 {secondsToTimeFormatting(averageTime)} 소모했습니다.
+        </Card.Text>
         <TimeSeriesChart
           data={data.duration}
           xkey="duration"
@@ -47,10 +53,15 @@ function TabContent({ tab, data }: { tab: string | null; data: ModuleData }) {
     );
   }
 
+  const averageLength = Math.ceil(
+    data.length.reduce((sum, currValue) => sum + currValue.length, 0) /
+      data.duration.length,
+  );
+
   return (
     <>
       <Card.Title>평균 작성 일기 길이</Card.Title>
-      <Card.Text>평균 823자 작성했습니다.</Card.Text>
+      <Card.Text>평균 {averageLength}자 작성했습니다.</Card.Text>
       <TimeSeriesChart
         data={data.length}
         xkey="length"

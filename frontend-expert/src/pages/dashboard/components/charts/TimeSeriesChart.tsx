@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-curly-newline */
 /* eslint-disable react/require-default-props */
 /* eslint-disable implicit-arrow-linebreak */
 import React from 'react';
@@ -7,12 +8,11 @@ import {
   Tooltip,
   XAxis,
   YAxis,
-  Legend,
   Bar,
   BarChart,
 } from 'recharts';
 import { DurationData, LengthData } from 'types/modules';
-import { toStringDateByFormatting } from 'utils/date';
+import { toStringDateByFormatting, toStringTimeByFormatting } from 'utils/date';
 
 interface ChartProps {
   data: DurationData[] | LengthData[];
@@ -36,13 +36,11 @@ function TimeSeriesChart({
     return stampedTime;
   });
 
-  const formatXAxis = (t: number) => toStringDateByFormatting(t * 10000);
-
   return (
-    <ResponsiveContainer width="95%" aspect={4}>
+    <ResponsiveContainer width="95%" aspect={3}>
       <BarChart
         width={500}
-        height={300}
+        height={600}
         data={data ?? mockData}
         margin={{
           top: 5,
@@ -52,10 +50,17 @@ function TimeSeriesChart({
         }}
       >
         <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="sesssionEnd" tickFormatter={formatXAxis} />
+        <XAxis
+          dataKey="sessionEnd"
+          tickFormatter={(v) => toStringDateByFormatting(v)}
+        />
         <YAxis />
-        <Tooltip formatter={labelFormatter} />
-        <Legend />
+        <Tooltip
+          formatter={labelFormatter}
+          labelFormatter={(v) =>
+            `${toStringDateByFormatting(v)} ${toStringTimeByFormatting(v)} `
+          }
+        />
         <Bar dataKey={xkey} fill="#8884d8" />
       </BarChart>
     </ResponsiveContainer>

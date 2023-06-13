@@ -6,7 +6,7 @@ function leftPad(value: number) {
 }
 
 /**
- * timestamp를 넣으면 0000년 00월 00일로 변형해서 리턴
+ * Unix timestamp를 넣으면 0000년 00월 00일로 변형해서 리턴
  */
 export function toStringDateByFormatting(timeStamp: number | undefined) {
   if (timeStamp === undefined) {
@@ -20,7 +20,7 @@ export function toStringDateByFormatting(timeStamp: number | undefined) {
 }
 
 /**
- * timestamp를 넣으면 00:00 (AM/PM)으로 변환해서 리턴
+ * Unix timestamp를 넣으면 00:00 (AM/PM)으로 변환해서 리턴
  */
 export function toStringTimeByFormatting(timeStamp: number | undefined) {
   if (timeStamp === undefined) {

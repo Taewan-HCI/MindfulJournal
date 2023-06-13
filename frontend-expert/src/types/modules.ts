@@ -4,7 +4,7 @@ export interface DurationData {
 }
 
 export interface LengthData {
-  frequency: number;
+  length: number;
   sessionEnd: number;
 }
 
