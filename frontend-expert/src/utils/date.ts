@@ -43,6 +43,9 @@ function returnWithUnit(value: number, unit = '') {
   return `${value}${unit}`;
 }
 
+/**
+ * 초를 넣으면 0시 0분 0초로 변환해서 리턴
+ */
 export function secondsToTimeFormatting(seconds: number | undefined) {
   if (seconds === undefined) {
     return '';

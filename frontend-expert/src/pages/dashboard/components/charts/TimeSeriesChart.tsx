@@ -1,3 +1,4 @@
+/* eslint-disable react/require-default-props */
 /* eslint-disable implicit-arrow-linebreak */
 import React from 'react';
 import {
@@ -16,9 +17,14 @@ import { toStringDateByFormatting } from 'utils/date';
 interface ChartProps {
   data: DurationData[] | LengthData[];
   xkey: string;
+  labelFormatter?: (v: number | string) => string;
 }
 
-function TimeSeriesChart({ data, xkey }: ChartProps) {
+function TimeSeriesChart({
+  data,
+  xkey,
+  labelFormatter = (v) => `${v}`,
+}: ChartProps) {
   const chartData = [{ value: 14, time: 1503617297689 }];
 
   const mockData = chartData.map((c) => {
@@ -31,6 +37,7 @@ function TimeSeriesChart({ data, xkey }: ChartProps) {
   });
 
   const formatXAxis = (t: number) => toStringDateByFormatting(t * 10000);
+
   return (
     <ResponsiveContainer width="95%" aspect={4}>
       <BarChart
@@ -47,7 +54,7 @@ function TimeSeriesChart({ data, xkey }: ChartProps) {
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis dataKey="sesssionEnd" tickFormatter={formatXAxis} />
         <YAxis />
-        <Tooltip />
+        <Tooltip formatter={labelFormatter} />
         <Legend />
         <Bar dataKey={xkey} fill="#8884d8" />
       </BarChart>

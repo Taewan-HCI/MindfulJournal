@@ -1,9 +1,11 @@
+/* eslint-disable react/jsx-curly-newline */
 /* eslint-disable react/jsx-one-expression-per-line */
 /* eslint-disable implicit-arrow-linebreak */
 import React, { useState } from 'react';
 import { Card, Nav } from 'react-bootstrap';
 import { Calendar3, Stopwatch, TextLeft } from 'react-bootstrap-icons';
 import { ModuleData } from 'types/modules';
+import { secondsToTimeFormatting } from 'utils/date';
 import TimeSeriesChart from './charts/TimeSeriesChart';
 import MarkedCalander from './MarkedCalander/MarkedCalander';
 
@@ -17,10 +19,7 @@ function TabContent({ tab, data }: { tab: string | null; data: ModuleData }) {
     );
   }
   const today = new Date();
-  const sampleDay = new Date('2023-04-01 10:20:30');
-  const mark = [today, sampleDay];
-
-  console.log(data);
+  const mark = [today];
 
   if (tab === 'frequency') {
     return (
@@ -37,7 +36,13 @@ function TabContent({ tab, data }: { tab: string | null; data: ModuleData }) {
       <>
         <Card.Title>평균 참여 시간</Card.Title>
         <Card.Text>평균 8분 소모했습니다.</Card.Text>
-        <TimeSeriesChart data={data.duration} xkey="duration" />
+        <TimeSeriesChart
+          data={data.duration}
+          xkey="duration"
+          labelFormatter={(value: number | string) =>
+            secondsToTimeFormatting(value as number)
+          }
+        />
       </>
     );
   }
@@ -46,7 +51,11 @@ function TabContent({ tab, data }: { tab: string | null; data: ModuleData }) {
     <>
       <Card.Title>평균 작성 일기 길이</Card.Title>
       <Card.Text>평균 823자 작성했습니다.</Card.Text>
-      <TimeSeriesChart data={data.length} xkey="length" />
+      <TimeSeriesChart
+        data={data.length}
+        xkey="length"
+        labelFormatter={(value: number | string) => `${value}자`}
+      />
     </>
   );
 }
