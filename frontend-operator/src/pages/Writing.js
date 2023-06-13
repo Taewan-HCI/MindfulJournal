@@ -108,13 +108,14 @@ function Writing(props) {
         return resultArr;
     }
 
-    async function reviewSubmit(list) {
+    async function reviewSubmit(list, str) {
         const docRef = doc(db, "session", userName, "diary", session);
         const docSnap = await getDoc(docRef);
         let history_temp = receivedText4.current
         let prompt_temp = receivedText4.current
         history_temp["harmful"] = {list}
         history_temp["selected"] = selectedOption.current
+        history_temp["feedbackfromexpert"] = str
         prompt_temp["options"] = []
         if (docSnap.exists()) {
             const history = docSnap.data().history_operator;
@@ -387,7 +388,7 @@ function Userinput(props) {
 
 
     const [selectedOptions, setSelectedOptions] = useState([]);
-    const feedbackMsg = useRef("");
+    const [feedbackMsg, setFeedbackMsg] = useState("")
 
     const handleOptionSelect = (option) => {
         setSelectedOptions([...selectedOptions, option]);
@@ -478,7 +479,8 @@ function Userinput(props) {
                                     as="textarea"
                                     rows={2}
                                     id="userInput"
-                                    // ref={feedbackMsg}
+                                    value={feedbackMsg}
+                                    onChange={(e) => setFeedbackMsg(e.target.value)}
                                 />
                             </div>
                             &nbsp;
@@ -489,7 +491,7 @@ function Userinput(props) {
                                     variant="dark"
                                     style={{backgroundColor: "007AFF", fontWeight: "600"}}
                                     onClick={() => {
-                                        props.reviewSubmit(selectedOptions)
+                                        props.reviewSubmit(selectedOptions, feedbackMsg)
                                         // props.sendOptionChoice(props.directMsg.current.value)
                                     }}
                                 >평가 완료하기</Button>

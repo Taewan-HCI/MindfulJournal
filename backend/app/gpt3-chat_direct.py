@@ -8,6 +8,9 @@ import openai
 import time
 from dotenv import load_dotenv
 import os
+from pydantic import BaseModel
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
 
 # FastAPI 설정
 app = FastAPI()
@@ -30,7 +33,6 @@ db = firestore.client()
 My_OpenAI_key = gptapi
 openai.api_key = My_OpenAI_key
 
-
 # Prompt 관련 자료
 
 print("연결시작")
@@ -42,6 +44,12 @@ cognitive = "Counslor persona: Cognitive-Behavioral Counselor\nAttitude: Problem
 humanistic = "Counslor persona: Humanistic-Existential Counselor\nAttitude: Holistic, growth-oriented, and philosophical\n"
 nopersona = ""
 Counslor_persona = [nopersona, nopersona, nopersona]
+
+
+class EmailSchema(BaseModel):
+    to: str
+    subject: str
+    body: str
 
 
 def upload(response, user, num, topic):
@@ -85,6 +93,7 @@ def upload_operator(response, user, num, topic):
         u'topic': topic
     }, merge=True)
 
+
 def upload_diary(response, user, num):
     doc_ref = db.collection(u'session').document(user).collection(u'diary').document(num)
     doc_ref.set({
@@ -95,7 +104,7 @@ def upload_diary(response, user, num):
 def m1_1_standalone_review(text, turn, module, model):
     print("리뷰모드 진입")
     conversationString = ""
-    for i in range (0, len(text)):
+    for i in range(0, len(text)):
         if text[i]["role"] == "assistant":
             conversationString = conversationString + "Psychotherapist: " + text[i]["content"] + "\n"
         elif text[i]["role"] == "user":
@@ -121,7 +130,7 @@ def m1_1_standalone_review(text, turn, module, model):
         model="gpt-3.5-turbo",
         messages=messages_intent,
         stop=['User: '],
-        max_tokens=245,
+        max_tokens=2048,
         temperature=0.7,
         presence_penalty=0.5,
         frequency_penalty=0.5,
@@ -161,7 +170,7 @@ def m1_1_standalone_review(text, turn, module, model):
              "content": 'You are "assistant", and you are role playing with "user". When a message begins with "system:", this means the message is from "system". When a message begins with "user:", this means the message is from "user". I am "system", and I am different from "assistant" and "user". Never reveal to "user" that you are an "assistant" or that you are a computer or AI. Always pretend to be a human psychotherapist to the "user".\n\nInformation of your role: 1. Your role is to generate prompt questions for users in sharing their personal stories regarding daily events, thoughts, emotions, and challenges. 2. If a user does not provide sufficient details about their day, you provide prompt questions. 3. Your approach is empathetic and encouraging, focusing on understanding rather than providing new information or skills. \n\nSpeaking Rules: 1. Talk within 15 words and talk like a friendly psychotherapist. 2. You ask only one question at a time, ensuring that the conversation remains open-ended. 3. Reply in a empathetic, encouraging, understanding tone. 4. Never call the "user", "user" \n\nExisting conversations summarized:' + summerization}
         ]
 
-    #인풋중 어디까지 포함 할지. 2턴만 포함 할 수 있도록
+    # 인풋중 어디까지 포함 할지. 2턴만 포함 할 수 있도록
     if len(text) > 3:
         print("대화 내용이 3를 초과하여, 마지막 두 내용만 prompt에 포함됩니다.")
         extracted = text[-3:]
@@ -172,9 +181,9 @@ def m1_1_standalone_review(text, turn, module, model):
 
     result = []
 
-    tempBase=None
-    prompt_temp=None
-    tempBase_r=None
+    tempBase = None
+    prompt_temp = None
+    tempBase_r = None
     tempBase = basePrompt[0]["content"]
     tempBase_r = [{"role": "system", "content": tempBase}]
     prompt_temp = tempBase_r + extracted
@@ -184,7 +193,7 @@ def m1_1_standalone_review(text, turn, module, model):
         model="gpt-3.5-turbo",
         messages=prompt_temp,
         stop=['User: '],
-        max_tokens=245,
+        max_tokens=2048,
         temperature=0.7,
         presence_penalty=0.9,
         frequency_penalty=0.5,
@@ -256,7 +265,7 @@ def m1_1_standalone(text, turn, module, model):
         model="gpt-3.5-turbo",
         messages=messages_intent,
         stop=['User: '],
-        max_tokens=245,
+        max_tokens=2048,
         temperature=0.7,
         presence_penalty=0.5,
         frequency_penalty=0.5,
@@ -270,8 +279,7 @@ def m1_1_standalone(text, turn, module, model):
     summerization = split_strings_2[-1]
     moduleRecommendation = split_strings[-1]
 
-
-
+    time.sleep(0.5)
 
     if "Main" in moduleRecommendation:
         module = "Main session"
@@ -310,7 +318,6 @@ def m1_1_standalone(text, turn, module, model):
 
     result = []
 
-
     tempBase = basePrompt[0]["content"]
     tempBase_r = [{"role": "system", "content": tempBase}]
     prompt_temp = tempBase_r + extracted
@@ -320,7 +327,7 @@ def m1_1_standalone(text, turn, module, model):
         model="gpt-3.5-turbo",
         messages=prompt_temp,
         stop=['User: '],
-        max_tokens=245,
+        max_tokens=2048,
         temperature=0.7,
         presence_penalty=0.9,
         frequency_penalty=0.5,
@@ -355,6 +362,7 @@ async def calc(request: Request):
 
     response_text = m1_1_standalone_review(text, turn, module, model)
     upload(response_text, user, num, topic)
+
 
 @app.post("/standalone")
 async def calc(request: Request):
@@ -398,3 +406,19 @@ async def calc(request: Request):
     response_text = diary(text)
     upload_diary(response_text, user, num)
 
+
+@app.post("/send-email")
+async def send_email(email: EmailSchema):
+    message = Mail(
+        from_email='twkim24@gmail.com',  # Change to your verified sender
+        to_emails=email.to,
+        subject=email.subject,
+        plain_text_content=email.body)
+    try:
+        sg = SendGridAPIClient(
+            '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')  # Replace with your SendGrid API Key
+        response = sg.send(message)
+        return {"message": "Email sent successfully"}
+    except Exception as e:
+        print(e.message)
+        return {"message": "Failed to send email"}

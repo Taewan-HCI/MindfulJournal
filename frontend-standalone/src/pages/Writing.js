@@ -162,7 +162,7 @@ function Writing(props) {
     const currentTime = new Date();
     const currentHour = currentTime.getHours();
 
-    const isEvening = currentHour >= 19 && currentHour < 24;
+    const isEvening = currentHour >= 10 && currentHour < 24;
 
 
     // create NewDoc
@@ -540,12 +540,15 @@ function Writing(props) {
     function navigateToGuide() {
         navigate("/guide")
     }
+
     function navigateToGuide2() {
         navigate("/guide2")
     }
+
     function navigateToGuide3() {
         navigate("/guide3")
     }
+
     function navigateToGuide4() {
         navigate("/guide4")
     }
@@ -563,8 +566,26 @@ function Writing(props) {
             .catch(err => console.log(err));
     }
 
+    function sendEmail() {
+        const to = 'taewan@kaist.ac.kr';
+    const subject = '[마음챙김]' + props.userMail + '새로운 일기 작성 ';
+    const body = '새로운 일기가 작성됨. 사용자id: ' + props.userMail;
+
+    fetch('https://algodiary--xpgmf.run.goorm.site/send-email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ to, subject, body }),
+    })
+    .then(response => response.json())
+    .then(data => console.log(data))
+    .catch((error) => console.error('Error:', error));
+    }
+
+
     function getMentalHealthStatus() {
-        if (phq9 > 1) {
+        if (phq9.current > 1) {
             return "정말 힘드신 것 같습니다. 전문가의 도움이 꼭 필요합니다. 1588-9191에서도 도움을 받으실 수 있습니다.";
         } else if (phqTotal >= 0 && phqTotal <= 4) {
             return "안정적인 상태에요! 앞으로 계속 만나요!";
@@ -719,97 +740,98 @@ function Writing(props) {
             <div>
                 {isEvening ? (
                     <Container>
-            <Row>
-                <div className="loading_box">
+                        <Row>
+                            <div className="loading_box">
                         <span className="desktop-view">
                             {date}<br/><b>마음챙김 다이어리를 시작합니다</b> 😀
                         </span>
-                    <span className="smartphone-view">
+                                <span className="smartphone-view">
                             {date}<br/><b>마음챙김 다이어리를<br/>시작합니다</b> 😀
                         </span>
-                </div>
-            </Row>
-            <Row>
-                <Col>
-                    <div className="d-grid gap-2">
-                        <Button
-                            variant="primary"
-                            style={{backgroundColor: "007AFF", fontWeight: "600"}}
-                            onClick={() => {
-                                const newSession = String(Math.floor(Date.now() / 1000));
-                                setSession(newSession)
-                                createNewDoc(newSession)
-                            }}
-                        >📝 일기 작성하기
-                        </Button>
+                            </div>
+                        </Row>
+                        <Row>
+                            <Col>
+                                <div className="d-grid gap-2">
+                                    <Button
+                                        variant="primary"
+                                        style={{backgroundColor: "007AFF", fontWeight: "600"}}
+                                        onClick={() => {
+                                            const newSession = String(Math.floor(Date.now() / 1000));
+                                            setSession(newSession)
+                                            createNewDoc(newSession)
+                                            sendEmail()
+                                        }}
+                                    >📝 일기 작성하기
+                                    </Button>
+                                    &nbsp;
+                                    <Form.Text className="text-muted">
+                                        종료되지 않은 세션을 이어 진행하려면<br/>아래에서 진행중인 세션을 선택해주세요
+                                    </Form.Text>
+                                </div>
+                            </Col>
+                            <Col></Col>
+                        </Row>
                         &nbsp;
-                        <Form.Text className="text-muted">
-                            종료되지 않은 세션을 이어 진행하려면<br/>아래에서 진행중인 세션을 선택해주세요
-                        </Form.Text>
-                    </div>
-                </Col>
-                <Col></Col>
-            </Row>
-            &nbsp;
-            <Row xs={'auto'} md={1} className="g-4">
-                {existing.map((_, idx) => (
-                    <Col>
-                        <Button
-                            variant="dark"
-                            style={{backgroundColor: "007AFF", fontWeight: "400"}}
-                            onClick={() => {
-                                const newSession = String(existing[idx]["sessionStart"]);
-                                setSession(newSession)
-                                createNewDoc(newSession)
-                            }}>
-                            {Unix_timestamp(existing[idx]["sessionStart"])}
-                        </Button>
-                    </Col>
-                ))}
+                        <Row xs={'auto'} md={1} className="g-4">
+                            {existing.map((_, idx) => (
+                                <Col>
+                                    <Button
+                                        variant="dark"
+                                        style={{backgroundColor: "007AFF", fontWeight: "400"}}
+                                        onClick={() => {
+                                            const newSession = String(existing[idx]["sessionStart"]);
+                                            setSession(newSession)
+                                            createNewDoc(newSession)
+                                        }}>
+                                        {Unix_timestamp(existing[idx]["sessionStart"])}
+                                    </Button>
+                                </Col>
+                            ))}
 
 
-            </Row>
-        </Container>
+                        </Row>
+                    </Container>
                 ) : (
                     <Container>
-            <Row>
-                <div className="loading_box">
-                        <span className="desktop-view">
-                          <br/>마음챙김 다이어리는<br/><b>저녁 6시부터 밤12시 사이에 작성할 수 있어요.</b><br/>저녁에 다시만나요 🕰️
-                        </span>
-                    <span className="smartphone-view">
-                            <br/>마음챙김 다이어리는<br/><b>저녁 6시부터 밤12시 사이에<br/>작성할 수 있어요.</b><br/>저녁에 다시만나요 🕰️
-                        </span>
-                </div>
-            </Row>
                         <Row>
-                <Col>
-                    <div className="d-grid gap-2">
-                        <Button
-                            variant="primary"
-                            style={{backgroundColor: "007AFF", fontWeight: "600"}}
-                            onClick={() => {
-                                navigateToReview()
-                            }}
-                        >📖 일기 다시보기
-                        </Button>
-                        <Form.Text className="text-muted">
-                            내가 썼던 일기를 돌아보거나, 마음챙김 다이어리에 대해 더 알아보세요.
-                        </Form.Text>
-                    </div>
-                </Col>
-                <Col></Col>
-            </Row>
+                            <div className="loading_box">
+                        <span className="desktop-view">
+                          <br/>마음챙김 다이어리는<br/><b>저녁 7시부터 밤12시 사이에 작성할 수 있어요.</b><br/>저녁에 다시만나요 🕰️
+                        </span>
+                                <span className="smartphone-view">
+                            <br/>마음챙김 다이어리는<br/><b>저녁 7시부터 밤12시 사이에<br/>작성할 수 있어요.</b><br/>저녁에 다시만나요 🕰️
+                        </span>
+                            </div>
+                        </Row>
+                        <Row>
+                            <Col>
+                                <div className="d-grid gap-2">
+                                    <Button
+                                        variant="primary"
+                                        style={{backgroundColor: "007AFF", fontWeight: "600"}}
+                                        onClick={() => {
+                                            navigateToReview()
+                                        }}
+                                    >📖 일기 다시보기
+                                    </Button>
+                                    <Form.Text className="text-muted">
+                                        내가 썼던 일기를 돌아보거나, 마음챙김 다이어리에 대해 더 알아보세요.
+                                    </Form.Text>
+                                </div>
+                            </Col>
+                            <Col></Col>
+                        </Row>
                         <span className="center_temp">
                                                 &nbsp;
 
-                    <Row xs={1} md={2} className="g-4">
+                            <Row xs={1} md={2} className="g-4">
 
                     <Col>
-                        <Card onClick={()=>{
+                        <Card onClick={() => {
                             navigateToGuide()
                         }}
-                        style={{ cursor: 'pointer' }}>
+                              style={{cursor: 'pointer'}}>
                             <Card.Img variant="top" src={book_purple}/>
                             <Card.Body>
                                 <Card.Title><b>일기쓰기와 정신건강</b></Card.Title>
@@ -820,10 +842,10 @@ function Writing(props) {
                         </Card>
                     </Col>
                     <Col>
-                        <Card onClick={()=>{
+                        <Card onClick={() => {
                             navigateToGuide2()
                         }}
-                        style={{ cursor: 'pointer' }}>
+                              style={{cursor: 'pointer'}}>
                             <Card.Img variant="top" src={chat}/>
                             <Card.Body>
                                 <Card.Title><b>누구와 말하는 건가요?</b></Card.Title>
@@ -834,10 +856,10 @@ function Writing(props) {
                         </Card>
                     </Col>
                     <Col>
-                        <Card onClick={()=>{
-                           navigateToGuide3()
+                        <Card onClick={() => {
+                            navigateToGuide3()
                         }}
-                        style={{ cursor: 'pointer' }}>
+                              style={{cursor: 'pointer'}}>
                             <Card.Img variant="top" src={lock}/>
                             <Card.Body>
                                 <Card.Title><b>개인정보는 어떻게 관리되나요?</b></Card.Title>
@@ -847,10 +869,10 @@ function Writing(props) {
                         </Card>
                     </Col>
                     <Col>
-                        <Card onClick={()=>{
+                        <Card onClick={() => {
                             navigateToGuide4()
                         }}
-                        style={{ cursor: 'pointer' }}>
+                              style={{cursor: 'pointer'}}>
                             <Card.Img variant="top" src={book_blue}/>
                             <Card.Body>
                                 <Card.Title><b>어떻게 적는건가요?</b></Card.Title>
@@ -863,15 +885,14 @@ function Writing(props) {
                 </Row>
 
                 </span>
-            &nbsp;
+                        &nbsp;
 
-        </Container>
+                    </Container>
                 )}
             </div>
 
 
-
-    )
+        )
     } else {
         return (
             <Container>
