@@ -205,7 +205,6 @@ def m1_1_standalone_review(text, turn, module, model):
     print(result)
     return {"options": result, "module": module, "summary": summerization}
 
-
 def diary(text):
     print("다이어리 시작")
     conversationString = ""
