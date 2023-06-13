@@ -28,7 +28,7 @@ async def firebase_updates(payload: dict):
     )
 
     try:
-        sg = SendGridAPIClient('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')
+        sg = SendGridAPIClient('test')
         response = sg.send(message)
         print(response.status_code)
         print(response.body)
