@@ -12,7 +12,7 @@ import PatientsInfoCard from './components/PatientsInfoCard';
 function CardSkeleton() {
   return (
     <div className="w-50 p-2">
-      <Skeleton backgroundColor="#f8f9fa">
+      <Skeleton backgroundColor="#f8f9fa" className="p-4">
         <Skeleton.Title />
         <Skeleton.Text />
       </Skeleton>

@@ -24,6 +24,8 @@ import { toast } from 'react-toastify';
 
 import ContentWithTitle from 'components/ContentWithTitle';
 import WithLoading from 'components/Loading';
+import Skeleton from 'components/Skeleton';
+
 import { getPatientInfo } from 'apis/patients';
 import { getFrequencybyPeriod, getLengthbyPeriod } from 'apis/modules';
 import { getDiarybyPeriod, getDiaryList } from 'apis/diary';
@@ -53,6 +55,20 @@ const radios = [
 ];
 
 const ButtonWithLoading = WithLoading(Button);
+
+function DiarySkeleton() {
+  return (
+    <div className=" p-2">
+      <Skeleton
+        backgroundColor="#f8f9fa"
+        className="p-4 d-flex flex-column gap-2"
+      >
+        <Skeleton.Title />
+        <>{Array(3).fill(<Skeleton.Text />)}</>
+      </Skeleton>
+    </div>
+  );
+}
 
 function Dashboard() {
   const [radioValue, setRadioValue] = useState<string | null>(null);
@@ -183,8 +199,11 @@ function Dashboard() {
           <Col xs={4}>
             <div className="d-flex justify-content-between align-items-end mb-4">
               <div className="fs-2 mt-2">
-                {`${patientInfo?.name ?? ''} 환자의`}
-                <br />
+                {patientInfo ? (
+                  <div>{`${patientInfo?.name} 님의`}</div>
+                ) : (
+                  <Skeleton.Title />
+                )}
                 <b>마음챙김 다이어리</b>
               </div>
             </div>
@@ -249,31 +268,45 @@ function Dashboard() {
                 <Card.Body>
                   <div className="d-flex align-items-center justify-content-between py-2">
                     <div className="text-secondary">성별/나이</div>
-                    <div className="fs-6 me-2">
-                      {`${patientInfo?.gender ?? ''}/${patientInfo?.age ?? ''}`}
-                    </div>
+                    {patientInfo ? (
+                      <div className="fs-6 me-2">
+                        {`${patientInfo.gender}/${patientInfo.age}`}
+                      </div>
+                    ) : (
+                      <div className="w-25">
+                        <Skeleton.Text />
+                      </div>
+                    )}
                   </div>
                   <div className="d-flex align-items-center justify-content-between py-2">
                     <div className="text-secondary">최근 진료일</div>
-                    <div className="fs-6 me-2">
-                      {toStringDateByFormatting(
-                        patientInfo?.recentVisitedDay
-                          ? patientInfo.recentVisitedDay[
-                              patientInfo.recentVisitedDay.length - 1
-                            ]
-                          : 0,
-                      )}
-                    </div>
+                    {patientInfo ? (
+                      <div className="fs-6 me-2">
+                        {toStringDateByFormatting(
+                          patientInfo?.recentVisitedDay
+                            ? patientInfo.recentVisitedDay[
+                                patientInfo.recentVisitedDay.length - 1
+                              ]
+                            : 0,
+                        )}
+                      </div>
+                    ) : (
+                      <div className="w-25">
+                        <Skeleton.Text />
+                      </div>
+                    )}
                   </div>
                 </Card.Body>
               </Card>
             </ContentWithTitle>
             <ContentWithTitle title="작성 일기 보기">
-              {diaryList
-                ? diaryList.map((diary) => (
-                    <Diary key={diary.sessionNumber} diary={diary} />
-                  ))
-                : null}
+              {diaryList ? (
+                diaryList.map((diary) => (
+                  <Diary key={diary.sessionNumber} diary={diary} />
+                ))
+              ) : (
+                <>{Array(3).fill(<DiarySkeleton />)}</>
+              )}
             </ContentWithTitle>
           </Col>
 

@@ -5,18 +5,23 @@ import './Skeleton.css';
 interface SkeletionProps {
   children: ReactNode;
   backgroundColor: string;
+  className?: string;
 }
 
-function Skeleton(props: SkeletionProps) {
+const defaultProps = {
+  className: '',
+};
+
+function Skeleton({ children, backgroundColor, className }: SkeletionProps) {
   return (
     <div
       style={{
-        backgroundColor: `${props.backgroundColor}`,
+        backgroundColor: `${backgroundColor}`,
         borderRadius: '10px',
       }}
-      className="p-4"
+      className={className}
     >
-      {props.children}
+      {children}
     </div>
   );
 }
@@ -36,5 +41,7 @@ function Text() {
 Skeleton.Avatar = Avatar;
 Skeleton.Title = Title;
 Skeleton.Text = Text;
+
+Skeleton.defaultProps = defaultProps;
 
 export default Skeleton;
