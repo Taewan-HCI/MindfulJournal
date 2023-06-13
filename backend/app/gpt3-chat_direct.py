@@ -234,6 +234,7 @@ def diary(text):
         presence_penalty=0.5,
         frequency_penalty=0.5
     )
+
     diary_1 = completion_3["choices"][0]["message"]['content']
     return diary_1
 
