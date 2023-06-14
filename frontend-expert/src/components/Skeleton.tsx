@@ -1,10 +1,14 @@
+/* eslint-disable react/require-default-props */
 /* eslint-disable react/destructuring-assignment */
 import React, { ReactNode } from 'react';
 import './Skeleton.css';
 
-interface SkeletionProps {
+interface SkeletionProps extends ClassNameProps {
   children: ReactNode;
   backgroundColor: string;
+}
+
+interface ClassNameProps {
   className?: string;
 }
 
@@ -30,8 +34,8 @@ function Avatar() {
   return <div className="skeleton-item avatar element" />;
 }
 
-function Title() {
-  return <div className="skeleton-item element title" />;
+function Title({ className }: ClassNameProps) {
+  return <div className={`skeleton-item element title ${className}`} />;
 }
 
 function Text() {

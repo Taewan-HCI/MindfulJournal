@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-one-expression-per-line */
 /* eslint-disable react/jsx-curly-newline */
 /* eslint-disable implicit-arrow-linebreak */
 /* eslint-disable react/jsx-indent */
@@ -7,8 +8,9 @@
 /* eslint-disable react/jsx-wrap-multilines */
 /* eslint-disable operator-linebreak */
 /* eslint-disable react/jsx-props-no-spreading */
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import {
+  Alert,
   Button,
   ButtonGroup,
   Card,
@@ -63,7 +65,7 @@ function DiarySkeleton() {
         backgroundColor="#f8f9fa"
         className="p-4 d-flex flex-column gap-2"
       >
-        <Skeleton.Title />
+        <Skeleton.Title className="mb-3" />
         <>{Array(3).fill(<Skeleton.Text />)}</>
       </Skeleton>
     </div>
@@ -78,6 +80,8 @@ function Dashboard() {
   const [patientInfo, setPatientInfo] = useState<PatientInfo>();
   const [diaryList, setdiaryList] = useState<DiaryInfo[]>();
   const [tabData, setTabData] = useState<ModuleData>();
+
+  const dateInfo = useRef<number[]>([]);
 
   const location = useLocation();
   const userId = location.pathname.split('/')[2];
@@ -112,6 +116,7 @@ function Dashboard() {
 
       setTabData(() => tab);
       setdiaryList(() => diaryData.diary);
+      dateInfo.current = [startDate, endDate];
     } catch (error) {
       toast.error('데이터를 불러오는데 실패했습니다.');
       console.error(error);
@@ -312,10 +317,15 @@ function Dashboard() {
 
           {tabData === undefined ? (
             <Col xs={8}>
-              <div> 기간을 선택해 주세요 </div>
+              <Alert variant="warning"> 조회할 날짜를 선택해주세요.</Alert>
             </Col>
           ) : (
             <Col xs={8}>
+              <Alert variant="info">
+                {toStringDateByFormatting(dateInfo.current[0])} -
+                {toStringDateByFormatting(dateInfo.current[1])} 에 해당하는
+                기록입니다.
+              </Alert>
               <ContentWithTitle title="참여 수준">
                 <Tabs tabData={tabData} />
               </ContentWithTitle>
