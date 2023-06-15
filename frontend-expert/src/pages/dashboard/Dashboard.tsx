@@ -93,7 +93,7 @@ function Dashboard() {
       });
 
       const durationdata = modulesData.diary.map((d: Data) => {
-        const { operator, length, ...data } = d;
+        const { operator, ...data } = d;
         return data;
       });
 

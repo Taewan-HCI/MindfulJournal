@@ -16,14 +16,16 @@ import { toStringDateByFormatting, toStringTimeByFormatting } from 'utils/date';
 
 interface ChartProps {
   data: DurationData[] | LengthData[];
-  xkey: string;
-  labelFormatter?: (v: number | string) => string;
+  xkey: string[];
+  labelFormatter?: (v: number | string, n: string) => string;
 }
+
+const CHART_COLOR = ['#0d6efd', '#0dcaf0', '#ffc107'];
 
 function TimeSeriesChart({
   data,
   xkey,
-  labelFormatter = (v) => `${v}`,
+  labelFormatter = (v, n) => `${n}: ${v}`,
 }: ChartProps) {
   const chartData = [{ value: 14, time: 1503617297689 }];
 
@@ -61,7 +63,10 @@ function TimeSeriesChart({
             `${toStringDateByFormatting(v)} ${toStringTimeByFormatting(v)} `
           }
         />
-        <Bar dataKey={xkey} fill="#8884d8" />
+
+        {xkey.map((key, index) => (
+          <Bar dataKey={key} fill={CHART_COLOR[index]} />
+        ))}
       </BarChart>
     </ResponsiveContainer>
   );

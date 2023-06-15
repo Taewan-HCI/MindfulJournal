@@ -44,10 +44,13 @@ function TabContent({ tab, data }: { tab: string | null; data: ModuleData }) {
         </Card.Text>
         <TimeSeriesChart
           data={data.duration}
-          xkey="duration"
-          labelFormatter={(value: number | string) =>
-            secondsToTimeFormatting(value as number)
-          }
+          xkey={['duration', 'length']}
+          labelFormatter={(value: number | string, name: string) => {
+            if (name === 'duration') {
+              return secondsToTimeFormatting(value as number);
+            }
+            return `${value}자`;
+          }}
         />
       </>
     );
@@ -64,7 +67,7 @@ function TabContent({ tab, data }: { tab: string | null; data: ModuleData }) {
       <Card.Text>평균 {averageLength}자 작성했습니다.</Card.Text>
       <TimeSeriesChart
         data={data.length}
-        xkey="length"
+        xkey={['length']}
         labelFormatter={(value: number | string) => `${value}자`}
       />
     </>
