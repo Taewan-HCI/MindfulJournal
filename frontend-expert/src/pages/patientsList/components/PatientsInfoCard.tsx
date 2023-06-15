@@ -1,4 +1,3 @@
-/* eslint-disable react/jsx-one-expression-per-line */
 import React from 'react';
 import { Card } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
@@ -7,7 +6,6 @@ import { toStringDateByFormatting } from 'utils/date';
 import './style.css';
 
 export default function PatientsInfoCard({ patient }: { patient: Patient }) {
-  // eslint-disable-next-line operator-linebreak
   const lastVisitedDate =
     patient.recentVisitedDay[patient.recentVisitedDay.length - 1];
   return (

@@ -4,7 +4,7 @@
 import { getDiary } from 'apis/diary';
 import Skeleton from 'components/Skeleton';
 import React, { useEffect, useState } from 'react';
-import { Badge, Button, Card, Modal } from 'react-bootstrap';
+import { Button, Card, Modal } from 'react-bootstrap';
 import { useLocation } from 'react-router-dom';
 import { Diary as DiaryTepe, DiaryInfo } from 'types/diary';
 import {
@@ -20,6 +20,8 @@ interface ModalProps {
   diaryId: string;
   show: boolean;
 }
+
+const HEART_EMOJI = '❤️';
 
 function DiarySkeletonLog() {
   return (
@@ -138,27 +140,35 @@ function Diary({ diary }: { diary: DiaryInfo }) {
         onClick={() => setModalShow(true)}
       >
         <Card.Body>
-          <Card.Title className="d-flex align-items-center justify-content-between">
-            <div className="d-flex align-items-center">
-              <div className="me-2">
-                {toStringDateByFormatting(diary.sessionStart)}
-              </div>
-              <div className="fs-6 me-2">
-                {toStringTimeByFormatting(diary.sessionStart)}
-              </div>
+          <div className="d-flex justify-content-between align-items-center mb-2">
+            <div>
+              <Card.Title className="d-flex align-items-center justify-content-between">
+                <div className="d-flex align-items-center">
+                  <div className="me-2">
+                    {toStringDateByFormatting(diary.sessionStart)}
+                  </div>
+                  <div className="fs-6 me-2">
+                    {toStringTimeByFormatting(diary.sessionStart)}
+                  </div>
+                </div>
+              </Card.Title>
+              <Card.Subtitle className="text-muted">
+                <div className="text-primary">
+                  {secondsToTimeFormatting(diary.duration)} 참여 ·{' '}
+                  {diary.length}자 작성
+                </div>
+              </Card.Subtitle>
             </div>
-            <Badge bg="primary">{diary.operator}</Badge>
-          </Card.Title>
-          <Card.Subtitle className="mb-2 text-muted">
-            <div className="text-primary">
-              {secondsToTimeFormatting(diary.duration)} 참여 · {diary.length}자
-              작성
+            <div className="bg-light text-primary px-2 text-center border border-white rounded">
+              <small>PHQ-9</small>
+              <div>123</div>
             </div>
-          </Card.Subtitle>
+          </div>
+
           <DiaryContents text={diary.diary} />
           <div className="d-flex align-items-center justify-content-between">
             <div>
-              ❤️
+              {HEART_EMOJI}
               <b>{diary.like}</b>
             </div>
           </div>

@@ -1,12 +1,4 @@
-/* eslint-disable react/jsx-one-expression-per-line */
-/* eslint-disable react/jsx-curly-newline */
-/* eslint-disable implicit-arrow-linebreak */
-/* eslint-disable @typescript-eslint/indent */
 /* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable react/jsx-wrap-multilines */
-/* eslint-disable operator-linebreak */
-/* eslint-disable react/jsx-props-no-spreading */
 import React, { useEffect, useMemo, useState, useRef } from 'react';
 import {
   Alert,
