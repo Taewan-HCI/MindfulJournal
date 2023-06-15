@@ -1,7 +1,6 @@
 /* eslint-disable react/jsx-one-expression-per-line */
 /* eslint-disable react/jsx-curly-newline */
 /* eslint-disable implicit-arrow-linebreak */
-/* eslint-disable react/jsx-indent */
 /* eslint-disable @typescript-eslint/indent */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */

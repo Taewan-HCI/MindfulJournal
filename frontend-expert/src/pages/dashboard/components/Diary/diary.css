@@ -5,3 +5,11 @@
 .diary:hover {
   background-color: #f8f9fa;
 }
+
+.text-hover:hover {
+  color: #0a58ca;
+}
+
+.text-hover {
+  color: #0d6efd;
+}

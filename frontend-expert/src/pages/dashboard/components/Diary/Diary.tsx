@@ -64,6 +64,30 @@ function DiaryContentsModal(modalProps: ModalProps) {
   );
 }
 
+function DiaryContents({ text }: { text: string }) {
+  const [isReadMore, setIsReadMore] = useState(true);
+  const toggleReadMore = () => {
+    setIsReadMore(!isReadMore);
+  };
+  return (
+    <Card.Text>
+      <span>{isReadMore ? text.slice(0, 240) : text} </span>
+      {text.length > 250 && (
+        <span
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleReadMore();
+          }}
+          role="presentation"
+          className="text-hover"
+        >
+          {isReadMore ? '...read more' : ' show less'}
+        </span>
+      )}
+    </Card.Text>
+  );
+}
+
 function Diary({ diary }: { diary: DiaryInfo }) {
   const [modalShow, setModalShow] = useState(false);
 
@@ -89,14 +113,13 @@ function Diary({ diary }: { diary: DiaryInfo }) {
             </div>
             <Badge bg="primary">{diary.operator}</Badge>
           </Card.Title>
-
           <Card.Subtitle className="mb-2 text-muted">
             <div className="text-primary">
               {secondsToTimeFormatting(diary.duration)} 참여 · {diary.length}자
               작성
             </div>
           </Card.Subtitle>
-          <Card.Text>{diary.diary}</Card.Text>
+          <DiaryContents text={diary.diary} />
           <div className="d-flex align-items-center justify-content-between">
             <div>
               ❤️
