@@ -33,6 +33,7 @@ import {
   TimeLine,
   CustomWordCloud,
 } from './components';
+import SortTab from './components/SortTab/SortTab';
 
 interface Data {
   sesssionEnd: number;
@@ -45,6 +46,11 @@ const radios = [
   { name: '3일 전', value: '3', id: 1 },
   { name: '7일 전', value: '7', id: 2 },
   { name: '14일 전', value: '14', id: 3 },
+];
+
+export const sortOptionData = [
+  { name: '최신순', value: 'recent' },
+  { name: '오래된순', value: 'oldest' },
 ];
 
 const ButtonWithLoading = WithLoading(Button);
@@ -72,6 +78,7 @@ function Dashboard() {
   const [diaryList, setdiaryList] = useState<DiaryInfo[]>();
   const [tabData, setTabData] = useState<ModuleData>();
 
+  const [sortOrder, setSortOrder] = useState<boolean>(true);
   const dateInfo = useRef<number[]>([]);
 
   const location = useLocation();
@@ -130,6 +137,10 @@ function Dashboard() {
   useEffect(() => {
     fetch();
   }, []);
+
+  useEffect(() => {
+    setdiaryList(diaryList?.reverse());
+  }, [sortOrder]);
 
   const onClick = () => {
     setIsLoading(() => true);
@@ -295,7 +306,15 @@ function Dashboard() {
                 </Card.Body>
               </Card>
             </ContentWithTitle>
-            <ContentWithTitle title="작성 일기 보기">
+
+            <div className="mb-4">
+              <div className="d-flex justify-content-between">
+                <p className="fs-5 fw-bold text-primary">작성 일기 보기 </p>
+                <SortTab
+                  sortOrder={sortOrder}
+                  onClick={(v: boolean) => setSortOrder(v)}
+                />
+              </div>
               {diaryList ? (
                 diaryList.map((diary) => (
                   <Diary key={diary.sessionNumber} diary={diary} />
@@ -303,7 +322,7 @@ function Dashboard() {
               ) : (
                 <>{Array(3).fill(<DiarySkeleton />)}</>
               )}
-            </ContentWithTitle>
+            </div>
           </Col>
 
           {tabData === undefined ? (

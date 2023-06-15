@@ -132,7 +132,7 @@ function Diary({ diary }: { diary: DiaryInfo }) {
   return (
     <>
       <Card
-        className="my-2 diary"
+        className="mb-2 diary"
         style={{
           width: '100%',
           cursor: 'pointer',
