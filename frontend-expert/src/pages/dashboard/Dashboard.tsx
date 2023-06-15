@@ -114,6 +114,7 @@ function Dashboard() {
 
       setTabData(() => tab);
       setdiaryList(() => diaryData.diary);
+
       dateInfo.current = [startDate, endDate];
     } catch (error) {
       toast.error('데이터를 불러오는데 실패했습니다.');
@@ -138,9 +139,7 @@ function Dashboard() {
     fetch();
   }, []);
 
-  useEffect(() => {
-    setdiaryList(diaryList?.reverse());
-  }, [sortOrder]);
+  useEffect(() => {}, [diaryList?.toString]);
 
   const onClick = () => {
     setIsLoading(() => true);
@@ -312,7 +311,12 @@ function Dashboard() {
                 <p className="fs-5 fw-bold text-primary">작성 일기 보기 </p>
                 <SortTab
                   sortOrder={sortOrder}
-                  onClick={(v: boolean) => setSortOrder(v)}
+                  onClick={(v: boolean) => {
+                    if (v !== sortOrder) {
+                      setdiaryList(diaryList?.reverse());
+                      setSortOrder((prev) => !prev);
+                    }
+                  }}
                 />
               </div>
               {diaryList ? (
