@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-one-expression-per-line */
 import React from 'react';
-import { Card } from 'react-bootstrap';
+import { Accordion, Card } from 'react-bootstrap';
 import { Journals } from 'react-bootstrap-icons';
 import assistant from 'assets/image/assistant.png';
 import user from 'assets/image/user.png';
@@ -10,6 +10,7 @@ import {
   toStringDateByFormatting,
   toStringTimeByFormatting,
 } from 'utils/date';
+import PHQTabs from './PHQTabs';
 
 function ChatLog({ type, content }: { type: string; content: string }) {
   const logoImage = type === 'user' ? user : assistant;
@@ -54,6 +55,15 @@ function EntireDiaryLogs({ diary }: { diary: Diary | undefined }) {
           <div className="fs-3">12</div>
         </div>
       </div>
+
+      <Accordion className="my-2">
+        <Accordion.Item eventKey="0">
+          <Accordion.Header>PHQ-9 Socre 열기</Accordion.Header>
+          <Accordion.Body>
+            <PHQTabs />
+          </Accordion.Body>
+        </Accordion.Item>
+      </Accordion>
 
       <Card bg="light" border="light">
         <Card.Body className="p-4">

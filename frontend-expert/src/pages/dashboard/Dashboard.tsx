@@ -78,7 +78,7 @@ function Dashboard() {
   const [diaryList, setdiaryList] = useState<DiaryInfo[]>();
   const [tabData, setTabData] = useState<ModuleData>();
 
-  const [sortOrder, setSortOrder] = useState<boolean>(true);
+  const [sortOrder, setSortOrder] = useState<boolean>(false);
   const dateInfo = useRef<number[]>([]);
 
   const location = useLocation();
