@@ -9,7 +9,9 @@ import {
   XAxis,
   YAxis,
   Bar,
-  BarChart,
+  Legend,
+  ComposedChart,
+  Line,
 } from 'recharts';
 import { DurationData, LengthData } from 'types/modules';
 import { toStringDateByFormatting, toStringTimeByFormatting } from 'utils/date';
@@ -21,6 +23,7 @@ interface ChartProps {
 }
 
 const CHART_COLOR = ['#0d6efd', '#0dcaf0', '#ffc107'];
+const Y_AXIS = ['left', 'right'];
 
 function TimeSeriesChart({
   data,
@@ -39,8 +42,8 @@ function TimeSeriesChart({
   });
 
   return (
-    <ResponsiveContainer width="95%" aspect={3}>
-      <BarChart
+    <ResponsiveContainer width="95%" aspect={2}>
+      <ComposedChart
         width={500}
         height={600}
         data={data ?? mockData}
@@ -56,7 +59,6 @@ function TimeSeriesChart({
           dataKey="sessionEnd"
           tickFormatter={(v) => toStringDateByFormatting(v)}
         />
-        <YAxis />
         <Tooltip
           formatter={labelFormatter}
           labelFormatter={(v) =>
@@ -64,10 +66,43 @@ function TimeSeriesChart({
           }
         />
 
-        {xkey.map((key, index) => (
-          <Bar dataKey={key} fill={CHART_COLOR[index]} />
-        ))}
-      </BarChart>
+        {xkey.length >= 2 ? (
+          <>
+            <Bar dataKey={xkey[1]} fill={CHART_COLOR[1]} yAxisId={Y_AXIS[1]} />
+            <Line
+              type="monotone"
+              dataKey={xkey[0]}
+              stroke={CHART_COLOR[0]}
+              yAxisId={Y_AXIS[0]}
+            />
+            <YAxis
+              yAxisId="left"
+              label={{
+                value: xkey[0],
+                angle: -90,
+                position: 'insideLeft',
+              }}
+            />
+            <YAxis
+              yAxisId="right"
+              orientation="right"
+              label={{
+                value: xkey[1],
+                angle: 90,
+                offset: 10,
+                position: 'insideRight',
+              }}
+            />
+          </>
+        ) : (
+          <>
+            <Bar dataKey={xkey[0]} fill={CHART_COLOR[0]} />
+            <YAxis />
+          </>
+        )}
+
+        <Legend />
+      </ComposedChart>
     </ResponsiveContainer>
   );
 }

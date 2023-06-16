@@ -12,7 +12,7 @@ import {
   toStringDateByFormatting,
   toStringTimeByFormatting,
 } from 'utils/date';
-import EntireDiaryLogs from '../EntireDiaryLogs';
+import EntireDiaryLogs from './EntireDiaryLogs';
 import './diary.css';
 
 interface ModalProps {

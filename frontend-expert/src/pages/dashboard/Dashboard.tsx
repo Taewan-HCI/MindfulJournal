@@ -48,11 +48,6 @@ const radios = [
   { name: '14일 전', value: '14', id: 3 },
 ];
 
-export const sortOptionData = [
-  { name: '최신순', value: 'recent' },
-  { name: '오래된순', value: 'oldest' },
-];
-
 const ButtonWithLoading = WithLoading(Button);
 
 function DiarySkeleton() {
@@ -78,7 +73,7 @@ function Dashboard() {
   const [diaryList, setdiaryList] = useState<DiaryInfo[]>();
   const [tabData, setTabData] = useState<ModuleData>();
 
-  const [sortOrder, setSortOrder] = useState<boolean>(false);
+  const [isRecentSortOrder, setSortOrder] = useState<boolean>(false);
   const dateInfo = useRef<number[]>([]);
 
   const location = useLocation();
@@ -310,9 +305,9 @@ function Dashboard() {
               <div className="d-flex justify-content-between">
                 <p className="fs-5 fw-bold text-primary">작성 일기 보기 </p>
                 <SortTab
-                  sortOrder={sortOrder}
+                  sortOrder={isRecentSortOrder}
                   onClick={(v: boolean) => {
-                    if (v !== sortOrder) {
+                    if (v !== isRecentSortOrder) {
                       setdiaryList(diaryList?.reverse());
                       setSortOrder((prev) => !prev);
                     }

@@ -36,11 +36,17 @@ function TabContent({ tab, data }: { tab: string | null; data: ModuleData }) {
         data.duration.length,
     );
 
+    const averageLength = Math.ceil(
+      data.length.reduce((sum, currValue) => sum + currValue.length, 0) /
+        data.duration.length,
+    );
+
     return (
       <>
         <Card.Title>평균 참여 시간</Card.Title>
         <Card.Text>
-          평균 {secondsToTimeFormatting(averageTime)} 소모했습니다.
+          평균 {secondsToTimeFormatting(averageTime)} 소모, 평균 {averageLength}
+          자 작성했습니다.
         </Card.Text>
         <TimeSeriesChart
           data={data.duration}
@@ -56,15 +62,9 @@ function TabContent({ tab, data }: { tab: string | null; data: ModuleData }) {
     );
   }
 
-  const averageLength = Math.ceil(
-    data.length.reduce((sum, currValue) => sum + currValue.length, 0) /
-      data.duration.length,
-  );
-
   return (
     <>
       <Card.Title>평균 작성 일기 길이</Card.Title>
-      <Card.Text>평균 {averageLength}자 작성했습니다.</Card.Text>
       <TimeSeriesChart
         data={data.length}
         xkey={['length']}
