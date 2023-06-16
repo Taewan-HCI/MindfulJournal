@@ -12,7 +12,7 @@ interface SortTabProps {
 }
 function SortTab({ onClick, sortOrder }: SortTabProps) {
   return (
-    <ul>
+    <ul className="sort-option">
       <li
         className={`sort-option ${
           sortOrder === SORT_ORDER.newest ? 'active' : ''

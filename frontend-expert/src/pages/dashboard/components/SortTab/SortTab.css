@@ -1,4 +1,4 @@
-ul {
+ul.sort-option {
   position: relative;
   display: flex;
   justify-content: space-between;
