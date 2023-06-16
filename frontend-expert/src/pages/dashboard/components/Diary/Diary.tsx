@@ -161,7 +161,7 @@ function Diary({ diary }: { diary: DiaryInfo }) {
             </div>
             <div className="bg-light text-primary px-2 text-center border border-white rounded">
               <small>PHQ-9</small>
-              <div>123</div>
+              <div>12</div>
             </div>
           </div>
 

@@ -34,19 +34,27 @@ function EntireDiaryLogs({ diary }: { diary: Diary | undefined }) {
   const conversation = diary?.conversation ?? [];
   return (
     <div className="mb-4">
-      <div className="border-bottom mb-4 py-2">
-        <div className="fs-2">
-          <b>
-            {toStringDateByFormatting(diary?.sessionStart)}{' '}
-            {toStringTimeByFormatting(diary?.sessionStart)}
-          </b>
+      <div className="d-flex justify-content-between align-items-center mb-4 border-bottom">
+        <div className=" py-2">
+          <div className="fs-2">
+            <b>
+              {toStringDateByFormatting(diary?.sessionStart)}{' '}
+              {toStringTimeByFormatting(diary?.sessionStart)}
+            </b>
+          </div>
+          <div className="text-secondary">
+            {secondsToTimeFormatting(diary?.duration)} 참여 · {diary?.length}자
+            작성
+          </div>
+          <div className="text-primary"> 상담사명: {diary?.operator}</div>
         </div>
-        <div className="text-secondary">
-          {secondsToTimeFormatting(diary?.duration)} 참여 · {diary?.length}자
-          작성
+
+        <div className="bg-light text-primary text-center border border-white rounded px-4 py-2">
+          <div>PHQ-9</div>
+          <div className="fs-3">12</div>
         </div>
-        <div className="text-primary"> 상담사명: {diary?.operator}</div>
       </div>
+
       <Card bg="light" border="light">
         <Card.Body className="p-4">
           <Card.Title>
