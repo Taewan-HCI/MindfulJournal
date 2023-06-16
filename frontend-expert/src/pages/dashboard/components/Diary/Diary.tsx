@@ -1,10 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable react/jsx-one-expression-per-line */
-/* eslint-disable react/jsx-props-no-spreading */
 import { getDiary } from 'apis/diary';
 import Skeleton from 'components/Skeleton';
 import React, { useEffect, useState } from 'react';
-import { Button, Card, Modal } from 'react-bootstrap';
+import { Accordion, Button, Card, Col, Modal, Row } from 'react-bootstrap';
 import { useLocation } from 'react-router-dom';
 import { Diary as DiaryTepe, DiaryInfo } from 'types/diary';
 import {
@@ -14,6 +12,7 @@ import {
 } from 'utils/date';
 import EntireDiaryLogs from './EntireDiaryLogs';
 import './diary.css';
+import PHQTabs from './PHQTabs';
 
 interface ModalProps {
   onHide: () => void;
@@ -84,6 +83,7 @@ function DiaryContentsModal(modalProps: ModalProps) {
     <Modal
       onHide={onHide}
       show={show}
+      dialogClassName="modal-vw65"
       size="lg"
       aria-labelledby="contained-modal-title-vcenter"
     >
@@ -93,7 +93,21 @@ function DiaryContentsModal(modalProps: ModalProps) {
         </Modal.Title>
       </Modal.Header>
       <Modal.Body className="mx-4">
-        {diary ? <EntireDiaryLogs diary={diary} /> : <DiarySkeleton />}
+        <Row className="gx-5">
+          <Col xs={8}>
+            {diary ? <EntireDiaryLogs diary={diary} /> : <DiarySkeleton />}
+          </Col>
+          <Col xs={4} className="ps-4">
+            <Accordion className="sticky-top" defaultActiveKey="0">
+              <Accordion.Item eventKey="0">
+                <Accordion.Header>PHQ-9 Socre</Accordion.Header>
+                <Accordion.Body>
+                  <PHQTabs />
+                </Accordion.Body>
+              </Accordion.Item>
+            </Accordion>
+          </Col>
+        </Row>
       </Modal.Body>
       <Modal.Footer>
         <Button onClick={onHide}>Close</Button>
