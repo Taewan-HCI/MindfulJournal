@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 import os
 
 # FastAPI 설정
-app = FastAPI()
+app = FastAPI()s
 origins = ["*", "http://localhost:3000", "https://mindful-journal-frontend-s8zk.vercel.app/"]
 app.add_middleware(
     CORSMiddleware,
