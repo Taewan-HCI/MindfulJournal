@@ -385,7 +385,7 @@ function Writing(props) {
 
 
     function requestPrompt(text, user, num, turn, module, model) {
-        return fetch('https://mindfuljournal-fzesr.run.goorm.site/standalone', {
+        return fetch('http://0.0.0.0:8000/standalone', {
             method: 'POST',
             body: JSON.stringify({
                 'text': text,
@@ -555,7 +555,7 @@ function Writing(props) {
 
 
     function diaryInit(text, user, num) {
-        return fetch('https://algodiary--xpgmf.run.goorm.site/diary', {
+        return fetch('http://0.0.0.0:8000/diary', {
             method: 'POST',
             body: JSON.stringify({
                 'text': text,

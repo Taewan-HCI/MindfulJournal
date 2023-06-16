@@ -225,10 +225,10 @@ def diary(text):
                          "content": conversationString}]
 
     completion_3 = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
+        model="gpt-3.5-turbo-16k",
         messages=prompt_for_diary,
         stop=['Patient: ', 'Psychotherapist: '],
-        max_tokens=2048,
+        max_tokens=4000,
         temperature=0.7,
         presence_penalty=0.5,
         frequency_penalty=0.5
@@ -261,7 +261,7 @@ def m1_1_standalone(text, turn, module, model):
     ]
     print("대화 요약 시작")
     completion = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
+        model="gpt-3.5-turbo-16k",
         messages=messages_intent,
         stop=['User: '],
         max_tokens=2048,
@@ -307,7 +307,7 @@ def m1_1_standalone(text, turn, module, model):
         ]
 
     # 인풋중 어디까지 포함 할지. 2턴만 포함 할 수 있도록
-    if len(text) > 3:
+    if len(text) > 8:
         print("대화 내용이 3를 초과하여, 마지막 두 내용만 prompt에 포함됩니다.")
         extracted = text[-3:]
     else:
@@ -323,7 +323,7 @@ def m1_1_standalone(text, turn, module, model):
     print("최종 promtp: ")
     print(prompt_temp)
     completion2 = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
+        model="gpt-3.5-turbo-16k",
         messages=prompt_temp,
         stop=['User: '],
         max_tokens=2048,
