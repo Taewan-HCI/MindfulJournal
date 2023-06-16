@@ -90,10 +90,6 @@ function DiaryGuide3(props) {
                                                 >️<u>누구와 말하는 건가요?</u><br/>
                             </span>
                                     <span className="likebutton"
-                                                      onClick={navigateToGuide3}
-                                                >️<u>개인정보는 어떻게 관리되나요?</u><br/>
-                            </span>
-                                    <span className="likebutton"
                                                       onClick={navigateToGuide4}
                                                 >️<u>정신건강에 도움되는 일기쓰기란?</u><br/>
                             </span>
@@ -109,10 +105,6 @@ function DiaryGuide3(props) {
                                     <span className="likebutton"
                                                       onClick={navigateToGuide2}
                                                 >️<u>누구와 말하는 건가요?</u><br/>
-                            </span>
-                                    <span className="likebutton"
-                                                      onClick={navigateToGuide3}
-                                                >️<u>개인정보는 어떻게 관리되나요?</u><br/>
                             </span>
                                     <span className="likebutton"
                                                       onClick={navigateToGuide4}

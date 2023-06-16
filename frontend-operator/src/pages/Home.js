@@ -90,12 +90,6 @@ function NoDiary(props) {
                     &nbsp;
                         <div>
 
-                            <Button
-                                variant="primary"
-                                style={{backgroundColor: "007AFF", fontWeight: "600"}}
-                                onClick={props.navigateToWriting}>
-                            📝 세션 진행하기
-                        </Button>
                         </div>
 
                 </div>
