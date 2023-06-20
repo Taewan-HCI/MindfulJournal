@@ -1,15 +1,18 @@
 import React, { useMemo, useState } from 'react';
 import {
   Alert,
+  Badge,
   Button,
   ButtonGroup,
   Card,
   Col,
   Container,
+  OverlayTrigger,
   Row,
   ToggleButton,
+  Tooltip,
 } from 'react-bootstrap';
-import { ArrowClockwise } from 'react-bootstrap-icons';
+import { ArrowClockwise, QuestionCircleFill } from 'react-bootstrap-icons';
 
 import ContentWithTitle from 'components/ContentWithTitle';
 import WithLoading from 'components/Loading';
@@ -33,6 +36,12 @@ const radios = [
 ];
 
 const ButtonWithLoading = WithLoading(Button);
+
+const tooltip = (
+  <Tooltip id="tooltip">
+    <strong>Holy guacamole!</strong> Check this info.
+  </Tooltip>
+);
 
 function DiarySkeleton() {
   return (
@@ -254,6 +263,12 @@ function Dashboard() {
                 <Tabs tabData={tabData} />
               </ContentWithTitle>
               <ContentWithTitle title="핵심 감정">
+                <OverlayTrigger placement="top" overlay={tooltip}>
+                  <Badge bg="primary">
+                    Beta <QuestionCircleFill />
+                  </Badge>
+                </OverlayTrigger>
+
                 <CustomWordCloud
                   data={wordCloudData}
                   sensitiveWords={sensitiveWords}
