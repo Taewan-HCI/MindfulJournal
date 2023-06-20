@@ -3,15 +3,15 @@ import React from 'react';
 import WordCloud from 'react-d3-cloud';
 import { Word } from 'react-d3-cloud/lib/WordCloud';
 import { ResponsiveContainer } from 'recharts';
+import { WordCloudData } from 'types/modules';
 
-type WordCloudData = {
-  text: string;
-  value: number;
-};
-
-function CustomWordCloud({ data }: { data: WordCloudData[] }) {
-  const sensitiveWordsDict = ['자살', '자해']; // 민감한 단어를 추가해서 워드클라우드 표시 할 때 해당 단어들은 붉은 색으로 강조
-
+function CustomWordCloud({
+  data,
+  sensitiveWords,
+}: {
+  data: WordCloudData[];
+  sensitiveWords: string[];
+}) {
   return (
     <ResponsiveContainer width="80%" aspect={4}>
       <WordCloud
@@ -26,7 +26,7 @@ function CustomWordCloud({ data }: { data: WordCloudData[] }) {
         padding={5}
         random={Math.random}
         fill={(d: Word) => {
-          if (sensitiveWordsDict.includes(d.text)) {
+          if (sensitiveWords.includes(d.text)) {
             return '#dc3545';
           }
           return '#000000';

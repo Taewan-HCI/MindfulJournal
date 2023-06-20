@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   Alert,
   Button,
@@ -15,6 +15,7 @@ import ContentWithTitle from 'components/ContentWithTitle';
 import WithLoading from 'components/Loading';
 import Skeleton from 'components/Skeleton';
 import { toStringDateByFormatting } from 'utils/date';
+import { EventTimeLine } from 'types/diary';
 import {
   DateRangePicker,
   Diary,
@@ -64,8 +65,48 @@ function Dashboard() {
     setDiaryList,
     tabData,
     dateInfo,
-    data,
   } = useDashboard();
+
+  const [wordCloudData, sensitiveWords, timeLineData] = useMemo(() => {
+    if (diaryList === null || diaryList === undefined) {
+      return [[], []];
+    }
+
+    const dangerWords: string[] = [];
+
+    const wordFrequency = diaryList.reduce((acc: any, cur) => {
+      if (cur.wordFrequency === undefined) {
+        return acc;
+      }
+      cur.wordFrequency.forEach((frequency) => {
+        if (frequency.sentiment === '위험') {
+          dangerWords.push(frequency.word);
+        }
+        acc[frequency.word] = (acc[frequency.word] ?? 0) + frequency.count;
+      });
+
+      return acc;
+    }, {});
+
+    const timeLine = diaryList.reduce((acc: EventTimeLine[], cur) => {
+      if (cur.eventSummary !== undefined) {
+        const eventSummary = {
+          ...cur.eventSummary[0],
+          sessionStart: cur.sessionStart,
+          date: toStringDateByFormatting(cur.sessionStart),
+        };
+        acc.push(eventSummary);
+      }
+      return acc;
+    }, []);
+
+    const wordCloud = Object.keys(wordFrequency).map((key) => ({
+      text: key,
+      value: wordFrequency[key],
+    }));
+
+    return [wordCloud, [...new Set(dangerWords)], timeLine.reverse()];
+  }, [diaryList]);
 
   return (
     <div>
@@ -213,12 +254,14 @@ function Dashboard() {
                 <Tabs tabData={tabData} />
               </ContentWithTitle>
               <ContentWithTitle title="핵심 감정">
-                <CustomWordCloud data={data} />
-                <Card body>핵심 감정의 나열</Card>
+                <CustomWordCloud
+                  data={wordCloudData}
+                  sensitiveWords={sensitiveWords}
+                />
               </ContentWithTitle>
-              <ContentWithTitle title="주요 사건">
+              <ContentWithTitle title="주요 사건 및 감정 요약">
                 <Card body>
-                  <TimeLine />
+                  <TimeLine data={timeLineData ?? []} />
                 </Card>
               </ContentWithTitle>
             </Col>

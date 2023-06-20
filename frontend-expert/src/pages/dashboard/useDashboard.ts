@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
-import React, { useEffect, useMemo, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { toast } from 'react-toastify';
 
 import { getPatientInfo } from 'apis/patients';
@@ -78,7 +78,6 @@ const useDashboard = () => {
     try {
       const userData = await getPatientInfo(userId);
       const diaryData = await getDiaryList(userId);
-
       setPatientInfo(() => userData);
       setDiaryList(() => diaryData.diary);
     } catch (error) {
@@ -87,7 +86,15 @@ const useDashboard = () => {
   };
 
   useEffect(() => {
-    fetch();
+    // 리렌더링 시, dateRange가 존재하는 경우에는 featchbyPeriod로 되게 설정
+    const [start, end] = dateRange;
+    if (start === null || end === null) {
+      fetch();
+    } else {
+      const startDate = DatetoUnixTimeStamp(start);
+      const endDate = DatetoUnixTimeStamp(endOfDay(end));
+      fetchByPeriod(startDate, endDate);
+    }
   }, []);
 
   useEffect(() => {}, [diaryList?.toString]);
@@ -117,35 +124,6 @@ const useDashboard = () => {
     setRadioValue(e.currentTarget.value);
   };
 
-  const data = useMemo(
-    () => [
-      { text: '자해', value: 2 },
-      { text: '생각', value: 2 },
-      { text: '부모님', value: 2 },
-      { text: '고마운', value: 1 },
-      { text: '면도', value: 1 },
-      { text: '그럴', value: 1 },
-      { text: '나', value: 1 },
-      { text: '스스로가', value: 1 },
-      { text: '한심하고', value: 1 },
-      { text: '모습', value: 1 },
-      { text: '남들이', value: 1 },
-      { text: '더더욱', value: 1 },
-      { text: '바보로', value: 1 },
-      { text: '자기들은', value: 1 },
-      { text: '잘났나', value: 1 },
-      { text: '생각도', value: 1 },
-      { text: '들지만', value: 1 },
-      { text: '정작', value: 1 },
-      { text: '사람들', value: 1 },
-      { text: '앞에서면', value: 1 },
-      { text: '한', value: 1 },
-      { text: '마디도', value: 1 },
-      { text: '못하니까', value: 1 },
-    ],
-    [],
-  );
-
   const isDateSelected =
     radioValue !== null || (dateRange[0] !== null && dateRange[1] !== null);
 
@@ -163,7 +141,6 @@ const useDashboard = () => {
     setDiaryList,
     tabData,
     dateInfo,
-    data,
   };
 };
 

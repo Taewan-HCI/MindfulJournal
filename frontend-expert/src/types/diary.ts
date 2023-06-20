@@ -4,6 +4,24 @@ export interface Dialog {
   id: string;
 }
 
+export interface EventSummary {
+  emotion: string;
+  event: string;
+}
+
+export interface EventTimeLine extends EventSummary {
+  date: string;
+  sessionStart: number;
+}
+
+export interface WordFrequency {
+  word: string;
+  count: number;
+  /** 해당 단어의 감정 상태, '긍정', '부정', '중립', '위험'중 하나 */
+  sentiment: WordSentiment;
+}
+export type WordSentiment = '긍정' | '부정' | '중립' | '위험';
+
 export interface DiaryInfo {
   /** 일기 ID */
   sessionNumber: string;
@@ -25,6 +43,10 @@ export interface DiaryInfo {
   phq9score?: number;
   /** PHQ-9 항목별 점수 어레이  */
   phq_item?: number[];
+  /** 이벤트 요약 */
+  eventSummary?: EventSummary[];
+  /** 단어 출현 빈도 */
+  wordFrequency?: WordFrequency[];
 }
 
 export interface Diary extends DiaryInfo {

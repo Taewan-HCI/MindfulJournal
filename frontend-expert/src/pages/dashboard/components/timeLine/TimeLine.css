@@ -22,3 +22,7 @@
   width: 11px;
   content: '';
 }
+
+.word-break {
+  word-break: keep-all;
+}

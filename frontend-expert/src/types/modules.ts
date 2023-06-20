@@ -14,3 +14,8 @@ export interface ModuleData {
   duration: DurationData[];
   phqScore: PHQData[];
 }
+
+export interface WordCloudData {
+  text: string;
+  value: number;
+}
