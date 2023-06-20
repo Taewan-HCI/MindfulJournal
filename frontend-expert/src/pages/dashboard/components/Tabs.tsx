@@ -37,7 +37,7 @@ function TabContent({ tab, data }: { tab: string | null; data: ModuleData }) {
     );
 
     const averageLength = Math.ceil(
-      data.length.reduce((sum, currValue) => sum + currValue.length, 0) /
+      data.duration.reduce((sum, currValue) => sum + currValue.length, 0) /
         data.duration.length,
     );
 
@@ -64,11 +64,11 @@ function TabContent({ tab, data }: { tab: string | null; data: ModuleData }) {
 
   return (
     <>
-      <Card.Title>평균 작성 일기 길이</Card.Title>
+      <Card.Title>종합 PHQ9 점수</Card.Title>
       <TimeSeriesChart
-        data={data.length}
-        xkey={['length']}
-        labelFormatter={(value: number | string) => `${value}자`}
+        data={data.phqScore}
+        xkey={['phq9score']}
+        labelFormatter={(value: number | string) => `${value}점`}
       />
     </>
   );

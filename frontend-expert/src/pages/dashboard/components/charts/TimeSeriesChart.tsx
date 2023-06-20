@@ -13,11 +13,11 @@ import {
   ComposedChart,
   Line,
 } from 'recharts';
-import { DurationData, LengthData } from 'types/modules';
+import { DurationData, PHQData } from 'types/modules';
 import { toStringDateByFormatting, toStringTimeByFormatting } from 'utils/date';
 
 interface ChartProps {
-  data: DurationData[] | LengthData[];
+  data: DurationData[] | PHQData[];
   xkey: string[];
   labelFormatter?: (v: number | string, n: string) => string;
 }

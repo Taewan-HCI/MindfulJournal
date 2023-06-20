@@ -246,7 +246,7 @@ def length_betweendate(patientID: str, startDate: int, endDate: int):
 def download_specific_diary(patient_id: str, diaryID: str):
     doc = db.collection(u'session').document(patient_id).collection(u'diary').document(diaryID).get()
 
-    keys_to_keep = ['sessionStart', 'sessionEnd', 'operator', 'diary', 'conversation']  # the keys you want to keep
+    keys_to_keep = ['sessionStart', 'sessionEnd', 'operator', 'diary', 'conversation', 'phq_item_score', 'phq9score']  # the keys you want to keep
 
     if doc.exists:
         diary = doc.to_dict()
@@ -263,6 +263,13 @@ def download_specific_diary(patient_id: str, diaryID: str):
                         temp = len(diary['conversation'][i]['content'])
                         count = count + temp
                 diary['length'] = count
+            if 'phq_item_score' in diary:
+                phqitem = []
+                for i in range (len(diary["phq_item_score"])):
+                    temp = diary["phq_item_score"][i]['current']
+                    phqitem.append(temp)
+                diary['phq_item'] = phqitem
+                diary.pop("phq_item_score")
 
             return diary
         else:
@@ -295,6 +302,7 @@ fake_db = {
         "hashed_password": get_password_hash("MindfulDiary0529")
     }
 }
+
 
 @app.post("/token", response_model=Token)
 def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
