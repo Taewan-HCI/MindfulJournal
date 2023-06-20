@@ -1,0 +1,21 @@
+.diary {
+  transition: background-color 0.3s;
+}
+
+.diary:hover {
+  background-color: #f8f9fa;
+}
+
+.text-hover:hover {
+  color: #0a58ca;
+}
+
+.text-hover {
+  color: #0d6efd;
+}
+
+.modal-vw65 {
+  width: 65vw;
+  max-width: none;
+  margin: 0 auto;
+}
