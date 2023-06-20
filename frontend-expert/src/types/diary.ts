@@ -21,11 +21,13 @@ export interface DiaryInfo {
   length: number;
   /** 사용자가 남긴 좋아요 수  */
   like?: number;
+  /** PHQ-9 종합 점수  */
+  phq9score?: number;
+  /** PHQ-9 항목별 점수 어레이  */
+  phq_item?: number[];
 }
 
 export interface Diary extends DiaryInfo {
   /** 상담사와 나눈 채팅 로그 */
   conversation: Dialog[];
-  phq9score?: number;
-  phq_item?: number[];
 }

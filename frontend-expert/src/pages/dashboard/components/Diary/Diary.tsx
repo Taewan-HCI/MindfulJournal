@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { getDiary } from 'apis/diary';
 import Skeleton from 'components/Skeleton';
+import NULL_CHRACTER from 'constants/common';
 import React, { useEffect, useState } from 'react';
 import { Accordion, Button, Card, Col, Modal, Row } from 'react-bootstrap';
 import { useLocation } from 'react-router-dom';
@@ -60,6 +61,7 @@ function DiarySkeleton() {
 function DiaryContentsModal(modalProps: ModalProps) {
   const [diary, setdiary] = useState<DiaryType>();
   const { diaryId, show, onHide } = modalProps;
+  const EMPTY_ARRAY = Array(9).fill(5, 0, 9);
 
   const location = useLocation();
   const userId = location.pathname.split('/')[2];
@@ -100,11 +102,9 @@ function DiaryContentsModal(modalProps: ModalProps) {
           <Col xs={4} className="ps-4">
             <Accordion className="sticky-top" defaultActiveKey="0">
               <Accordion.Item eventKey="0">
-                <Accordion.Header>PHQ-9 Socre</Accordion.Header>
+                <Accordion.Header>PHQ-9 Score</Accordion.Header>
                 <Accordion.Body>
-                  <PHQTabs
-                    scores={diary?.phq_item ?? [5, 5, 5, 5, 5, 5, 5, 5, 5]}
-                  />
+                  <PHQTabs scores={diary?.phq_item ?? EMPTY_ARRAY} />
                 </Accordion.Body>
               </Accordion.Item>
             </Accordion>
@@ -177,7 +177,7 @@ function Diary({ diary }: { diary: DiaryInfo }) {
             </div>
             <div className="bg-light text-primary px-2 text-center border border-white rounded">
               <small>PHQ-9</small>
-              <div>12</div>
+              <div>{diary.phq9score ?? NULL_CHRACTER}</div>
             </div>
           </div>
 

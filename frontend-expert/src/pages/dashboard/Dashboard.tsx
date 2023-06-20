@@ -74,7 +74,7 @@ function Dashboard() {
   const [diaryList, setdiaryList] = useState<DiaryInfo[]>();
   const [tabData, setTabData] = useState<ModuleData>();
 
-  const [isRecentSortOrder, setSortOrder] = useState<boolean>(false);
+  const [isRecentSortOrder, setSortOrder] = useState<boolean>(true);
   const dateInfo = useRef<number[]>([]);
 
   const location = useLocation();
@@ -304,7 +304,7 @@ function Dashboard() {
 
             <div className="mb-4">
               <div className="d-flex justify-content-between">
-                <p className="fs-5 fw-bold text-primary">작성 일기 보기 </p>
+                <p className="fs-5 fw-bold text-primary"> 작성 일기 보기 </p>
                 <SortTab
                   sortOrder={isRecentSortOrder}
                   onClick={(v: boolean) => {

@@ -10,11 +10,24 @@ import {
   toStringDateByFormatting,
   toStringTimeByFormatting,
 } from 'utils/date';
+import NULL_CHRACTER from 'constants/common';
+
+const USER_TYPE = 'user';
+const NAME = {
+  USER: '사용자',
+  ASSISTANT: '상담사',
+};
+const NAME_STYLE = {
+  USER: '',
+  ASSISTANT: 'text-primary',
+};
+const USER_STYLE = [user, NAME_STYLE.USER, NAME.USER];
+const ASSISTANT_STYLE = [assistant, NAME_STYLE.ASSISTANT, NAME.ASSISTANT];
 
 function ChatLog({ type, content }: { type: string; content: string }) {
-  const logoImage = type === 'user' ? user : assistant;
-  const nameStyle = type === 'user' ? '' : 'text-primary';
-  const authorName = type === 'user' ? '사용자' : '상담사';
+  const [logoImage, nameStyle, authorName] =
+    type === USER_TYPE ? USER_STYLE : ASSISTANT_STYLE;
+
   return (
     <div className="d-flex my-3">
       <img src={logoImage} alt="profile img" width="50" height="50" />
@@ -22,36 +35,35 @@ function ChatLog({ type, content }: { type: string; content: string }) {
         <span className={nameStyle}>
           <b>{authorName}</b>
         </span>
-        <span className="text-secondary ms-2"> 22:50 PM </span>
-
         <div>{content} </div>
       </div>
     </div>
   );
 }
 
-function EntireDiaryLogs({ diary }: { diary: Diary | undefined }) {
+function EntireDiaryLogs({ diary }: { diary: Diary }) {
   const conversation = diary?.conversation ?? [];
+
   return (
     <div className="mb-4">
       <div className="d-flex justify-content-between align-items-center mb-4 border-bottom">
         <div className=" py-2">
           <div className="fs-2">
             <b>
-              {toStringDateByFormatting(diary?.sessionStart)}{' '}
-              {toStringTimeByFormatting(diary?.sessionStart)}
+              {toStringDateByFormatting(diary.sessionStart)}{' '}
+              {toStringTimeByFormatting(diary.sessionStart)}
             </b>
           </div>
           <div className="text-secondary">
-            {secondsToTimeFormatting(diary?.duration)} 참여 · {diary?.length}자
+            {secondsToTimeFormatting(diary.duration)} 참여 · {diary.length}자
             작성
           </div>
-          <div className="text-primary"> 상담사명: {diary?.operator}</div>
+          <div className="text-primary"> 상담사명: {diary.operator}</div>
         </div>
 
         <div className="bg-light text-primary text-center border border-white rounded px-4 py-2">
           <div>PHQ-9</div>
-          <div className="fs-3">12</div>
+          <div className="fs-3">{diary.phq9score ?? NULL_CHRACTER}</div>
         </div>
       </div>
 
@@ -61,7 +73,7 @@ function EntireDiaryLogs({ diary }: { diary: Diary | undefined }) {
             <Journals />
             <span> 요약 </span>
           </Card.Title>
-          <p className="text-secondary">{diary?.diary}</p>
+          <p className="text-secondary">{diary.diary}</p>
         </Card.Body>
       </Card>
       {conversation.map((log) => (

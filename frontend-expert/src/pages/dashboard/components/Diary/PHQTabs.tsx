@@ -1,7 +1,9 @@
 /* eslint-disable react/no-array-index-key */
-import { PHQ_QUESTIONS } from 'constants/phq';
 import React from 'react';
 import { Table } from 'react-bootstrap';
+
+import NULL_CHRACTER from 'constants/common';
+import PHQ_QUESTIONS from 'constants/phqQuestions';
 
 function PHQTabs({ scores }: { scores: number[] }) {
   return (
@@ -16,7 +18,7 @@ function PHQTabs({ scores }: { scores: number[] }) {
         {scores.map((score, index) => (
           <tr key={`${score}-${index}`}>
             <td>{PHQ_QUESTIONS[index]}</td>
-            <td>{score < 5 ? score : '-'}</td>
+            <td>{score !== null && score < 5 ? score : NULL_CHRACTER}</td>
           </tr>
         ))}
       </tbody>

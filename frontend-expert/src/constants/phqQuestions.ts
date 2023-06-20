@@ -1,4 +1,5 @@
-export const PHQ_QUESTIONS = [
+/** PHQ-9 설문조사의 질문을 배열로 저장 */
+const PHQ_QUESTIONS = [
   '1. 기분이 가라앉거나, 우울하거나, 희망이 없다고 느꼈다.',
   '2. 평소 하던 일에 대한 흥미가 없어지거나 즐거움을 느끼지 못했다.',
   '3. 잠들기가 어렵거나 자주 깼다/혹은 너무 많이 잤다.',
@@ -10,9 +11,4 @@ export const PHQ_QUESTIONS = [
   '9. 차라리 죽는 것이 더 낫겠다고 생각했다/혹은 자해할 생각을 했다.',
 ];
 
-export const PHQ_RESPONSE = [
-  '전혀 그렇지 않다',
-  '가끔 그렇다',
-  '자주 그렇다',
-  '거의 항상 그렇다',
-];
+export default PHQ_QUESTIONS;
