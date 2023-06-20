@@ -4,7 +4,7 @@
 /* eslint-disable implicit-arrow-linebreak */
 import React, { useState } from 'react';
 import { Card, Nav } from 'react-bootstrap';
-import { Calendar3, Stopwatch, TextLeft } from 'react-bootstrap-icons';
+import { Calendar3, ListCheck, PencilSquare } from 'react-bootstrap-icons';
 import { ModuleData } from 'types/modules';
 import { secondsToTimeFormatting } from 'utils/date';
 import TimeSeriesChart from './charts/TimeSeriesChart';
@@ -62,9 +62,15 @@ function TabContent({ tab, data }: { tab: string | null; data: ModuleData }) {
     );
   }
 
+  const averagePHQ = Math.ceil(
+    data.phqScore.reduce((sum, currValue) => sum + currValue.phq9score, 0) /
+      data.phqScore.length,
+  );
+
   return (
     <>
       <Card.Title>종합 PHQ9 점수</Card.Title>
+      <Card.Text>평균 {averagePHQ}점 입니다.</Card.Text>
       <TimeSeriesChart
         data={data.phqScore}
         xkey={['phq9score']}
@@ -94,14 +100,14 @@ function Tabs({ tabData }: { tabData: ModuleData }) {
           </Nav.Item>
           <Nav.Item>
             <Nav.Link eventKey="avgtime">
-              <Stopwatch className="me-2" />
-              <span>진행 시간 </span>
+              <PencilSquare className="me-2" />
+              <span>참여량 </span>
             </Nav.Link>
           </Nav.Item>
           <Nav.Item>
             <Nav.Link eventKey="avglength">
-              <TextLeft className="me-2" />
-              <span>작성 분량 </span>
+              <ListCheck className="me-2" />
+              <span>PHQ-9 점수 </span>
             </Nav.Link>
           </Nav.Item>
         </Nav>
