@@ -36,10 +36,11 @@ import {
 import SortTab from './components/SortTab/SortTab';
 
 interface Data {
-  sesssionEnd: number;
+  sessionEnd: number;
   operator: string;
   duration: number;
   length: number;
+  phq9score?: number;
 }
 
 const radios = [
@@ -89,20 +90,20 @@ function Dashboard() {
         endDate,
       ).then((data) => data.num.map((date: number) => new Date(date * 1000)));
 
-      const lengthData = modulesData.diary.map((d: Data) => {
-        const { operator, duration, ...data } = d;
-        return data;
+      const durationdata = modulesData.diary.map((d: Data) => {
+        const { sessionEnd, duration, length } = d;
+        return { sessionEnd, duration, length };
       });
 
-      const durationdata = modulesData.diary.map((d: Data) => {
-        const { operator, ...data } = d;
-        return data;
+      const phqData = modulesData.diary.map((d: Data) => {
+        const { phq9score, sessionEnd } = d;
+        return { sessionEnd, phq9score };
       });
 
       const tab = {
         frequency: frequencyData,
         duration: durationdata,
-        length: lengthData,
+        phqScore: phqData,
       };
 
       toast.success('데이터를 불러왔습니다.');

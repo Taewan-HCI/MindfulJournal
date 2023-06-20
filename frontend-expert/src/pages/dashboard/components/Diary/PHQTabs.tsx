@@ -3,8 +3,7 @@ import { PHQ_QUESTIONS } from 'constants/phq';
 import React from 'react';
 import { Table } from 'react-bootstrap';
 
-function PHQTabs() {
-  const data = [1, 1, 3, 2, 1, 1, 1, 1, 1];
+function PHQTabs({ scores }: { scores: number[] }) {
   return (
     <Table striped bordered hover>
       <thead>
@@ -14,10 +13,10 @@ function PHQTabs() {
         </tr>
       </thead>
       <tbody>
-        {data.map((score, index) => (
+        {scores.map((score, index) => (
           <tr key={`${score}-${index}`}>
             <td>{PHQ_QUESTIONS[index]}</td>
-            <td>{score}</td>
+            <td>{score < 5 ? score : '-'}</td>
           </tr>
         ))}
       </tbody>

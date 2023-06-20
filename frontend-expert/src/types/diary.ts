@@ -26,4 +26,6 @@ export interface DiaryInfo {
 export interface Diary extends DiaryInfo {
   /** 상담사와 나눈 채팅 로그 */
   conversation: Dialog[];
+  phq9score?: number;
+  phq_item?: number[];
 }

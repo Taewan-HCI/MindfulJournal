@@ -4,14 +4,14 @@ import Skeleton from 'components/Skeleton';
 import React, { useEffect, useState } from 'react';
 import { Accordion, Button, Card, Col, Modal, Row } from 'react-bootstrap';
 import { useLocation } from 'react-router-dom';
-import { Diary as DiaryTepe, DiaryInfo } from 'types/diary';
+import { Diary as DiaryType, DiaryInfo } from 'types/diary';
 import {
   secondsToTimeFormatting,
   toStringDateByFormatting,
   toStringTimeByFormatting,
 } from 'utils/date';
-import EntireDiaryLogs from './EntireDiaryLogs';
 import './diary.css';
+import EntireDiaryLogs from './DiaryLogs';
 import PHQTabs from './PHQTabs';
 
 interface ModalProps {
@@ -58,7 +58,7 @@ function DiarySkeleton() {
   );
 }
 function DiaryContentsModal(modalProps: ModalProps) {
-  const [diary, setdiary] = useState<DiaryTepe>();
+  const [diary, setdiary] = useState<DiaryType>();
   const { diaryId, show, onHide } = modalProps;
 
   const location = useLocation();
@@ -102,7 +102,9 @@ function DiaryContentsModal(modalProps: ModalProps) {
               <Accordion.Item eventKey="0">
                 <Accordion.Header>PHQ-9 Socre</Accordion.Header>
                 <Accordion.Body>
-                  <PHQTabs />
+                  <PHQTabs
+                    scores={diary?.phq_item ?? [5, 5, 5, 5, 5, 5, 5, 5, 5]}
+                  />
                 </Accordion.Body>
               </Accordion.Item>
             </Accordion>

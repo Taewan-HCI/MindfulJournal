@@ -1,15 +1,16 @@
 export interface DurationData {
   sessionEnd: number;
   duration: number;
+  length: number;
 }
 
-export interface LengthData {
-  length: number;
+export interface PHQData {
+  phq9Score: number;
   sessionEnd: number;
 }
 
 export interface ModuleData {
   frequency: Date[];
   duration: DurationData[];
-  length: LengthData[];
+  phqScore: PHQData[];
 }
