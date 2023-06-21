@@ -10,6 +10,8 @@ import { secondsToTimeFormatting } from 'utils/date';
 import TimeSeriesChart from './charts/TimeSeriesChart';
 import MarkedCalander from './MarkedCalander/MarkedCalander';
 
+const SUM_INITIAL_VALUE = 0;
+
 function TabContent({ tab, data }: { tab: string | null; data: ModuleData }) {
   if (tab === null) {
     return (
@@ -32,13 +34,17 @@ function TabContent({ tab, data }: { tab: string | null; data: ModuleData }) {
 
   if (tab === 'avgtime') {
     const averageTime = Math.ceil(
-      data.duration.reduce((sum, currValue) => sum + currValue.duration, 0) /
-        data.duration.length,
+      data.duration.reduce(
+        (sum, currValue) => sum + currValue.duration,
+        SUM_INITIAL_VALUE,
+      ) / data.duration.length,
     );
 
     const averageLength = Math.ceil(
-      data.duration.reduce((sum, currValue) => sum + currValue.length, 0) /
-        data.duration.length,
+      data.duration.reduce(
+        (sum, currValue) => sum + currValue.length,
+        SUM_INITIAL_VALUE,
+      ) / data.duration.length,
     );
 
     return (
@@ -63,8 +69,10 @@ function TabContent({ tab, data }: { tab: string | null; data: ModuleData }) {
   }
 
   const averagePHQ = Math.ceil(
-    data.phqScore.reduce((sum, currValue) => sum + currValue.phq9score, 0) /
-      data.phqScore.length,
+    data.phqScore.reduce(
+      (sum, currValue) => sum + (currValue.phq9score ?? 0),
+      SUM_INITIAL_VALUE,
+    ) / data.phqScore.length,
   );
 
   return (
