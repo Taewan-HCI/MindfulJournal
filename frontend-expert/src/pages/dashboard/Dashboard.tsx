@@ -37,12 +37,6 @@ const radios = [
 
 const ButtonWithLoading = WithLoading(Button);
 
-const tooltip = (
-  <Tooltip id="tooltip">
-    <strong>Holy guacamole!</strong> Check this info.
-  </Tooltip>
-);
-
 function DiarySkeleton() {
   return (
     <div className=" p-2">
@@ -262,19 +256,52 @@ function Dashboard() {
               <ContentWithTitle title="참여 수준">
                 <Tabs tabData={tabData} />
               </ContentWithTitle>
-              <ContentWithTitle title="핵심 감정">
-                <OverlayTrigger placement="top" overlay={tooltip}>
-                  <Badge bg="primary">
-                    Beta <QuestionCircleFill />
-                  </Badge>
-                </OverlayTrigger>
-
+              <ContentWithTitle title="">
+                <p className="fs-5 fw-bold text-primary">
+                  핵심 감정
+                  <OverlayTrigger
+                    placement="top"
+                    overlay={
+                      <Tooltip>
+                        <div className="w-100">
+                          AI가 많이 등장한 단어를 분석한 결과입니다. 글자가
+                          클수록 언급 빈도가 많습니다. 붉은 글씨는 위험한
+                          단어입니다.
+                        </div>
+                      </Tooltip>
+                    }
+                  >
+                    <Badge bg="primary" className="ms-2">
+                      Beta <QuestionCircleFill />
+                    </Badge>
+                  </OverlayTrigger>
+                </p>
                 <CustomWordCloud
                   data={wordCloudData}
                   sensitiveWords={sensitiveWords}
                 />
               </ContentWithTitle>
-              <ContentWithTitle title="주요 사건 및 감정 요약">
+              <ContentWithTitle title="">
+                <p className="fs-5 fw-bold text-primary">
+                  주요 사건 및 감정 요약
+                  <OverlayTrigger
+                    placement="top"
+                    overlay={
+                      <Tooltip className="d-flex">
+                        <div>
+                          AI가 일기에 있는 주요 사건과 감정을 분석한 결과입니다.
+                          굵은 글씨는 사건에 해당하고, 그 아래 설명은 사용자의
+                          감정과 생각, 반응 등을 나타냅니다.
+                        </div>
+                      </Tooltip>
+                    }
+                  >
+                    <Badge bg="primary" className="ms-2">
+                      Beta <QuestionCircleFill />
+                    </Badge>
+                  </OverlayTrigger>
+                </p>
+
                 <Card body>
                   <TimeLine data={timeLineData ?? []} />
                 </Card>
