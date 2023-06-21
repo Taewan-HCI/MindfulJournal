@@ -3,9 +3,9 @@ import { Button, Container, Form } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import signIn from 'apis/auth';
 import diary from 'assets/image/diary.png';
 import WithLoading from 'components/Loading';
+import auth from 'apis/auth';
 
 type SignInType = {
   username: string;
@@ -14,7 +14,7 @@ type SignInType = {
 
 const ButtonWithLoading = WithLoading(Button);
 
-function Main() {
+function Main({ signIn }: { signIn: (t: string) => void }) {
   const [values, setValues] = useState<SignInType>({
     username: '',
     password: '',
@@ -32,10 +32,10 @@ function Main() {
     setIsLoading(() => true);
     e.preventDefault();
     try {
-      const data = await signIn({ ...values });
-      localStorage.setItem('accessToken', data.access_token);
+      const data = await auth.signIn({ ...values });
+      signIn(data.access_token);
       toast.success('로그인에 성공했습니다.');
-      navigate('/patients');
+      navigate('/');
     } catch (error) {
       console.error(error);
       setError(() => true);

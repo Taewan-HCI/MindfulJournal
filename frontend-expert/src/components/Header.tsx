@@ -2,7 +2,13 @@ import React from 'react';
 import { Container, Nav, Navbar, Stack } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 
-function Header() {
+function Header({
+  isLoggedIn,
+  signOut,
+}: {
+  isLoggedIn: boolean;
+  signOut: () => void;
+}) {
   const navigate = useNavigate();
 
   return (
@@ -19,26 +25,22 @@ function Header() {
               <div className="nav_title_blue">다이어리</div>
             </Stack>
           </Navbar.Brand>
+
           <Nav className="me-auto">
-            <Nav.Link
-              onClick={() => {
-                navigate('/');
-              }}
-            >
-              <div className="nav_title_black">홈</div>
-            </Nav.Link>
-            <Nav.Link
-              onClick={() => {
-                navigate('/patients');
-              }}
-            >
-              <div className="nav_title_black">환자 목록</div>
-            </Nav.Link>
-            {/* {isAuth ? (
-              <Nav.Link onClick={signUserOut}>
-                <div className="nav_title_black">로그아웃</div>
-              </Nav.Link>
-            ) : null} */}
+            {isLoggedIn ? (
+              <>
+                <Nav.Link
+                  onClick={() => {
+                    navigate('/');
+                  }}
+                >
+                  <div className="nav_title_black">홈</div>
+                </Nav.Link>
+                <Nav.Link onClick={signOut}>
+                  <div className="nav_title_black">로그아웃</div>
+                </Nav.Link>
+              </>
+            ) : null}
           </Nav>
           <Nav>
             <Stack gap={0}>

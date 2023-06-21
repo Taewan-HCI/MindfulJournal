@@ -287,7 +287,7 @@ function Dashboard() {
                   <OverlayTrigger
                     placement="top"
                     overlay={
-                      <Tooltip className="d-flex">
+                      <Tooltip>
                         <div>
                           AI가 일기에 있는 주요 사건과 감정을 분석한 결과입니다.
                           굵은 글씨는 사건에 해당하고, 그 아래 설명은 사용자의
