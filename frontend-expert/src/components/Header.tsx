@@ -1,5 +1,6 @@
 import React from 'react';
 import { Container, Nav, Navbar, Stack } from 'react-bootstrap';
+import { BoxArrowRight } from 'react-bootstrap-icons';
 import { useNavigate } from 'react-router-dom';
 
 function Header({
@@ -28,26 +29,24 @@ function Header({
 
           <Nav className="me-auto">
             {isLoggedIn ? (
-              <>
-                <Nav.Link
-                  onClick={() => {
-                    navigate('/');
-                  }}
-                >
-                  <div className="nav_title_black">홈</div>
-                </Nav.Link>
-                <Nav.Link onClick={signOut}>
-                  <div className="nav_title_black">로그아웃</div>
-                </Nav.Link>
-              </>
+              <Nav.Link
+                onClick={() => {
+                  navigate('/');
+                }}
+              >
+                <div className="nav_title_black">환자 목록</div>
+              </Nav.Link>
             ) : null}
           </Nav>
           <Nav>
-            <Stack gap={0}>
-              <div className="nav_title_blue">
-                <b>전문가용 화면입니다.</b>
-              </div>
-            </Stack>
+            {isLoggedIn ? (
+              <Nav.Link onClick={signOut}>
+                <div className="nav_title_black">
+                  <BoxArrowRight />
+                  <span className="ms-2">로그아웃</span>
+                </div>
+              </Nav.Link>
+            ) : null}
           </Nav>
         </Container>
       </Navbar>
