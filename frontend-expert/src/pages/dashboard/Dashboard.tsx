@@ -19,6 +19,7 @@ import WithLoading from 'components/Loading';
 import Skeleton from 'components/Skeleton';
 import { toStringDateByFormatting } from 'utils/date';
 import { EventTimeLine } from 'types/diary';
+import { CombinedWordFrequency } from 'types/modules';
 import {
   DateRangePicker,
   Diary,
@@ -77,20 +78,23 @@ function Dashboard() {
 
     const dangerWords: string[] = [];
 
-    const wordFrequency = diaryList.reduce((acc: any, cur) => {
-      if (
-        cur.wordFrequency !== undefined &&
-        typeof cur.wordFrequency !== 'string'
-      ) {
-        cur.wordFrequency.forEach((frequency) => {
-          if (frequency.sentiment === '위험') {
-            dangerWords.push(frequency.word);
-          }
-          acc[frequency.word] = (acc[frequency.word] ?? 0) + frequency.count;
-        });
-      }
-      return acc;
-    }, {});
+    const wordFrequency = diaryList.reduce(
+      (acc: CombinedWordFrequency, cur) => {
+        if (
+          cur.wordFrequency !== undefined &&
+          typeof cur.wordFrequency !== 'string'
+        ) {
+          cur.wordFrequency.forEach((frequency) => {
+            if (frequency.sentiment === '위험') {
+              dangerWords.push(frequency.word);
+            }
+            acc[frequency.word] = (acc[frequency.word] ?? 0) + frequency.count;
+          });
+        }
+        return acc;
+      },
+      {},
+    );
 
     const timeLine = diaryList.reduce((acc: EventTimeLine[], cur) => {
       if (

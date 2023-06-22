@@ -19,3 +19,5 @@ export interface WordCloudData {
   text: string;
   value: number;
 }
+
+export type CombinedWordFrequency = { [key: string]: number };
