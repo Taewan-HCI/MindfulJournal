@@ -29,7 +29,7 @@ function App() {
       <Routes>
         {isLoggedIn ? (
           <>
-            <Route path="/" element={<PatientsList />} />
+            <Route path="/*" element={<PatientsList />} />
             <Route path="/dashboard/:id" element={<Dashboard />} />
           </>
         ) : (

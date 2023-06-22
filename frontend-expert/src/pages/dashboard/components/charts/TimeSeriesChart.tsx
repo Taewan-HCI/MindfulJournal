@@ -70,7 +70,7 @@ function TimeSeriesChart({
           <>
             <Bar dataKey={xkey[1]} fill={CHART_COLOR[1]} yAxisId={Y_AXIS[1]} />
             <Line
-              type="monotone"
+              type="linear"
               dataKey={xkey[0]}
               stroke={CHART_COLOR[0]}
               yAxisId={Y_AXIS[0]}

@@ -7,9 +7,9 @@ function TimeLine({ data }: { data: EventTimeLine[] }) {
     <ul className="timeline">
       {data.map((d) => (
         <li className="timeline-item mb-5" key={d.sessionStart}>
-          <p className="text-muted ">{d.date}</p>
+          <p className="text-muted">{d.date}</p>
           <h6 className="fw-bold word-break">{d.event}</h6>
-          <p className="word-break">{d.emotion}</p>
+          <p className="word-break bg-light p-3">{d.emotion}</p>
         </li>
       ))}
     </ul>

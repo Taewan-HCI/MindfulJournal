@@ -309,10 +309,9 @@ function Dashboard() {
                     </Badge>
                   </OverlayTrigger>
                 </p>
-
-                <Card body>
+                <div className="px-2">
                   <TimeLine data={timeLineData ?? []} />
-                </Card>
+                </div>
               </ContentWithTitle>
             </Col>
           )}
