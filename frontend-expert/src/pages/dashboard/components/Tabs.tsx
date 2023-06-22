@@ -68,7 +68,9 @@ function TabContent({ tab, data }: { tab: string | null; data: ModuleData }) {
     );
   }
 
-  const validPHQ = data.phqScore.filter((e) => e.phq9score !== 0);
+  const validPHQ = data.phqScore.filter(
+    (e) => e.phq9score !== 0 && e.phq9score !== undefined,
+  );
 
   const averagePHQ = Math.ceil(
     data.phqScore.reduce(

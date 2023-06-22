@@ -5,7 +5,7 @@ export interface DurationData {
 }
 
 export interface PHQData {
-  phq9score: number;
+  phq9score: number | undefined;
   sessionEnd: number;
 }
 
