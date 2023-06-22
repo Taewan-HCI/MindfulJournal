@@ -1,6 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { getDiary } from 'apis/diary';
-import Skeleton from 'components/Skeleton';
 import NULL_CHRACTER from 'constants/common';
 import React, { useEffect, useState } from 'react';
 import { Accordion, Button, Card, Col, Modal, Row } from 'react-bootstrap';
@@ -14,6 +13,7 @@ import {
 import './diary.css';
 import EntireDiaryLogs from './DiaryLogs';
 import PHQTabs from './PHQTabs';
+import DiarySkeleton from './Skeleton';
 
 interface ModalProps {
   onHide: () => void;
@@ -23,45 +23,10 @@ interface ModalProps {
 
 const HEART_EMOJI = '❤️';
 
-function DiarySkeletonLog() {
-  return (
-    <div className="d-flex my-4">
-      <Skeleton.Avatar />
-      <div className="w-75 ms-3 d-flex flex-column gap-2 ">
-        <div className="w-25">
-          <Skeleton.Text />
-        </div>
-        <Skeleton.Text />
-        <Skeleton.Text />
-      </div>
-    </div>
-  );
-}
-
-function DiarySkeleton() {
-  return (
-    <>
-      <div className="border-bottom mb-4 py-2">
-        <Skeleton.Title className="mb-3" />
-        <Skeleton.Title className="mb-2" />
-      </div>
-      <Skeleton
-        backgroundColor="#f8f9fa"
-        className="p-4 d-flex flex-column gap-2"
-      >
-        <Skeleton.Title className="mb-2" />
-        <Skeleton.Text />
-        <Skeleton.Text />
-      </Skeleton>
-
-      <>{Array(6).fill(<DiarySkeletonLog />)}</>
-    </>
-  );
-}
 function DiaryContentsModal(modalProps: ModalProps) {
   const [diary, setdiary] = useState<DiaryType>();
   const { diaryId, show, onHide } = modalProps;
-  const EMPTY_ARRAY = Array(9).fill(5, 0, 9);
+  const EMPTY_ARRAY = Array(9).fill(null, 0, 9);
 
   const location = useLocation();
   const userId = location.pathname.split('/')[2];

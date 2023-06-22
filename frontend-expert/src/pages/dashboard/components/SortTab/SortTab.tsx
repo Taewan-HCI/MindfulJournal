@@ -10,12 +10,17 @@ interface SortTabProps {
   onClick: (v: boolean) => void;
   sortOrder: boolean;
 }
+/**
+ * 최신순, 오래된순으로 정렬하는 탭이다.
+ */
 function SortTab({ onClick, sortOrder }: SortTabProps) {
+  const ACTIVE = 'active';
+  const INACTIVE = '';
   return (
     <ul className="sort-option">
       <li
         className={`sort-option ${
-          sortOrder === SORT_ORDER.newest ? 'active' : ''
+          sortOrder === SORT_ORDER.newest ? ACTIVE : INACTIVE
         }`}
         onClick={() => onClick(SORT_ORDER.newest)}
         role="presentation"
@@ -24,7 +29,7 @@ function SortTab({ onClick, sortOrder }: SortTabProps) {
       </li>
       <li
         className={`sort-option ${
-          sortOrder === SORT_ORDER.oldest ? 'active' : ''
+          sortOrder === SORT_ORDER.oldest ? ACTIVE : INACTIVE
         }`}
         onClick={() => onClick(SORT_ORDER.oldest)}
         role="presentation"

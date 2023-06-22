@@ -11,19 +11,12 @@ import {
   toStringTimeByFormatting,
 } from 'utils/date';
 import NULL_CHRACTER from 'constants/common';
+import { NAME, NAME_STYLE, USER_TYPE } from 'constants/diary';
 
-const USER_TYPE = 'user';
-const NAME = {
-  USER: '사용자',
-  ASSISTANT: '상담사',
-};
-const NAME_STYLE = {
-  USER: '',
-  ASSISTANT: 'text-primary',
-};
 const USER_STYLE = [user, NAME_STYLE.USER, NAME.USER];
 const ASSISTANT_STYLE = [assistant, NAME_STYLE.ASSISTANT, NAME.ASSISTANT];
 
+/** 다어어리 모달에 채팅을 나타내는 컴포넌트. */
 function ChatLog({ type, content }: { type: string; content: string }) {
   const [logoImage, nameStyle, authorName] =
     type === USER_TYPE ? USER_STYLE : ASSISTANT_STYLE;
@@ -41,8 +34,9 @@ function ChatLog({ type, content }: { type: string; content: string }) {
   );
 }
 
+/** 다어어리 모달 안에 들어가는 부분이다. */
 function EntireDiaryLogs({ diary }: { diary: Diary }) {
-  const conversation = diary?.conversation ?? [];
+  const conversation = diary.conversation ?? [];
 
   return (
     <div className="mb-4">
