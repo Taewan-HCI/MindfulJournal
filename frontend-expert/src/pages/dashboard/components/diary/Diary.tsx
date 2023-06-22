@@ -144,6 +144,8 @@ function DiaryContents({ text }: { text: string }) {
 
 function Diary({ diary }: { diary: DiaryInfo }) {
   const [modalShow, setModalShow] = useState(false);
+  const isValidPHQScore: boolean =
+    diary.phq9score !== undefined && diary.phq9score >= 4;
 
   return (
     <>
@@ -177,7 +179,7 @@ function Diary({ diary }: { diary: DiaryInfo }) {
             </div>
             <div className="bg-light text-primary px-2 text-center border border-white rounded">
               <small>PHQ-9</small>
-              <div>{diary.phq9score ?? NULL_CHRACTER}</div>
+              <div>{isValidPHQScore ? diary.phq9score : NULL_CHRACTER}</div>
             </div>
           </div>
 

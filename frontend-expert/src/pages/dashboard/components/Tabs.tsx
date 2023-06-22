@@ -68,11 +68,13 @@ function TabContent({ tab, data }: { tab: string | null; data: ModuleData }) {
     );
   }
 
+  const validPHQ = data.phqScore.filter((e) => e.phq9score !== 0);
+
   const averagePHQ = Math.ceil(
     data.phqScore.reduce(
       (sum, currValue) => sum + (currValue.phq9score ?? 0),
       SUM_INITIAL_VALUE,
-    ) / data.phqScore.length,
+    ) / validPHQ.length,
   );
 
   return (
