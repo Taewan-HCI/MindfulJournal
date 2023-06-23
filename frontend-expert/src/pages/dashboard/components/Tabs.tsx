@@ -22,29 +22,31 @@ function TabContent({ tab, data }: { tab: string | null; data: ModuleData }) {
     );
   }
 
+  const { frequency, duration, phqScore } = data;
+
   if (tab === 'frequency') {
     return (
       <>
         <Card.Title>총 참여 횟수</Card.Title>
-        <Card.Text>총 {data.frequency.length}회 참여했습니다.</Card.Text>
-        <MarkedCalander mark={data.frequency} />
+        <Card.Text>총 {frequency.length}회 참여했습니다.</Card.Text>
+        <MarkedCalander mark={frequency} />
       </>
     );
   }
 
   if (tab === 'avgtime') {
     const averageTime = Math.ceil(
-      data.duration.reduce(
+      duration.reduce(
         (sum, currValue) => sum + currValue.duration,
         SUM_INITIAL_VALUE,
-      ) / data.duration.length,
+      ) / duration.length,
     );
 
     const averageLength = Math.ceil(
-      data.duration.reduce(
+      duration.reduce(
         (sum, currValue) => sum + currValue.length,
         SUM_INITIAL_VALUE,
-      ) / data.duration.length,
+      ) / duration.length,
     );
 
     return (
@@ -55,7 +57,7 @@ function TabContent({ tab, data }: { tab: string | null; data: ModuleData }) {
           자 작성했습니다.
         </Card.Text>
         <TimeSeriesChart
-          data={data.duration}
+          data={duration}
           xkey={['duration', 'length']}
           labelFormatter={(value: number | string, name: string) => {
             if (name === 'duration') {
@@ -68,12 +70,12 @@ function TabContent({ tab, data }: { tab: string | null; data: ModuleData }) {
     );
   }
 
-  const validPHQ = data.phqScore.filter(
-    (e) => e.phq9score !== 0 && e.phq9score !== undefined,
+  const validPHQ = phqScore.filter(
+    (e) => e.phq9score !== null && e.phq9score !== undefined,
   );
 
   const averagePHQ = Math.ceil(
-    data.phqScore.reduce(
+    phqScore.reduce(
       (sum, currValue) => sum + (currValue.phq9score ?? 0),
       SUM_INITIAL_VALUE,
     ) / validPHQ.length,
