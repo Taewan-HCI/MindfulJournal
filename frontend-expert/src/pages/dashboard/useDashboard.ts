@@ -24,6 +24,7 @@ interface Data {
 const useDashboard = () => {
   const [radioValue, setRadioValue] = useState<string | null>(null);
   const [dateRange, setDateRange] = useState<(null | Date)[]>([null, null]);
+  // 버튼을 눌렀을때의 로딩 표시를 위한 loading
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const [patientInfo, setPatientInfo] = useState<PatientInfo>();
@@ -35,6 +36,9 @@ const useDashboard = () => {
   const location = useLocation();
   const userId = location.pathname.split('/')[2];
 
+  /**
+   * 주어진 기간에 해당하는 데이터를 fetching
+   */
   const fetchByPeriod = async (startDate: number, endDate: number) => {
     try {
       const diaryData = await getDiarybyPeriod(userId, startDate, endDate);
@@ -55,6 +59,7 @@ const useDashboard = () => {
         return { sessionEnd, phq9score };
       });
 
+      // tab UI에 뿌릴 데이터로 변환
       const tab = {
         frequency: frequencyData,
         duration: durationdata,
@@ -74,6 +79,9 @@ const useDashboard = () => {
     setIsLoading(() => false);
   };
 
+  /**
+   * 전체 기간의 데이터를 fetching
+   */
   const fetch = async () => {
     try {
       const userData = await getPatientInfo(userId);
@@ -86,7 +94,7 @@ const useDashboard = () => {
   };
 
   useEffect(() => {
-    // 리렌더링 시, dateRange가 존재하는 경우에는 featchbyPeriod로 되게 설정
+    // 리렌더링 시, dateRange가 존재하는 경우에는 featchbyPeriod로 되게 설정 (개발 시 에러)
     const [start, end] = dateRange;
     if (start === null || end === null) {
       fetch();
@@ -97,6 +105,7 @@ const useDashboard = () => {
     }
   }, []);
 
+  // diaryList가 변화하면 리렌더링
   useEffect(() => {}, [diaryList?.toString]);
 
   /** 날짜를 선택하고 적용 버튼을 누르면 date에 해당하는 데이터를 fetching */
@@ -111,7 +120,7 @@ const useDashboard = () => {
     fetchByPeriod(startDate, endDate);
   };
 
-  /** radio(n일전)을 누르면 event target에서 value를 꺼낸 다음에 n일전에 해당하는 시작일을 계산 함  */
+  /** radio(n일전)을 누르면 event target에서 value를 꺼낸 다음에 n일전에 해당하는 시작일을 계산함  */
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const today = new Date();
     const tartgetDay = startOfDay(
@@ -137,6 +146,7 @@ const useDashboard = () => {
     const dangerWords: string[] = [];
 
     // diaryList에 있는 wordFrequency를 하나로 합쳐주는 과정
+    // 같은 단어에 대한 count value를 하나로 합쳐준다.
     const wordFrequency = diaryList.reduce(
       (acc: CombinedWordFrequency, cur) => {
         const wordFrequencyData = cur.wordFrequency;
@@ -158,7 +168,7 @@ const useDashboard = () => {
       },
       {},
     );
-
+    // diaryList에 있는 evenetsummary를 timeline에 넣는 형태로 변환하는 과정
     const timeLine = diaryList.reduce((acc: EventTimeLine[], cur) => {
       const eventSummaryData = cur.eventSummary;
       const isValidData =
@@ -181,7 +191,10 @@ const useDashboard = () => {
       value: wordFrequency[key],
     }));
 
-    return [wordCloud, [...new Set(dangerWords)], timeLine.reverse()];
+    // 중복 단어 제거를 위한 Set 사용
+    const dangerWordsSet = [...new Set(dangerWords)];
+
+    return [wordCloud, dangerWordsSet, timeLine.reverse()];
   }, [diaryList]);
 
   const moduleData = { wordCloudData, sensitiveWords, timeLineData };

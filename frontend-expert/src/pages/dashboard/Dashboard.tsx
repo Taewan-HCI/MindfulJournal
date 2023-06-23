@@ -14,11 +14,9 @@ import {
 } from 'react-bootstrap';
 import { ArrowClockwise, QuestionCircleFill } from 'react-bootstrap-icons';
 
-import radios from 'constants/modules';
-import ContentWithTitle from 'components/ContentWithTitle';
+import { ContentWithTitle, RowWithTitle, Skeleton, Title } from 'components';
 import WithLoading from 'components/Loading';
-import Title from 'components/Title';
-import Skeleton from 'components/Skeleton';
+import radios from 'constants/modules';
 import { toStringDateByFormatting } from 'utils/date';
 import {
   DateRangePicker,
@@ -47,23 +45,25 @@ function DiarySkeleton() {
 }
 
 function Dashboard() {
-  const [isRecentSortOrder, setSortOrder] = useState<boolean>(true);
+  const [isRecentSortOrder, setSortOrder] = useState<boolean>(false);
   const {
     patientInfo,
-    onChange,
-    setDateRange,
-    setRadioValue,
-    isLoading,
-    onClick,
     diaryList,
-    setDiaryList,
     tabData,
     dateData,
     moduleData,
+    onChange,
+    onClick,
+    setDateRange,
+    setRadioValue,
+    setDiaryList,
+    isLoading,
   } = useDashboard();
 
   const { wordCloudData, sensitiveWords, timeLineData } = moduleData;
   const { dateRange, dateInfo, radioValue, isDateSelected } = dateData;
+
+  const { name, gender, age, recentVisitedDay } = { ...patientInfo };
 
   return (
     <div>
@@ -72,11 +72,7 @@ function Dashboard() {
           <Col xs={4}>
             <div className="d-flex justify-content-between align-items-end mb-4">
               <div className="fs-2 mt-2">
-                {patientInfo ? (
-                  <div>{`${patientInfo?.name} 님의`}</div>
-                ) : (
-                  <Skeleton.Title />
-                )}
+                {patientInfo ? <div>{`${name} 님의`}</div> : <Skeleton.Title />}
                 <b>마음챙김 다이어리</b>
               </div>
             </div>
@@ -139,27 +135,22 @@ function Dashboard() {
             <ContentWithTitle title="환자 정보">
               <Card bg="light" border="light">
                 <Card.Body>
-                  <div className="d-flex align-items-center justify-content-between py-2">
-                    <div className="text-secondary">성별/나이</div>
+                  <RowWithTitle title="성별/나이 ">
                     {patientInfo ? (
-                      <div className="fs-6 me-2">
-                        {`${patientInfo.gender}/${patientInfo.age}`}
-                      </div>
+                      <div className="fs-6 me-2">{`${gender}/${age}`}</div>
                     ) : (
                       <div className="w-25">
                         <Skeleton.Text />
                       </div>
                     )}
-                  </div>
-                  <div className="d-flex align-items-center justify-content-between py-2">
-                    <div className="text-secondary">최근 진료일</div>
+                  </RowWithTitle>
+
+                  <RowWithTitle title="최근 진료일">
                     {patientInfo ? (
                       <div className="fs-6 me-2">
                         {toStringDateByFormatting(
-                          patientInfo?.recentVisitedDay
-                            ? patientInfo.recentVisitedDay[
-                                patientInfo.recentVisitedDay.length - 1
-                              ]
+                          recentVisitedDay
+                            ? recentVisitedDay[recentVisitedDay.length - 1]
                             : 0,
                         )}
                       </div>
@@ -168,7 +159,7 @@ function Dashboard() {
                         <Skeleton.Text />
                       </div>
                     )}
-                  </div>
+                  </RowWithTitle>
                 </Card.Body>
               </Card>
             </ContentWithTitle>
