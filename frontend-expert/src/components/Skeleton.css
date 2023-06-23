@@ -1,0 +1,46 @@
+@keyframes loading {
+  0% {
+    transform: translateX(0);
+  }
+  50%,
+  100% {
+    transform: translateX(720px);
+  }
+}
+
+.skeleton-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 30px;
+  height: 100%;
+  background: linear-gradient(to right, #dee2e6, #ced4da, #dee2e6);
+  animation: loading 2s infinite linear;
+}
+
+.element {
+  overflow: hidden;
+  position: relative;
+}
+
+.text {
+  width: 100%;
+  height: 1em;
+  background-color: #e9ecef;
+  border-radius: 10px;
+}
+
+.title {
+  width: 50%;
+  height: 1.5em;
+  background-color: #e9ecef;
+  border-radius: 10px;
+}
+
+.avatar {
+  width: 5em;
+  height: 5em;
+  border-radius: 50%;
+  background-color: #e9ecef;
+}

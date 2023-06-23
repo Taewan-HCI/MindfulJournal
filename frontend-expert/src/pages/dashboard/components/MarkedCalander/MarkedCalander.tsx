@@ -1,11 +1,11 @@
-/* eslint-disable consistent-return */
-/* eslint-disable react/jsx-props-no-spreading */
-/* eslint-disable react/function-component-definition */
 import React from 'react';
 import { Calendar } from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import './MarkedCalander.css';
 
+/**
+ * mark를 표시할 date array를 넣으면 달력 날짜 위에 동그라미가 생긴다. 지정한 date 이후의 mark는 표시하지 않는다.
+ */
 function CalanderMark({
   mark,
   date,
@@ -26,6 +26,7 @@ function CalanderMark({
     html.push(<div className="dot" />);
   }
 
+  // eslint-disable-next-line consistent-return
   return (
     <div className="d-flex justify-content-center align-items-center position-absolute top-0 start-0 w-100 h-100">
       {html}

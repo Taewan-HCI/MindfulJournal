@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
-/* eslint-disable react/function-component-definition */
+
 import React, { forwardRef, useRef } from 'react';
 import { Form } from 'react-bootstrap';
 import ReactDatePicker from 'react-datepicker';
@@ -19,6 +19,7 @@ function DateRangePicker({
 }) {
   const inputRef = useRef(null);
   const [startDate, endDate] = dateRange;
+  const DAY_SECONDS = 1000 * 60 * 60 * 24;
 
   const getDateDifference = (date1: Date | null, date2: Date | null) => {
     if (date1 === null || date2 === null) {
@@ -26,7 +27,8 @@ function DateRangePicker({
     }
 
     const [time1, time2] = [date1.getTime(), date2.getTime()];
-    return `총 ${Math.floor((time2 - time1) / (1000 * 60 * 60 * 24)) + 1}일`;
+    const DAY_DIFFERENCE = Math.floor((time2 - time1) / DAY_SECONDS) + 1;
+    return `총 ${DAY_DIFFERENCE}일`;
   };
 
   return (

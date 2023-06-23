@@ -13,7 +13,7 @@ from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 
 # FastAPI 설정
-app = FastAPI()
+app = FastAPI()s
 origins = ["*", "http://localhost:3000", "https://mindful-journal-frontend-s8zk.vercel.app/"]
 app.add_middleware(
     CORSMiddleware,

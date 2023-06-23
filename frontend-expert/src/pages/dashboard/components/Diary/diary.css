@@ -1,7 +1,0 @@
-.diary {
-  transition: background-color 0.3s;
-}
-
-.diary:hover {
-  background-color: #f8f9fa;
-}
