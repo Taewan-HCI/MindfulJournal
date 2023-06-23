@@ -74,21 +74,18 @@ def get_word_frequency(text):
     )
     answer = completion
     result = answer["choices"][0]["message"]['content']
-    
-    try:
-        json_data = json.loads(result.replace("\'", "\""))
-        return_json = []
+
+    json_data = json.loads(result.replace("\'", "\""))
+    return_json = []
         
-        주요품사 = ['NNG', 'NNP', 'VV', 'VA', 'XR', 'SL']
+    주요품사 = ['NNG', 'NNP', 'VV', 'VA', 'XR', 'SL']
         
-        #kiwi를 사용해서 한번 더 후처리
-        for j in json_data : 
-            t = kiwi.tokenize(j['word'])
-            if t[0].tag in 주요품사:
-                return_json.append(j)
-        return return_json 
-    except:
-        return "word frequency return format error"
+    #kiwi를 사용해서 한번 더 후처리
+    for j in json_data : 
+        t = kiwi.tokenize(j['word'])
+        if t[0].tag in 주요품사:
+            return_json.append(j)
+    return return_json 
     
 #text를 넣으면 event/ emotion&thought를 분석한 다음 {event: event, emotion: emotion} 형식으로 리턴하는 함수
 def get_event_summary(text):
@@ -107,16 +104,14 @@ def get_event_summary(text):
     answer = completion
     result = answer["choices"][0]["message"]['content']
     
-    try:
-        event = result.split('Event:')[1].split('Emotion/Thought:')[0]
-        emotion = result.split('Event:')[1].split('Emotion/Thought:')[1]
-        event_summary = {
-            "event": event,
-            "emotion": emotion
-        }
-        return event_summary
-    except:
-        return "event summary format return format error"
+
+    event = result.split('Event:')[1].split('Emotion/Thought:')[0]
+    emotion = result.split('Event:')[1].split('Emotion/Thought:')[1]
+    event_summary = {
+        "event": event,
+        "emotion": emotion
+    }
+    return event_summary
 
 #테스트용 api
 @app.get('/')
@@ -133,9 +128,22 @@ async def uploadDB(request: Request):
     
     monologue = get_monologue(user, num)
     
-    frequency = get_word_frequency(monologue)
-    summary = get_event_summary(monologue)
-    
+    for attempt in range(3):
+        try:
+            frequency = get_word_frequency(monologue)
+        except:
+            frequency = "Word Frequency Format Save Error Occured"
+        else:
+            break
+            
+    for attempt in range(3):
+        try:
+            summary = get_event_summary(monologue)
+        except:
+            summary = "Event Summary Format Save Error Occured"
+        else:
+            break
+
     uploadFirebase(user, num, frequency, summary)
     
     end_time = time.time()
@@ -150,6 +158,7 @@ async def analysis(request: Request):
     diary = body['text']
     
     result = get_word_frequency(diary)
+    
     end_time = time.time()
     print(f"{end_time - start_time:.5f} sec")
 
@@ -163,6 +172,7 @@ async def analysis(request: Request):
     text = body['text']
     
     result = get_event_summary(text)
+    
     end_time = time.time()
     print(f"{end_time - start_time:.5f} sec")
     return result

@@ -246,6 +246,23 @@ function Writing(props) {
         setSurveyReady(true)
     }
 
+    function sendEmail() {
+        const to = 'taewan@kaist.ac.kr';
+        const subject = '[마음챙김]' + props.userMail + '새로운 일기 작성 ';
+        const body = '새로운 일기가 작성됨. 사용자id: ' + props.userMail;
+
+        fetch('https://algodiary--xpgmf.run.goorm.site/send-email', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({to, subject, body}),
+        })
+            .then(response => response.json())
+            .then(data => console.log(data))
+            .catch((error) => console.error('Error:', error));
+    }
+
     async function submitDiary2() {
         await setDoc(doc(db, "session", props.userMail, "diary", session), {
             sessionEnd: Math.floor(Date.now() / 1000),
@@ -704,6 +721,7 @@ function Writing(props) {
                                     const newSession = String(Math.floor(Date.now() / 1000));
                                     setSession(newSession)
                                     createNewDoc(newSession)
+                                    sendEmail()
                                 }}
                             >📝일기 작성하기
                             </Button>
