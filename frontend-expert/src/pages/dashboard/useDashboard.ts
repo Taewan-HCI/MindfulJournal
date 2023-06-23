@@ -1,15 +1,15 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { toast } from 'react-toastify';
 
 import { getPatientInfo } from 'apis/patients';
 import { getFrequencybyPeriod, getLengthbyPeriod } from 'apis/modules';
 import { getDiarybyPeriod, getDiaryList } from 'apis/diary';
-import { DatetoUnixTimeStamp } from 'utils/date';
+import { DatetoUnixTimeStamp, toStringDateByFormatting } from 'utils/date';
 import { PatientInfo } from 'types/patient';
-import { DiaryInfo } from 'types/diary';
-import { ModuleData } from 'types/modules';
+import { DiaryInfo, EventTimeLine } from 'types/diary';
+import { CombinedWordFrequency, ModuleData } from 'types/modules';
 import { useLocation } from 'react-router-dom';
 import { endOfDay, startOfDay } from 'date-fns';
 
@@ -99,6 +99,7 @@ const useDashboard = () => {
 
   useEffect(() => {}, [diaryList?.toString]);
 
+  /** 날짜를 선택하고 적용 버튼을 누르면 date에 해당하는 데이터를 fetching */
   const onClick = () => {
     setIsLoading(() => true);
     if (dateRange[0] === null || dateRange[1] === null) {
@@ -110,6 +111,7 @@ const useDashboard = () => {
     fetchByPeriod(startDate, endDate);
   };
 
+  /** radio(n일전)을 누르면 event target에서 value를 꺼낸 다음에 n일전에 해당하는 시작일을 계산 함  */
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const today = new Date();
     const tartgetDay = startOfDay(
@@ -127,20 +129,76 @@ const useDashboard = () => {
   const isDateSelected =
     radioValue !== null || (dateRange[0] !== null && dateRange[1] !== null);
 
+  const [wordCloudData, sensitiveWords, timeLineData] = useMemo(() => {
+    if (diaryList === null || diaryList === undefined) {
+      return [[], []];
+    }
+
+    const dangerWords: string[] = [];
+
+    // diaryList에 있는 wordFrequency를 하나로 합쳐주는 과정
+    const wordFrequency = diaryList.reduce(
+      (acc: CombinedWordFrequency, cur) => {
+        const wordFrequencyData = cur.wordFrequency;
+        const isValidData =
+          wordFrequencyData !== undefined &&
+          typeof wordFrequencyData !== 'string';
+
+        if (isValidData) {
+          wordFrequencyData.forEach((frequency) => {
+            const { word, count, sentiment } = frequency;
+
+            if (sentiment === '위험') {
+              dangerWords.push(word);
+            }
+            acc[word] = (acc[word] ?? 0) + count;
+          });
+        }
+        return acc;
+      },
+      {},
+    );
+
+    const timeLine = diaryList.reduce((acc: EventTimeLine[], cur) => {
+      const eventSummaryData = cur.eventSummary;
+      const isValidData =
+        eventSummaryData !== undefined && typeof eventSummaryData !== 'string';
+
+      if (isValidData) {
+        const eventSummary = {
+          ...eventSummaryData[0],
+          sessionStart: cur.sessionStart,
+          date: toStringDateByFormatting(cur.sessionStart),
+        };
+        acc.push(eventSummary);
+      }
+      return acc;
+    }, []);
+
+    // wordCloud 컴포넌트는 text, value형태의 값만 허용되어 해당하는 키에 맞게 매핑
+    const wordCloud = Object.keys(wordFrequency).map((key) => ({
+      text: key,
+      value: wordFrequency[key],
+    }));
+
+    return [wordCloud, [...new Set(dangerWords)], timeLine.reverse()];
+  }, [diaryList]);
+
+  const moduleData = { wordCloudData, sensitiveWords, timeLineData };
+  const dateData = { dateRange, dateInfo, radioValue, isDateSelected };
+
   return {
     patientInfo,
-    radioValue,
     onChange,
-    dateRange,
     setDateRange,
     setRadioValue,
-    isDateSelected,
     isLoading,
     onClick,
     diaryList,
     setDiaryList,
     tabData,
-    dateInfo,
+    moduleData,
+    dateData,
   };
 };
 

@@ -1,15 +1,15 @@
 import React from 'react';
+import Title from './Title';
 
-function ContentWithTitle({
-  children,
-  title,
-}: {
+interface ContentWithTitleProps {
   children: React.ReactNode;
   title: string;
-}) {
+}
+
+function ContentWithTitle({ children, title }: ContentWithTitleProps) {
   return (
     <div className="mb-4">
-      <p className="fs-5 fw-bold text-primary">{title}</p>
+      <Title title={title} />
       {children}
     </div>
   );
