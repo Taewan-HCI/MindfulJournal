@@ -164,7 +164,7 @@ function Dashboard() {
 
             <div className="mb-4">
               <div className="d-flex justify-content-between">
-                <Title title="작성 일기 보기 " />
+                <Title title="작성 일기 보기" />
                 <SortTab
                   sortOrder={isRecentSortOrder}
                   onClick={(v: boolean) => {
@@ -205,11 +205,15 @@ function Dashboard() {
                     placement="top"
                     overlay={
                       <Tooltip>
-                        <div className="w-100">
-                          AI가 많이 등장한 단어를 분석한 결과입니다. 언급 빈도가
-                          많을수록 글자 크기가 큽니다. 위험한 심리 상태를
-                          나타내는 단어는 붉은색으로 표시됩니다.
-                        </div>
+                        <p className="text-left text-break">
+                          <strong>
+                            AI가 많이 언급된 단어를 분석했습니다. 결과가
+                            정확하지 않을 수 있습니다.
+                          </strong>
+                          <br />
+                          언급 빈도가 많을수록 글자 크기가 큽니다. 위험한 심리
+                          상태를 나타내는 단어는 붉은색으로 표시됩니다.
+                        </p>
                       </Tooltip>
                     }
                   >
@@ -229,11 +233,15 @@ function Dashboard() {
                     placement="top"
                     overlay={
                       <Tooltip>
-                        <div>
-                          AI가 일기에 있는 주요 사건과 감정을 분석한 결과입니다.
-                          굵은 글씨는 사건에 해당하고, 그 아래 설명은 사용자의
+                        <p className="text-left text-break">
+                          <strong>
+                            AI가 일기의 주요 사건과 감정을 분석했습니다. 결과가
+                            정확하지 않을 수 있습니다.
+                          </strong>
+                          <br />
+                          굵은 글씨는 사건을 나타냅니다. 아래 설명은 사용자의
                           감정과 생각, 반응 등을 나타냅니다.
-                        </div>
+                        </p>
                       </Tooltip>
                     }
                   >
