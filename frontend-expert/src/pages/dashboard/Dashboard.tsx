@@ -3,7 +3,6 @@ import {
   Alert,
   Badge,
   Button,
-  ButtonGroup,
   Card,
   Col,
   Container,
@@ -78,28 +77,7 @@ function Dashboard() {
             </div>
           </Col>
           <Col xs={8} className="ps-4">
-            <Row className="mt-2">
-              <Col xs={3}>
-                <p className="fs-5 fw-bold text-primary">최근 기간 선택</p>
-              </Col>
-              <Col xs={9}>
-                <ButtonGroup size="sm">
-                  {radios.map((radio, idx) => (
-                    <ToggleButton
-                      key={radio.id}
-                      id={`radio-${idx}`}
-                      type="radio"
-                      variant="outline-primary"
-                      name="radio"
-                      value={radio.value}
-                      checked={radioValue === radio.value}
-                      onChange={onChange}
-                    >
-                      {radio.name}
-                    </ToggleButton>
-                  ))}
-                </ButtonGroup>
-              </Col>
+            <Row className="mt-4">
               <Col xs={3}>
                 <div className="fs-5 fw-bold text-primary my-auto">
                   분석할 날짜 지정
@@ -107,13 +85,33 @@ function Dashboard() {
               </Col>
               <Col xs={9} className="d-flex justify-content-between ">
                 <>
-                  <DateRangePicker
-                    dateRange={dateRange}
-                    setDateRange={(v) => {
-                      setDateRange(v);
-                      setRadioValue(null);
-                    }}
-                  />
+                  <div>
+                    <DateRangePicker
+                      dateRange={dateRange}
+                      setDateRange={(v) => {
+                        setDateRange(v);
+                        setRadioValue(null);
+                      }}
+                    />
+
+                    {radios.map((radio, idx) => (
+                      <ToggleButton
+                        key={radio.id}
+                        id={`radio-${idx}`}
+                        type="radio"
+                        variant="outline-primary"
+                        name="radio"
+                        size="sm"
+                        className="mt-2 me-2"
+                        value={radio.value}
+                        checked={radioValue === radio.value}
+                        onChange={onChange}
+                      >
+                        {radio.name}
+                      </ToggleButton>
+                    ))}
+                  </div>
+
                   <ButtonWithLoading
                     variant="primary"
                     className="my-auto"
